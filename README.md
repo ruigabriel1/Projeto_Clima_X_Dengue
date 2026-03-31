@@ -1,52 +1,59 @@
 # Projeto Clima x Dengue
 
-Analise climatico-epidemiologica para apoiar previsao de risco de dengue no Sul do Brasil.
+<p align="center">
+    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+" />
+    <img src="https://img.shields.io/badge/Regiao-Sul%20do%20Brasil-1f7a8c" alt="Regiao Sul do Brasil" />
+    <img src="https://img.shields.io/badge/Periodo%20historico-2015--2024-2a9d8f" alt="Periodo historico" />
+    <img src="https://img.shields.io/badge/Projecao-2026--2040-e76f51" alt="Projecao 2026 a 2040" />
+    <img src="https://img.shields.io/badge/Cenarios-SSP1--2.6%20%7C%20SSP2--4.5%20%7C%20SSP3--7.0%20%7C%20SSP5--8.5-264653" alt="Cenarios SSP" />
+</p>
 
-Este projeto conecta dados de clima, ENSO e dengue para transformar historico em inteligencia aplicada a saude publica.
+Plataforma de inteligencia climatico-epidemiologica para antecipar risco de dengue no Sul do Brasil.
 
-## Visao rapida
+Este projeto integra clima, ENSO e historico epidemiologico para apoiar vigilancia em saude publica com base em evidencia.
 
-- foco territorial: Regiao Sul do Brasil;
-- janela historica: 2015 a 2024;
-- janela de projecao: 2026 a 2040;
-- cenarios climaticos: SSP1-2.6, SSP2-4.5, SSP3-7.0 e SSP5-8.5;
-- entregas: mapas, tabelas consolidadas e relatorios tecnicos.
+## Resumo executivo
 
-## Problema que o projeto resolve
+O Projeto Clima x Dengue transforma dados dispersos em informacao orientada a decisao.
 
-A dengue varia no tempo e no espaco. Essa variacao e influenciada por fatores climaticos, sazonalidade e eventos como El Nino e La Nina. Sem integracao de dados, o planejamento costuma ser reativo.
+Ele foi desenhado para responder uma pergunta central:
 
-Aqui, o objetivo e antecipar sinal de risco com base em evidencias quantitativas para apoiar decisoes antes do pico dos casos.
+Como antecipar periodos e territorios de maior risco de dengue antes do pico dos casos?
 
-## Como funciona
+## O que voce encontra aqui
 
-O pipeline principal segue este fluxo:
+- pipeline completo de dados: consolidacao, processamento, validacao, analise e projecao;
+- recortes por latitude e consolidado regional;
+- mapas e paineis para leitura territorial;
+- relatorios tecnicos em formato executivo;
+- metodologia reproduzivel com documentacao de apoio.
 
-1. consolidar e validar dados epidemiologicos e climaticos;
-2. processar recortes por latitude e gerar bases analiticas;
-3. executar analises estatisticas e modelagem;
-4. projetar cenarios futuros por faixa e consolidado regional;
-5. publicar resultados em relatorios e artefatos tecnicos.
+## Impacto para a sociedade
 
-Entradas analiticas principais:
+Este repositorio foi estruturado para gerar valor pratico em saude coletiva:
+
+1. alerta antecipado: identifica janelas de maior risco com base em sinais climaticos;
+2. planejamento eficiente: orienta alocacao de equipes, insumos e campanhas;
+3. priorizacao territorial: evidencia diferencas entre municipios e faixas de latitude;
+4. transparencia tecnica: torna metodo, premissas e resultados auditaveis.
+
+Resultado esperado: reduzir tempo de reacao e melhorar a qualidade das decisoes publicas frente a surtos de dengue.
+
+## Fluxo do projeto
+
+```text
+Dados brutos -> Consolidacao -> Processamento por latitude -> Modelagem estatistica
+            -> Projecoes 2026-2040 -> Mapas e relatorios -> Apoio a decisao
+```
+
+Entradas analiticas utilizadas:
 
 - dengue mensal por municipio;
 - temperatura maxima, media e minima;
 - precipitacao;
 - indice ENSO (El Nino, La Nina e Neutro).
 
-## Valor para a sociedade
-
-O projeto foi pensado para gerar utilidade publica real:
-
-1. prevencao: melhora a capacidade de alerta precoce para periodos de maior risco;
-2. eficiencia: apoia alocacao de equipes, insumos e campanhas com base em evidencia;
-3. foco territorial: mostra diferencas regionais por latitude e por municipio;
-4. transparencia: disponibiliza metodo, fluxo e interpretacao de forma reproduzivel.
-
-Resultado esperado: reduzir tempo de resposta e elevar qualidade da tomada de decisao em saude coletiva.
-
-## Estrutura do repositorio
+## Arquitetura do repositorio
 
 ```text
 Projeto_Clima_X_Dengue/
@@ -54,64 +61,58 @@ Projeto_Clima_X_Dengue/
 │   ├── raw/                  # dados primarios (privados)
 │   ├── processed/            # bases intermediarias
 │   └── geodados/             # cache geoespacial
-├── docs/                     # guias e apoio metodologico
+├── docs/                     # guias de execucao e interpretacao
 ├── output/                   # resultados gerados
 └── src/
-    ├── analises/
-    ├── mapas/
-    ├── processamento/
-    ├── relatorios/
-    ├── validacao/
-    ├── consolidar_dados.py
-    └── pipeline.py
+        ├── analises/             # analises estatisticas
+        ├── mapas/                # mapas e paineis
+        ├── processamento/        # transformacoes e modelagem
+        ├── relatorios/           # relatorios finais
+        ├── validacao/            # verificacoes de integridade
+        ├── consolidar_dados.py
+        └── pipeline.py
 ```
 
-## Scripts de referencia
+## Scripts chave
 
-| Script | Papel no fluxo |
+| Script | Funcao |
 |---|---|
 | src/processamento/motor_lote_modelagem_v2_por_latitude.py | Motor principal de projecao por latitude |
 | src/processamento/motor_lote_modelagem_clima_saude.py | Entrada legada para o motor principal |
 | src/consolidar_dados.py | Consolidacao da base historica |
 | src/pipeline.py | Pipeline estatistico tradicional |
 
-## Inicio rapido
+## Comece em 3 passos
 
-1. Instalar dependencias
+1. Instale as dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Executar o motor principal
+2. Execute o motor principal
 
 ```bash
 python src/processamento/motor_lote_modelagem_v2_por_latitude.py
 ```
 
-3. Opcional: executar entrada legada
+3. Analise os produtos em output/projecoes_regionais e output/analise_estatistica
 
-```bash
-python src/processamento/motor_lote_modelagem_clima_saude.py
-```
+## Metodologia resumida
 
-## Metodologia em uma linha
-
-Modelo log-linear com lag climatico de 3 meses e intercepto local por municipio, combinando clima, ENSO e latitude para estimativa de casos.
-
-Forma base:
+Modelo log-linear com lag climatico de 3 meses e intercepto local por municipio:
 
 ```text
 log(Y + 1) = alpha_local
-           + beta_temp * Temp_lag3
-           + beta_prec * Prec_lag3
-           + beta_enso * ENSO_lag3
-           + beta_lat  * Latitude
+                     + beta_temp * Temp_lag3
+                     + beta_prec * Prec_lag3
+                     + beta_enso * ENSO_lag3
+                     + beta_lat  * Latitude
 ```
 
-## Saidas principais
+## Entregas do projeto
 
-Geradas principalmente em output/projecoes_regionais/ e output/analise_estatistica/.
+Principais artefatos gerados:
 
 - projecao_regiao_sul_consolidado.csv
 - projecao_latitude_*.csv
@@ -119,26 +120,26 @@ Geradas principalmente em output/projecoes_regionais/ e output/analise_estatisti
 - relatorio_executivo_completo.pdf
 - resumos tecnicos em txt e json
 
-## Privacidade e publicacao de dados
+## Documentacao
 
-Este repositorio adota publicacao seletiva.
+- [Guia de Execucao](docs/guia_execucao.md)
+- [Guia de Interpretacao](docs/guia_interpretacao.md)
+- [Instrucoes de Mapas por Latitude](docs/instrucoes_mapas_latitude.md)
 
-- dados primarios sensiveis (por exemplo, CSVs brutos) nao sao publicados;
+## Privacidade e governanca dos dados
+
+O projeto adota publicacao seletiva para proteger dados sensiveis.
+
+- dados primarios brutos nao sao publicados;
 - CSVs pesados e intermediarios de latitude sao excluidos;
-- prioridade de publicacao: codigo, documentacao e relatorios finais.
+- sao publicados codigo-fonte, documentacao e relatorios finais.
 
-As regras de exclusao estao em .gitignore.
-
-## Documentacao complementar
-
-- docs/guia_execucao.md
-- docs/guia_interpretacao.md
-- docs/instrucoes_mapas_latitude.md
+As regras estao definidas no arquivo .gitignore.
 
 ## Requisitos
 
 - Python 3.10+
-- dependencias listadas em requirements.txt
+- dependencias em requirements.txt
 
 ## Referencias
 
@@ -151,4 +152,4 @@ As regras de exclusao estao em .gitignore.
 
 ---
 
-Projeto academico com foco em impacto social, vigilancia epidemiologica e apoio a decisao baseada em dados.
+Projeto academico com foco em impacto social, vigilancia epidemiologica e decisao baseada em dados.
