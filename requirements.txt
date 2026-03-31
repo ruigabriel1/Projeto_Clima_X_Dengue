@@ -1,0 +1,19 @@
+pandas>=1.5.0
+geopandas>=0.12.0
+matplotlib>=3.5.0
+numpy>=1.21.0
+shapely>=2.0.0
+pyproj>=3.4.0
+geobr>=0.2.0
+
+# Estatística e modelagem (faltavam)
+scipy>=1.9.0
+statsmodels>=0.13.0
+scikit-learn>=1.1.0
+
+# Visualização (faltavam)
+seaborn>=0.12.0
+
+# Imagens e Excel (faltavam)
+Pillow>=9.0.0
+openpyxl>=3.0.0

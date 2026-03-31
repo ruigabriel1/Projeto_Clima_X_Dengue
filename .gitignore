@@ -1,0 +1,129 @@
+# ==============================================================================
+# Python
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# ==============================================================================
+# Saídas geradas (reproduzíveis via pipeline — não versionar)
+# ==============================================================================
+output/
+
+# ==============================================================================
+# Dados processados gerados automaticamente (opcional — mantenha se forem
+# pequenos e difíceis de reproduzir; remova se forem grandes)
+# ==============================================================================
+data/processed/
+
+# ==============================================================================
+# Caches geoespaciais gerados automaticamente pelo GeoPandas / geobr
+# ==============================================================================
+data/geodados/cache_*.gpkg
+data/geodados/cache_*.json
+
+# ==============================================================================
+# Arquivos de validação gerados em runtime
+# ==============================================================================
+validacao_*.json
+validacao_integridade_resultados.json
+
+# ==============================================================================
+# Sistema Operacional
+# ==============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==============================================================================
+# Editores e IDEs
+# ==============================================================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm / JetBrains
+.idea/
+*.iml
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# ==============================================================================
+# Arquivos grandes / binários não versionáveis
+# ==============================================================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Arquivos Office temporários
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# ==============================================================================
+# Publicação seletiva (privacidade e tamanho)
+# ==============================================================================
+# Dados primários privados
+data/raw/*.csv
+
+# Manter somente este asset em data/raw
+!data/raw/R_transparent.png
+
+# Não versionar arquivos Office completos
+*.docx
+
+# Saídas: permitir apenas relatórios finais (txt/json/pdf)
+output/*
+!output/analise_estatistica/
+!output/relatorios_latitude/
+!output/projecoes_regionais/
+
+output/analise_estatistica/*
+output/relatorios_latitude/*
+output/projecoes_regionais/*
+
+!output/analise_estatistica/*.txt
+!output/analise_estatistica/*.json
+!output/analise_estatistica/*.pdf
+
+!output/relatorios_latitude/*.pdf
+
+!output/projecoes_regionais/*.txt
+!output/projecoes_regionais/*.json
+!output/projecoes_regionais/*.pdf
+
+# Bloquear CSVs pesados e faixa de latitude
+output/csvs_latitude/
+output/csvs_latitude/**
+output/**/*.csv
