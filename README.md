@@ -1,50 +1,50 @@
 # Projeto Clima x Dengue
 
-Plataforma de analise clima-saude para apoiar projecoes de dengue na Regiao Sul do Brasil.
+Analise climatico-epidemiologica para apoiar previsao de risco de dengue no Sul do Brasil.
 
-O projeto combina epidemiologia, estatistica e geoprocessamento para transformar dados climaticos e de dengue em informacao acionavel para vigilancia, planejamento e tomada de decisao.
+Este projeto conecta dados de clima, ENSO e dengue para transformar historico em inteligencia aplicada a saude publica.
 
-## Por que este projeto importa
+## Visao rapida
 
-A dengue nao depende apenas de um fator isolado. Temperatura, chuva e variabilidade climatica em grande escala (ENSO) alteram o risco de transmissao ao longo do tempo e entre territorios.
+- foco territorial: Regiao Sul do Brasil;
+- janela historica: 2015 a 2024;
+- janela de projecao: 2026 a 2040;
+- cenarios climaticos: SSP1-2.6, SSP2-4.5, SSP3-7.0 e SSP5-8.5;
+- entregas: mapas, tabelas consolidadas e relatorios tecnicos.
 
-Este repositorio foi construido para responder a uma pergunta pratica:
+## Problema que o projeto resolve
 
-Como antecipar cenarios de risco de dengue com base em sinais climaticos e historico epidemiologico?
+A dengue varia no tempo e no espaco. Essa variacao e influenciada por fatores climaticos, sazonalidade e eventos como El Nino e La Nina. Sem integracao de dados, o planejamento costuma ser reativo.
 
-## Ideia geral
+Aqui, o objetivo e antecipar sinal de risco com base em evidencias quantitativas para apoiar decisoes antes do pico dos casos.
 
-O fluxo central do projeto e:
+## Como funciona
 
-1. consolidar e validar dados historicos de dengue e clima;
-2. gerar recortes por latitude e analises estatisticas;
-3. produzir mapas e relatorios tecnicos;
-4. projetar cenarios futuros (2026 a 2040) com base em SSPs do AR6.
+O pipeline principal segue este fluxo:
 
-Principais entradas analiticas:
+1. consolidar e validar dados epidemiologicos e climaticos;
+2. processar recortes por latitude e gerar bases analiticas;
+3. executar analises estatisticas e modelagem;
+4. projetar cenarios futuros por faixa e consolidado regional;
+5. publicar resultados em relatorios e artefatos tecnicos.
+
+Entradas analiticas principais:
 
 - dengue mensal por municipio;
-- temperatura (maxima, media e minima);
+- temperatura maxima, media e minima;
 - precipitacao;
-- indice ENSO (El Nino/La Nina/Neutro).
+- indice ENSO (El Nino, La Nina e Neutro).
 
-## Como o projeto agrega para a sociedade
+## Valor para a sociedade
 
-Este trabalho busca gerar valor publico em quatro frentes:
+O projeto foi pensado para gerar utilidade publica real:
 
-1. Saude publica preventiva: antecipa janelas de maior risco para apoiar vigilancia e resposta precoce.
-2. Gestao de recursos: ajuda a priorizar equipes, insumos e comunicacao em periodos mais criticos.
-3. Planejamento territorial: identifica diferencas regionais por latitude e por municipio, reduzindo decisoes genericas.
-4. Transparencia tecnica: organiza um pipeline reproduzivel com documentacao, metodos explicitos e relatorios interpretaveis.
+1. prevencao: melhora a capacidade de alerta precoce para periodos de maior risco;
+2. eficiencia: apoia alocacao de equipes, insumos e campanhas com base em evidencia;
+3. foco territorial: mostra diferencas regionais por latitude e por municipio;
+4. transparencia: disponibiliza metodo, fluxo e interpretacao de forma reproduzivel.
 
-Em resumo, a proposta e reduzir tempo de reacao e melhorar a qualidade da decisao publica frente a surtos de dengue.
-
-## Escopo tecnico
-
-- horizonte de projecao: 2026 a 2040;
-- cenarios climaticos: SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5;
-- recorte espacial: Regiao Sul do Brasil, com consolidado regional e faixas de latitude;
-- produtos finais: relatorios PDF, tabelas consolidadas e mapas tematicos.
+Resultado esperado: reduzir tempo de resposta e elevar qualidade da tomada de decisao em saude coletiva.
 
 ## Estrutura do repositorio
 
@@ -52,50 +52,54 @@ Em resumo, a proposta e reduzir tempo de reacao e melhorar a qualidade da decisa
 Projeto_Clima_X_Dengue/
 ├── data/
 │   ├── raw/                  # dados primarios (privados)
-│   ├── processed/            # bases intermediarias consolidadas
+│   ├── processed/            # bases intermediarias
 │   └── geodados/             # cache geoespacial
-├── docs/                     # guias de execucao e interpretacao
-├── output/                   # resultados gerados pelo pipeline
+├── docs/                     # guias e apoio metodologico
+├── output/                   # resultados gerados
 └── src/
-    ├── analises/             # analises estatisticas e relatorios
-    ├── mapas/                # geracao de mapas e paineis
-    ├── processamento/        # preparo e transformacoes de dados
-    ├── relatorios/           # montagens de relatorios
-    ├── validacao/            # checagens de consistencia
+    ├── analises/
+    ├── mapas/
+    ├── processamento/
+    ├── relatorios/
+    ├── validacao/
     ├── consolidar_dados.py
     └── pipeline.py
 ```
 
-## Scripts principais
+## Scripts de referencia
 
-- src/processamento/motor_lote_modelagem_v2_por_latitude.py
-- src/processamento/motor_lote_modelagem_clima_saude.py
-- src/pipeline.py
-- src/consolidar_dados.py
+| Script | Papel no fluxo |
+|---|---|
+| src/processamento/motor_lote_modelagem_v2_por_latitude.py | Motor principal de projecao por latitude |
+| src/processamento/motor_lote_modelagem_clima_saude.py | Entrada legada para o motor principal |
+| src/consolidar_dados.py | Consolidacao da base historica |
+| src/pipeline.py | Pipeline estatistico tradicional |
 
-## Execucao rapida
+## Inicio rapido
 
-1. Instale dependencias:
+1. Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Execute o motor principal de projecoes:
+2. Executar o motor principal
 
 ```bash
 python src/processamento/motor_lote_modelagem_v2_por_latitude.py
 ```
 
-3. Opcionalmente, rode a entrada legada:
+3. Opcional: executar entrada legada
 
 ```bash
 python src/processamento/motor_lote_modelagem_clima_saude.py
 ```
 
-## Metodologia resumida
+## Metodologia em uma linha
 
-Modelo de referencia (forma log-linear com lag climatico):
+Modelo log-linear com lag climatico de 3 meses e intercepto local por municipio, combinando clima, ENSO e latitude para estimativa de casos.
+
+Forma base:
 
 ```text
 log(Y + 1) = alpha_local
@@ -105,35 +109,25 @@ log(Y + 1) = alpha_local
            + beta_lat  * Latitude
 ```
 
-Elementos aplicados no motor:
+## Saidas principais
 
-- intercepto local por municipio;
-- lag de 3 meses para variaveis climaticas;
-- variabilidade interanual inspirada no historico;
-- projecoes com tendencia associada aos cenarios SSP;
-- faixas de incerteza nos produtos finais.
-
-## Saidas esperadas
-
-As saidas sao geradas principalmente em output/projecoes_regionais/ e output/analise_estatistica/.
-
-Exemplos:
+Geradas principalmente em output/projecoes_regionais/ e output/analise_estatistica/.
 
 - projecao_regiao_sul_consolidado.csv
 - projecao_latitude_*.csv
 - relatorio_graficos_por_latitude.pdf
 - relatorio_executivo_completo.pdf
-- resumos tecnicos em .txt e .json
+- resumos tecnicos em txt e json
 
 ## Privacidade e publicacao de dados
 
-Este repositorio adota publicacao seletiva para proteger dados primarios.
+Este repositorio adota publicacao seletiva.
 
-- arquivos brutos sensiveis (ex.: CSVs de data/raw/) nao sao publicados;
-- CSVs pesados e intermediarios de latitude tambem sao excluidos;
-- sao priorizados codigo-fonte, documentacao e relatorios finais.
+- dados primarios sensiveis (por exemplo, CSVs brutos) nao sao publicados;
+- CSVs pesados e intermediarios de latitude sao excluidos;
+- prioridade de publicacao: codigo, documentacao e relatorios finais.
 
-As regras estao configuradas em .gitignore.
+As regras de exclusao estao em .gitignore.
 
 ## Documentacao complementar
 
@@ -157,4 +151,4 @@ As regras estao configuradas em .gitignore.
 
 ---
 
-Projeto academico de modelagem climatico-epidemiologica com foco em utilidade publica.
+Projeto academico com foco em impacto social, vigilancia epidemiologica e apoio a decisao baseada em dados.
