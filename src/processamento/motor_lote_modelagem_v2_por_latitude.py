@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import re
 import json
+import textwrap
 import unicodedata
 from pathlib import Path
 from dataclasses import dataclass
@@ -27,16 +28,18 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from matplotlib.backends.backend_pdf import PdfPages
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 # ========================= CONFIGURACOES GERAIS =========================
 ROOT_DATA_DIR = Path(r"c:\Users\ruiga\OneDrive\Documents\Projeto_Clima_X_Dengue")
 
-TRAIN_START = 2014
+TRAIN_START = 2015
 TRAIN_END = 2024
 CALIBRATION_YEAR = 2025
-PROJECTION_START = 2026
+PROJECTION_START = 2025
 PROJECTION_END = 2040
 
 ARAPONGAS_LAT = -23.42
@@ -49,6 +52,10 @@ BETA_ENSO = 0.043
 BETA_LAT = 0.142
 
 EPS = 1e-9
+
+# Controle de continuidade entre observado (2024) e primeira projeção (2025)
+CONTINUITY_FLOOR_2025 = 0.75
+CONTINUITY_DECAY = 0.55
 
 SCENARIOS = {
     "ssp126": {"temp_delta_per_year": 0.02, "precip_delta_pct_per_year": 0.003, "enso_delta_per_year": 0.00},
@@ -317,7 +324,12 @@ def build_yearly_templates(city_df: pd.DataFrame) -> pd.DataFrame:
     d = d[d["year"].isin(valid_years)].copy()
     return d.sort_values(["year", "month"]).reset_index(drop=True)
 
-def predict_annual_cases_2025_no_increment(climatology: pd.DataFrame, intercept: float, latitude: float) -> float:
+def predict_annual_cases_2025_no_increment(
+    climatology: pd.DataFrame,
+    intercept: float,
+    latitude: float,
+    hist_q95: float,
+) -> float:
     d = climatology.copy().sort_values("month").reset_index(drop=True)
     d["year"] = CALIBRATION_YEAR
     d["temp"] = d["base_temp"]
@@ -341,6 +353,56 @@ def predict_annual_cases_2025_no_increment(climatology: pd.DataFrame, intercept:
         + BETA_LAT * latitude
     )
     monthly_cases = np.expm1(lp).clip(lower=0.0)
+    monthly_cap = float(hist_q95) * (1.0 + 0.04 * 1.0 * 1.0)
+    monthly_cases = np.minimum(monthly_cases, monthly_cap)
+    return float(np.nansum(monthly_cases))
+
+
+def predict_annual_cases_2025_with_increment(
+    climatology: pd.DataFrame,
+    intercept: float,
+    latitude: float,
+    cfg: Dict[str, float],
+    hist_q95: float,
+) -> float:
+    """Previsao anual de 2025 com 1 passo de incremento SSP (base 2024)."""
+    d = climatology.copy().sort_values("month").reset_index(drop=True)
+    d["year"] = CALIBRATION_YEAR
+
+    # Aplicar um incremento em 2025 sobre base 2024.
+    d["temp"] = d["base_temp"] + float(cfg["temp_delta_per_year"])
+    d["prec"] = d["base_prec"] * (1.0 + float(cfg["precip_delta_pct_per_year"]))
+    d["enso"] = d["base_enso"] + float(cfg["enso_delta_per_year"])
+
+    hist_tail = d[["month"]].copy()
+    hist_tail = hist_tail[hist_tail["month"].isin([10, 11, 12])]
+    hist_tail["year"] = CALIBRATION_YEAR - 1
+    hist_tail = hist_tail.merge(
+        climatology[["month", "base_temp", "base_prec", "base_enso"]],
+        on="month",
+        how="left",
+    )
+    hist_tail = hist_tail.rename(columns={"base_temp": "temp", "base_prec": "prec", "base_enso": "enso"})
+
+    seq = pd.concat([hist_tail[["year", "month", "temp", "prec", "enso"]], d[["year", "month", "temp", "prec", "enso"]]], ignore_index=True)
+    seq = seq.sort_values(["year", "month"]).reset_index(drop=True)
+
+    seq["temp_lag3"] = seq["temp"].shift(3)
+    seq["prec_lag3"] = seq["prec"].shift(3)
+    seq["enso_lag3"] = seq["enso"].shift(3)
+
+    pred = seq[seq["year"] == CALIBRATION_YEAR].copy()
+    lp = (
+        intercept
+        + BETA_TMED * pred["temp_lag3"]
+        + BETA_PREC * pred["prec_lag3"]
+        + BETA_ENSO * pred["enso_lag3"]
+        + BETA_LAT * latitude
+    )
+    monthly_cases = np.expm1(lp).clip(lower=0.0)
+    scenario_mult = max(float(cfg["temp_delta_per_year"]) / 0.02, 1.0)
+    monthly_cap = float(hist_q95) * (1.0 + 0.04 * scenario_mult * 1.0)
+    monthly_cases = np.minimum(monthly_cases, monthly_cap)
     return float(np.nansum(monthly_cases))
 
 def calibrate_region(panel: pd.DataFrame, local_intercepts: Dict[str, float]) -> CalibrationBundle:
@@ -367,15 +429,18 @@ def project_city(
     hist_cases = city_df[(city_df["year"] >= TRAIN_START) & (city_df["year"] <= TRAIN_END)]["dengue_cases"].dropna()
     hist_q95 = float(np.nanquantile(hist_cases, 0.95)) if not hist_cases.empty else 50.0
     hist_q95 = max(hist_q95, 10.0)
+    annual_2024_city = float(city_df[city_df["year"] == 2024]["dengue_cases"].sum())
+    cap_base = max(hist_q95, annual_2024_city / 12.0)
 
     records = []
     for scenario_name, cfg in SCENARIOS.items():
         seq = []
         for year in range(CALIBRATION_YEAR, PROJECTION_END + 1):
-            years_from_2025 = year - CALIBRATION_YEAR
-            t_delta = cfg["temp_delta_per_year"] * years_from_2025
-            p_delta = cfg["precip_delta_pct_per_year"] * years_from_2025
-            e_delta = cfg["enso_delta_per_year"] * years_from_2025
+            # Em 2025 aplica-se 1 passo de delta SSP (base 2024).
+            years_from_2024 = year - (CALIBRATION_YEAR - 1)
+            t_delta = cfg["temp_delta_per_year"] * years_from_2024
+            p_delta = cfg["precip_delta_pct_per_year"] * years_from_2024
+            e_delta = cfg["enso_delta_per_year"] * years_from_2024
 
             if template_years:
                 template_year = template_years[(year - CALIBRATION_YEAR) % len(template_years)]
@@ -401,7 +466,36 @@ def project_city(
                     "enso": base_enso + e_delta,
                 })
 
-        full = pd.DataFrame(seq).sort_values(["year", "month"]).reset_index(drop=True)
+        dfp = pd.DataFrame(seq).sort_values(["year", "month"]).reset_index(drop=True)
+
+        # Garante lag-3 completo no inicio de 2025 usando meses 10-12 de 2024.
+        if template_years:
+            template_year = template_years[0]
+            tail_rows = templates[(templates["year"] == template_year) & (templates["month"].isin([10, 11, 12]))].copy()
+            if tail_rows.empty:
+                tail_rows = clim[clim["month"].isin([10, 11, 12])].rename(
+                    columns={"base_temp": "temp_media", "base_prec": "precipitacao", "base_enso": "enso"}
+                )
+        else:
+            tail_rows = clim[clim["month"].isin([10, 11, 12])].rename(
+                columns={"base_temp": "temp_media", "base_prec": "precipitacao", "base_enso": "enso"}
+            )
+
+        pre_tail = pd.DataFrame(
+            {
+                "code": code,
+                "city_name": city_name,
+                "latitude": lat,
+                "scenario": scenario_name,
+                "year": CALIBRATION_YEAR - 1,
+                "month": tail_rows["month"].astype(int).values,
+                "temp": tail_rows["temp_media"].astype(float).values,
+                "prec": tail_rows["precipitacao"].astype(float).values,
+                "enso": tail_rows["enso"].astype(float).values,
+            }
+        )
+
+        full = pd.concat([pre_tail, dfp], ignore_index=True).sort_values(["year", "month"]).reset_index(drop=True)
         full["temp_lag3"] = full["temp"].shift(3)
         full["prec_lag3"] = full["prec"].shift(3)
         full["enso_lag3"] = full["enso"].shift(3)
@@ -422,8 +516,19 @@ def project_city(
         years_from = (fut["year"] - CALIBRATION_YEAR).astype(float)
         scenario_mult = max(cfg["temp_delta_per_year"] / 0.02, 1.0)
         cap_factor = 1.0 + (0.04 * scenario_mult * years_from)
-        monthly_cap = hist_q95 * cap_factor
+        monthly_cap = cap_base * cap_factor
         pred_cases = np.minimum(pred_cases, monthly_cap)
+
+        # Correção de continuidade: evita queda abrupta irrealista de 2024 para 2025.
+        if annual_2024_city > 0:
+            mask_2025 = fut["year"] == CALIBRATION_YEAR
+            pred_2025 = float(np.nansum(pred_cases.loc[mask_2025])) if mask_2025.any() else 0.0
+            target_2025 = annual_2024_city * CONTINUITY_FLOOR_2025
+            if pred_2025 > 0 and pred_2025 < target_2025:
+                boost = min(target_2025 / max(pred_2025, EPS), 3.0)
+                years_arr = fut["year"].to_numpy(dtype=float)
+                decay = np.exp(-CONTINUITY_DECAY * (years_arr - CALIBRATION_YEAR))
+                pred_cases = pred_cases * (1.0 + (boost - 1.0) * decay)
 
         fut["pred_cases"] = pred_cases
         fut["pred_log_y1"] = np.log1p(fut["pred_cases"])
@@ -502,21 +607,158 @@ def save_outputs_by_latitude(root_dir: Path, projections: pd.DataFrame, calibrat
     with open(out_dir / "calibracao_regional.json", "w", encoding="utf-8") as f:
         json.dump(calib_json, f, ensure_ascii=False, indent=2)
 
-    print(f"✓ {(out_dir / 'projecao_latitude_*.csv').name}: Arquivos salvos por latitude")
-    print(f"✓ {regional_path.name}: Consolidado regional")
-    print(f"✓ calibracao_regional.json: Parâmetros de calibração")
+    print(f"[OK] {(out_dir / 'projecao_latitude_*.csv').name}: Arquivos salvos por latitude")
+    print(f"[OK] {regional_path.name}: Consolidado regional")
+    print(f"[OK] calibracao_regional.json: Parâmetros de calibração")
     if removed_city_csv > 0:
-        print(f"✓ CSVs legados por cidade removidos: {removed_city_csv}")
+        print(f"[OK] CSVs legados por cidade removidos: {removed_city_csv}")
 
 
-def uncertainty_bounds(years: np.ndarray, values: np.ndarray, hist_cv: float) -> Tuple[np.ndarray, np.ndarray]:
-    horizon = years - years.min()
-    # Faixa de incerteza mais aderente a cada reta, crescendo gradualmente no horizonte.
-    base_cv = float(np.clip(hist_cv * 0.35, 0.08, 0.22))
-    margin_pct = np.clip(base_cv * (1.0 + 0.04 * horizon), 0.08, 0.45)
+def save_ml_2025_forecasts(root_dir: Path, panel: pd.DataFrame, local_intercepts: Dict[str, float]) -> None:
+    """Salva previsão anual de 2025 com e sem incremento SSP."""
+    out_dir = root_dir / "output" / "projecoes_regionais"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    rows = []
+    for code, g in panel.groupby("code"):
+        g = g.sort_values(["year", "month"]).reset_index(drop=True)
+        lat = float(g["latitude"].dropna().iloc[0]) if g["latitude"].notna().any() else ARAPONGAS_LAT
+        city_name = str(g["city_name"].iloc[0])
+        intercept = float(local_intercepts.get(code, 0.0))
+        clim = build_monthly_climatology(g)
+        if clim.empty:
+            continue
+
+        hist_cases = g[(g["year"] >= TRAIN_START) & (g["year"] <= TRAIN_END)]["dengue_cases"].dropna()
+        hist_q95 = float(np.nanquantile(hist_cases, 0.95)) if not hist_cases.empty else 50.0
+        hist_q95 = max(hist_q95, 10.0)
+
+        pred_sem = predict_annual_cases_2025_no_increment(clim, intercept, lat, hist_q95)
+        rows.append(
+            {
+                "code": code,
+                "city_name": city_name,
+                "latitude": lat,
+                "year": CALIBRATION_YEAR,
+                "scenario": "sem_incremento",
+                "tipo_incremento": "sem_incremento",
+                "pred_cases": pred_sem,
+            }
+        )
+
+        for sc, cfg in SCENARIOS.items():
+            pred_com = predict_annual_cases_2025_with_increment(clim, intercept, lat, cfg, hist_q95)
+            rows.append(
+                {
+                    "code": code,
+                    "city_name": city_name,
+                    "latitude": lat,
+                    "year": CALIBRATION_YEAR,
+                    "scenario": sc,
+                    "tipo_incremento": "com_incremento_ssp",
+                    "pred_cases": pred_com,
+                }
+            )
+
+    if not rows:
+        return
+
+    df_2025 = pd.DataFrame(rows)
+    df_2025 = df_2025.sort_values(["scenario", "code"]).reset_index(drop=True)
+    df_2025.to_csv(out_dir / "previsao_ml_2025_municipios.csv", index=False, encoding="utf-8")
+
+    reg = df_2025.groupby(["year", "scenario", "tipo_incremento"], as_index=False)["pred_cases"].sum()
+    reg["regiao"] = "SUL"
+    reg.to_csv(out_dir / "previsao_ml_2025_regional.csv", index=False, encoding="utf-8")
+
+    print("[OK] previsao_ml_2025_municipios.csv: Previsão anual 2025 por município (com e sem incremento SSP)")
+    print("[OK] previsao_ml_2025_regional.csv: Previsão anual 2025 consolidada regional")
+
+
+def uncertainty_bounds(years: np.ndarray, values: np.ndarray, hist_cv: float, scenario_code: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Faixa simétrica (+/- erro%) por SSP, com erro crescente no horizonte."""
+    years = np.asarray(years, dtype=float)
+    values = np.asarray(values, dtype=float)
+    horizon = years - np.nanmin(years)
+
+    # Percentual base por cenário (menor no SSP1-2.6, maior no SSP5-8.5).
+    base_pct_map = {
+        "ssp126": 0.06,
+        "ssp245": 0.07,
+        "ssp370": 0.08,
+        "ssp585": 0.09,
+    }
+    growth_pct_map = {
+        "ssp126": 0.0025,
+        "ssp245": 0.0030,
+        "ssp370": 0.0035,
+        "ssp585": 0.0040,
+    }
+
+    base_pct = float(base_pct_map.get(scenario_code, 0.12))
+    growth_pct = float(growth_pct_map.get(scenario_code, 0.005))
+
+    # Pequeno ajuste por variabilidade historica, sem inverter ordem entre SSPs.
+    hist_adj = float(np.clip(hist_cv, 0.05, 0.60)) * 0.02
+    margin_pct = np.clip(base_pct + hist_adj + growth_pct * horizon, 0.05, 0.16)
+
     low = np.maximum(values * (1.0 - margin_pct), 0.0)
     high = values * (1.0 + margin_pct)
     return low, high
+
+
+def should_shade_scenario(scenario_code: str) -> bool:
+    """Sombras em cenários de referência, no estilo do exemplo IPCC."""
+    return scenario_code in {"ssp126", "ssp370"}
+
+
+def incidentes_formatter(x, _pos):
+    return f"{int(x):,}".replace(",", ".")
+
+
+def load_historical_incidents_from_csvs_latitude(
+    root_dir: Path,
+    lat_bins: np.ndarray,
+    model_codes: Optional[set] = None,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Carrega histórico diretamente de output/csvs_latitude para preservar integridade dos incidentes observados."""
+    csv_dir = root_dir / "output" / "csvs_latitude"
+    files = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv"))
+    if not files:
+        return pd.DataFrame(columns=["lat_faixa", "year", "incidentes"]), pd.DataFrame(columns=["year", "incidentes"])
+
+    frames = []
+    for fp in files:
+        try:
+            d = pd.read_csv(fp)
+        except Exception:
+            continue
+        required = {"CODIGO_MUNICIPIO", "ANO", "CASOS_DENGUE", "LATITUDE"}
+        if not required.issubset(set(d.columns)):
+            continue
+        part = d[["CODIGO_MUNICIPIO", "ANO", "CASOS_DENGUE", "LATITUDE"]].copy()
+        part["CODIGO_MUNICIPIO"] = part["CODIGO_MUNICIPIO"].astype(str).str.extract(r"(\d{6})", expand=False)
+        if model_codes:
+            part = part[part["CODIGO_MUNICIPIO"].isin(model_codes)].copy()
+        part["ANO"] = part["ANO"].map(to_int)
+        part["CASOS_DENGUE"] = part["CASOS_DENGUE"].map(to_float).fillna(0.0)
+        part["LATITUDE"] = part["LATITUDE"].map(to_float)
+        part = part.dropna(subset=["ANO", "LATITUDE"])
+        frames.append(part)
+
+    if not frames:
+        return pd.DataFrame(columns=["lat_faixa", "year", "incidentes"]), pd.DataFrame(columns=["year", "incidentes"])
+
+    all_hist = pd.concat(frames, ignore_index=True)
+    all_hist = all_hist[(all_hist["ANO"] >= 2015) & (all_hist["ANO"] <= 2024)].copy()
+    all_hist["lat_faixa"] = pd.cut(all_hist["LATITUDE"], bins=lat_bins, include_lowest=True)
+
+    hist_lat = all_hist.groupby(["lat_faixa", "ANO"], as_index=False, observed=False)["CASOS_DENGUE"].sum()
+    hist_lat = hist_lat.rename(columns={"ANO": "year", "CASOS_DENGUE": "incidentes"})
+
+    hist_regional = all_hist.groupby("ANO", as_index=False)["CASOS_DENGUE"].sum()
+    hist_regional = hist_regional.rename(columns={"ANO": "year", "CASOS_DENGUE": "incidentes"})
+    return hist_lat, hist_regional
 
 
 def save_pdf_reports(
@@ -532,13 +774,17 @@ def save_pdf_reports(
 
     # ======== PDF 1: Gráficos por Latitude ========
     pdf_lat_path = out_dir / "relatorio_graficos_por_latitude.pdf"
+    plt.style.use("seaborn-v0_8-whitegrid")
     hist = panel[(panel["year"] >= 2015) & (panel["year"] <= 2024)].copy()
 
     lat_bins = np.linspace(projections["latitude"].min(), projections["latitude"].max(), 9)
     projections["lat_faixa"] = pd.cut(projections["latitude"], bins=lat_bins, include_lowest=True)
     hist["lat_faixa"] = pd.cut(hist["latitude"], bins=lat_bins, include_lowest=True)
+    model_codes = set(panel["code"].astype(str).unique().tolist())
+    hist_lat_csv, hist_regional_csv = load_historical_incidents_from_csvs_latitude(root_dir, lat_bins, model_codes=model_codes)
 
     scen_order = ["ssp126", "ssp245", "ssp370", "ssp585"]
+    scen_fill_order = ["ssp585", "ssp370", "ssp245", "ssp126"]
     scen_labels = {
         "ssp126": "SSP1-2.6 (Otimista)",
         "ssp245": "SSP2-4.5 (Intermediário Baixo)",
@@ -551,29 +797,115 @@ def save_pdf_reports(
         "ssp370": "#cc7f2a",
         "ssp585": "#b24a3a",
     }
+    scen_alpha = {
+        "ssp126": 0.12,
+        "ssp245": 0.13,
+        "ssp370": 0.14,
+        "ssp585": 0.15,
+    }
 
     with PdfPages(pdf_lat_path) as pdf:
-        # Página 1: Histórico regional consolidado
-        fig, ax = plt.subplots(figsize=(14, 8))
-        hist_regional = hist.groupby("year", as_index=False)["dengue_cases"].sum()
+        # Página 1: Visão consolidada (histórico + projeção)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(17, 6.5))
+        if not hist_regional_csv.empty:
+            hist_regional = hist_regional_csv.copy()
+        else:
+            hist_regional = hist.groupby("year", as_index=False)["dengue_cases"].sum().rename(columns={"dengue_cases": "incidentes"})
 
-        ax.bar(hist_regional["year"], hist_regional["dengue_cases"], color="#2b8d8d", alpha=0.8, edgecolor="black", linewidth=1.5)
-        ax.set_title("CASOS HISTÓRICOS - REGIÃO SUL CONSOLIDADA (2015-2024)", fontsize=16, fontweight="bold")
-        ax.set_xlabel("ANO", fontsize=12, fontweight="bold")
-        ax.set_ylabel("TOTAL DE CASOS", fontsize=12, fontweight="bold")
-        ax.grid(axis="y", linestyle="--", alpha=0.35)
+        hist_regional = pd.DataFrame({"year": np.arange(2015, 2025, 1)}).merge(hist_regional, on="year", how="left")
+        hist_regional["incidentes"] = hist_regional["incidentes"].fillna(0.0)
 
-        max_year = hist_regional.loc[hist_regional["dengue_cases"].idxmax(), "year"]
-        max_cases = hist_regional["dengue_cases"].max()
-        ax.annotate(
-            f"Pico: {int(max_cases):,}",
+        ax1.fill_between(hist_regional["year"], 0.0, hist_regional["incidentes"], color="#3a9f9a", alpha=0.25)
+        ax1.plot(hist_regional["year"], hist_regional["incidentes"], color="#1f7f7a", linewidth=2.8, marker="o", markersize=5)
+        ax1.set_title("INCIDENTES HISTÓRICOS - REGIÃO SUL CONSOLIDADA (2015-2024)", fontsize=12, fontweight="bold")
+        ax1.set_xlabel("ANO", fontsize=10)
+        ax1.set_ylabel("TOTAL DE INCIDENTES", fontsize=10)
+        ax1.set_xticks(np.arange(2015, 2025, 1))
+        ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax1.grid(False)
+        ax1.grid(axis="y", linestyle="--", alpha=0.30)
+        ax1.grid(axis="x", linestyle="--", alpha=0.12)
+
+        max_year = hist_regional.loc[hist_regional["incidentes"].idxmax(), "year"]
+        max_cases = hist_regional["incidentes"].max()
+        prev_cases = float(hist_regional.loc[hist_regional["year"] == (max_year - 1), "incidentes"].sum())
+        var_pct = ((max_cases - prev_cases) / max(prev_cases, EPS)) * 100.0
+        peak_label = f"Pico: {int(max_cases):,}".replace(",", ".") + f"\n({var_pct:+.1f}% vs {int(max_year - 1)})"
+        ax1.annotate(
+            peak_label,
             xy=(max_year, max_cases),
-            xytext=(max_year - 2, max_cases * 0.75),
-            arrowprops=dict(arrowstyle="->", color="red", lw=2),
-            fontsize=11,
+            xytext=(max_year - 2.2, max_cases * 0.78),
+            arrowprops=dict(arrowstyle="->", color="red", lw=1.6),
+            fontsize=9,
             color="red",
             fontweight="bold",
         )
+
+        hist_zoom = hist_regional[hist_regional["year"] <= 2023].copy()
+        if not hist_zoom.empty and float(hist_zoom["incidentes"].max()) > 0.0:
+            iax = inset_axes(ax1, width="44%", height="40%", loc="upper left", borderpad=1.0)
+            iax.fill_between(hist_zoom["year"], 0.0, hist_zoom["incidentes"], color="#3a9f9a", alpha=0.18)
+            iax.plot(hist_zoom["year"], hist_zoom["incidentes"], color="#1f7f7a", linewidth=1.8, marker="o", markersize=2.7)
+            iax.set_xlim(2015, 2023)
+            iax.set_ylim(0.0, float(hist_zoom["incidentes"].max()) * 1.12)
+            iax.set_xticks([2015, 2019, 2023])
+            iax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+            iax.tick_params(axis="both", labelsize=7)
+            iax.grid(axis="y", linestyle="--", alpha=0.22)
+            iax.set_title("Zoom 2015-2023", fontsize=7)
+
+        proj_regional = projections.groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
+        hist_regional_series = hist_regional["incidentes"].to_numpy()
+        hist_regional_cv = float(np.std(hist_regional_series) / max(np.mean(hist_regional_series), EPS)) if len(hist_regional_series) > 1 else 0.20
+
+        hist_2024_reg = float(hist_regional.loc[hist_regional["year"] == 2024, "incidentes"].sum())
+        ax2.plot(
+            hist_regional["year"],
+            hist_regional["incidentes"],
+            color="black",
+            linewidth=2.2,
+            marker="o",
+            markersize=3,
+            label="Histórico (2015-2024)",
+            zorder=4,
+        )
+
+        for sc in scen_fill_order:
+            ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
+            if ds.empty:
+                continue
+            years_np = ds["year"].to_numpy(dtype=float)
+            vals_np = ds["pred_cases"].to_numpy(dtype=float)
+            lo, hi = uncertainty_bounds(years_np, vals_np, hist_regional_cv, sc)
+            ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
+            ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+            ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+
+        for sc in scen_order:
+            ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
+            if ds.empty:
+                continue
+            ax2.plot(
+                ds["year"],
+                ds["pred_cases"],
+                linewidth=2.3,
+                color=scen_colors[sc],
+                label=scen_labels[sc],
+                marker="o",
+                markersize=4,
+                zorder=3,
+            )
+            y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
+            ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color=scen_colors[sc], linewidth=1.2, linestyle="--", alpha=0.7, zorder=2)
+
+        ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
+        ax2.set_title(f"PROJEÇÃO - REGIÃO SUL ({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
+        ax2.set_xlabel("ANO", fontsize=10)
+        ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
+        ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
+        ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax2.grid(True, linestyle="--", alpha=0.3)
+        ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
 
         plt.tight_layout()
         pdf.savefig(fig, dpi=300)
@@ -581,47 +913,85 @@ def save_pdf_reports(
 
         # Páginas 2-9: Histórico + Projeção por latitude
         for lat_faixa in sorted(projections["lat_faixa"].dropna().unique())[:8]:
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(17, 6.5))
 
             lat_min = float(lat_faixa.left)
             lat_max = float(lat_faixa.right)
             lat_label = f"{abs(lat_min):.1f}°S a {abs(lat_max):.1f}°S"
 
             # Histórico
-            hist_lat = hist[hist["lat_faixa"] == lat_faixa].groupby("year", as_index=False)["dengue_cases"].sum()
-            ax1.bar(hist_lat["year"], hist_lat["dengue_cases"], color="#1b9e9a", alpha=0.75, edgecolor="black", linewidth=0.8)
+            if not hist_lat_csv.empty:
+                hist_lat = hist_lat_csv[hist_lat_csv["lat_faixa"] == lat_faixa].copy()
+            else:
+                hist_lat = hist[hist["lat_faixa"] == lat_faixa].groupby("year", as_index=False)["dengue_cases"].sum().rename(columns={"dengue_cases": "incidentes"})
+
+            full_years = pd.DataFrame({"year": np.arange(2015, 2025, 1)})
+            hist_lat = full_years.merge(hist_lat[["year", "incidentes"]], on="year", how="left")
+            hist_lat["incidentes"] = hist_lat["incidentes"].fillna(0.0)
+
+            ax1.fill_between(hist_lat["year"], 0.0, hist_lat["incidentes"], color="#2c908b", alpha=0.22)
+            ax1.plot(hist_lat["year"], hist_lat["incidentes"], color="#1d6e6a", linewidth=2.4, marker="o", markersize=4)
             ax1.set_title(f"HISTÓRICO - FAIXA {lat_label}\n(2015-2024)", fontsize=12, fontweight="bold")
             ax1.set_xlabel("ANO", fontsize=10)
-            ax1.set_ylabel("CASOS", fontsize=10)
-            ax1.grid(axis="y", linestyle="--", alpha=0.3)
+            ax1.set_ylabel("INCIDENTES", fontsize=10)
+            ax1.set_xticks(np.arange(2015, 2025, 1))
+            ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+            ax1.grid(False)
+            ax1.grid(axis="y", linestyle="--", alpha=0.28)
+            ax1.grid(axis="x", linestyle="--", alpha=0.10)
 
             # Projeção
             proj_lat = projections[projections["lat_faixa"] == lat_faixa].groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
 
-            for sc in scen_order:
+            # Mantém trecho histórico no painel de projeção (2015-2024), como solicitado.
+            hist_2024_lat = float(hist_lat.loc[hist_lat["year"] == 2024, "incidentes"].sum())
+            ax2.plot(
+                hist_lat["year"],
+                hist_lat["incidentes"],
+                color="black",
+                linewidth=2.0,
+                marker="o",
+                markersize=3,
+                label="Histórico (2015-2024)",
+                zorder=4,
+            )
+
+            for sc in scen_fill_order:
                 ds = proj_lat[proj_lat["scenario"] == sc].sort_values("year")
                 if not ds.empty:
-                    hist_series = hist_lat["dengue_cases"].to_numpy()
+                    hist_series = hist_lat["incidentes"].to_numpy()
                     hist_cv = float(np.std(hist_series) / max(np.mean(hist_series), EPS)) if len(hist_series) > 1 else 0.20
                     years_np = ds["year"].to_numpy(dtype=float)
                     vals_np = ds["pred_cases"].to_numpy(dtype=float)
-                    lo, hi = uncertainty_bounds(years_np, vals_np, hist_cv)
-                    ax2.fill_between(ds["year"], lo / 1_000_000.0, hi / 1_000_000.0, color=scen_colors[sc], alpha=0.16)
+                    lo, hi = uncertainty_bounds(years_np, vals_np, hist_cv, sc)
+                    ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
+                    ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+                    ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+
+            for sc in scen_order:
+                ds = proj_lat[proj_lat["scenario"] == sc].sort_values("year")
+                if not ds.empty:
                     ax2.plot(
                         ds["year"],
-                        ds["pred_cases"] / 1_000_000.0,
-                        linewidth=2.2,
+                        ds["pred_cases"],
+                        linewidth=2.3,
                         color=scen_colors[sc],
                         label=scen_labels[sc],
                         marker="o",
                         markersize=4,
+                        zorder=3,
                     )
+                    y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
+                    ax2.plot([2024, PROJECTION_START], [hist_2024_lat, y2025], color=scen_colors[sc], linewidth=1.1, linestyle="--", alpha=0.7, zorder=2)
 
-            ax2.set_title(f"PROJEÇÃO - FAIXA {lat_label}\n(2026-2040)", fontsize=12, fontweight="bold")
+            ax2.set_title(f"PROJEÇÃO - FAIXA {lat_label}\n({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
             ax2.set_xlabel("ANO", fontsize=10)
-            ax2.set_ylabel("CASOS PROJETADOS (MILHÕES)", fontsize=10)
+            ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
+            ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
+            ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
             ax2.grid(True, linestyle="--", alpha=0.3)
-            ax2.legend(loc="best", fontsize=9, frameon=True, title="Cenários")
+            ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
+            ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
 
             plt.tight_layout()
             pdf.savefig(fig, dpi=300)
@@ -630,38 +1000,103 @@ def save_pdf_reports(
         # Última página: Consolidado regional
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
-        hist_regional = hist.groupby("year", as_index=False)["dengue_cases"].sum()
-        ax1.bar(hist_regional["year"], hist_regional["dengue_cases"], color="#2b8d8d", alpha=0.8, edgecolor="black", linewidth=1)
+        if not hist_regional_csv.empty:
+            hist_regional = hist_regional_csv.copy()
+        else:
+            hist_regional = hist.groupby("year", as_index=False)["dengue_cases"].sum().rename(columns={"dengue_cases": "incidentes"})
+
+        hist_regional = pd.DataFrame({"year": np.arange(2015, 2025, 1)}).merge(hist_regional, on="year", how="left")
+        hist_regional["incidentes"] = hist_regional["incidentes"].fillna(0.0)
+
+        ax1.fill_between(hist_regional["year"], 0.0, hist_regional["incidentes"], color="#2d9590", alpha=0.25)
+        ax1.plot(hist_regional["year"], hist_regional["incidentes"], color="#1f706c", linewidth=2.7, marker="o", markersize=4)
         ax1.set_title("CONSOLIDADO HISTÓRICO - REGIÃO SUL (2015-2024)", fontsize=12, fontweight="bold")
         ax1.set_xlabel("ANO", fontsize=10)
-        ax1.set_ylabel("CASOS", fontsize=10)
-        ax1.grid(axis="y", linestyle="--", alpha=0.3)
+        ax1.set_ylabel("INCIDENTES", fontsize=10)
+        ax1.set_xticks(np.arange(2015, 2025, 1))
+        ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax1.grid(False)
+        ax1.grid(axis="y", linestyle="--", alpha=0.30)
+        ax1.grid(axis="x", linestyle="--", alpha=0.12)
+
+        max_year = hist_regional.loc[hist_regional["incidentes"].idxmax(), "year"]
+        max_cases = hist_regional["incidentes"].max()
+        prev_cases = float(hist_regional.loc[hist_regional["year"] == (max_year - 1), "incidentes"].sum())
+        var_pct = ((max_cases - prev_cases) / max(prev_cases, EPS)) * 100.0
+        peak_label = f"Pico: {int(max_cases):,}".replace(",", ".") + f"\n({var_pct:+.1f}% vs {int(max_year - 1)})"
+        ax1.annotate(
+            peak_label,
+            xy=(max_year, max_cases),
+            xytext=(max_year - 2.2, max_cases * 0.78),
+            arrowprops=dict(arrowstyle="->", color="#b24a3a", lw=1.5),
+            fontsize=8.5,
+            color="#b24a3a",
+            fontweight="bold",
+        )
+
+        hist_zoom = hist_regional[hist_regional["year"] <= 2023].copy()
+        if not hist_zoom.empty and float(hist_zoom["incidentes"].max()) > 0.0:
+            iax = inset_axes(ax1, width="44%", height="40%", loc="upper left", borderpad=1.0)
+            iax.fill_between(hist_zoom["year"], 0.0, hist_zoom["incidentes"], color="#2d9590", alpha=0.18)
+            iax.plot(hist_zoom["year"], hist_zoom["incidentes"], color="#1f706c", linewidth=1.8, marker="o", markersize=2.7)
+            iax.set_xlim(2015, 2023)
+            iax.set_ylim(0.0, float(hist_zoom["incidentes"].max()) * 1.12)
+            iax.set_xticks([2015, 2019, 2023])
+            iax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+            iax.tick_params(axis="both", labelsize=7)
+            iax.grid(axis="y", linestyle="--", alpha=0.22)
+            iax.set_title("Zoom 2015-2023", fontsize=7)
 
         proj_regional = projections.groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
-        hist_regional_series = hist_regional["dengue_cases"].to_numpy()
+        hist_regional_series = hist_regional["incidentes"].to_numpy()
         hist_regional_cv = float(np.std(hist_regional_series) / max(np.mean(hist_regional_series), EPS)) if len(hist_regional_series) > 1 else 0.20
-        for sc in scen_order:
+
+        hist_2024_reg = float(hist_regional.loc[hist_regional["year"] == 2024, "incidentes"].sum())
+        ax2.plot(
+            hist_regional["year"],
+            hist_regional["incidentes"],
+            color="black",
+            linewidth=2.2,
+            marker="o",
+            markersize=3,
+            label="Histórico (2015-2024)",
+            zorder=4,
+        )
+
+        for sc in scen_fill_order:
             ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
             if not ds.empty:
                 years_np = ds["year"].to_numpy(dtype=float)
                 vals_np = ds["pred_cases"].to_numpy(dtype=float)
-                lo, hi = uncertainty_bounds(years_np, vals_np, hist_regional_cv)
-                ax2.fill_between(ds["year"], lo / 1_000_000.0, hi / 1_000_000.0, color=scen_colors[sc], alpha=0.16)
+                lo, hi = uncertainty_bounds(years_np, vals_np, hist_regional_cv, sc)
+                ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
+                ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+                ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
+
+        for sc in scen_order:
+            ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
+            if not ds.empty:
                 ax2.plot(
                     ds["year"],
-                    ds["pred_cases"] / 1_000_000.0,
+                    ds["pred_cases"],
                     linewidth=2.2,
                     color=scen_colors[sc],
                     label=scen_labels[sc],
                     marker="s",
                     markersize=5,
+                    zorder=3,
                 )
+                y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
+                ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color=scen_colors[sc], linewidth=1.2, linestyle="--", alpha=0.7, zorder=2)
 
-        ax2.set_title("CONSOLIDADO PROJETADO - REGIÃO SUL (2026-2040)", fontsize=12, fontweight="bold")
+        ax2.set_title(f"CONSOLIDADO PROJETADO - REGIÃO SUL ({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
         ax2.set_xlabel("ANO", fontsize=10)
-        ax2.set_ylabel("CASOS PROJETADOS (MILHÕES)", fontsize=10)
+        ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
+        ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
+        ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
         ax2.grid(True, linestyle="--", alpha=0.3)
-        ax2.legend(loc="best", fontsize=9, frameon=True, title="Cenários")
+        ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
+        ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
 
         plt.tight_layout()
         pdf.savefig(fig, dpi=300)
@@ -671,132 +1106,228 @@ def save_pdf_reports(
     pdf_exec_path = out_dir / "relatorio_executivo_completo.pdf"
 
     with PdfPages(pdf_exec_path) as pdf:
-        # Página 1: Capa
+        def write_paragraph(ax_obj, text: str, y0: float, *, x0: float = 0.07, width: int = 105, fontsize: int = 10, line_h: float = 0.029, color: str = "#222222", weight: str = "normal") -> float:
+            lines = textwrap.wrap(text, width=width)
+            y = y0
+            for ln in lines:
+                ax_obj.text(x0, y, ln, fontsize=fontsize, transform=ax_obj.transAxes, color=color, fontweight=weight, va="top")
+                y -= line_h
+            return y
+
+        hist_reg = panel[(panel["year"] >= 2015) & (panel["year"] <= 2024)].groupby("year", as_index=False)["dengue_cases"].sum()
+        hist_reg = hist_reg.rename(columns={"dengue_cases": "incidentes"})
+        hist_reg = pd.DataFrame({"year": np.arange(2015, 2025, 1)}).merge(hist_reg, on="year", how="left")
+        hist_reg["incidentes"] = hist_reg["incidentes"].fillna(0.0)
+
+        proj_reg = projections.groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
+        hist_2024 = float(hist_reg.loc[hist_reg["year"] == 2024, "incidentes"].sum())
+        avg_hist = float(hist_reg["incidentes"].mean())
+        ssp126_2040 = float(proj_reg[(proj_reg["scenario"] == "ssp126") & (proj_reg["year"] == 2040)]["pred_cases"].sum())
+        ssp585_2040 = float(proj_reg[(proj_reg["scenario"] == "ssp585") & (proj_reg["year"] == 2040)]["pred_cases"].sum())
+        gap_2040 = ((ssp585_2040 - ssp126_2040) / max(ssp126_2040, EPS)) * 100.0
+        proj_2040 = projections[projections["year"] == 2040].copy()
+        proj_2040["lat_faixa"] = pd.cut(proj_2040["latitude"], bins=lat_bins, include_lowest=True)
+        lat_2040_ssp585 = (
+            proj_2040[proj_2040["scenario"] == "ssp585"]
+            .groupby("lat_faixa", as_index=False, observed=False)["pred_cases"]
+            .sum()
+            .sort_values("lat_faixa")
+        )
+        lat_2040_ssp126 = (
+            proj_2040[proj_2040["scenario"] == "ssp126"]
+            .groupby("lat_faixa", as_index=False, observed=False)["pred_cases"]
+            .sum()
+            .sort_values("lat_faixa")
+        )
+
+        # Pagina 1 - Capa (ABNT simplificado)
         fig = plt.figure(figsize=(11, 8.5))
         ax = fig.add_subplot(111)
         ax.axis("off")
+        ax.text(0.5, 0.88, "PROJETO CLIMA X DENGUE", ha="center", fontsize=24, fontweight="bold", transform=ax.transAxes, color="#1f706c")
+        ax.text(0.5, 0.81, "RELATORIO EXECUTIVO TECNICO", ha="center", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        ax.text(0.5, 0.76, f"Regiao Sul do Brasil | Horizonte {PROJECTION_START}-{PROJECTION_END}", ha="center", fontsize=11, transform=ax.transAxes)
+        ax.text(0.5, 0.13, f"Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}", ha="center", fontsize=10, transform=ax.transAxes, color="#555555")
+        plt.tight_layout()
+        pdf.savefig(fig, dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
-        ax.text(0.5, 0.90, "MOTOR DE MODELAGEM CLIMÁTICO-EPIDEMIOLÓGICA", ha="center", fontsize=18, fontweight="bold", transform=ax.transAxes)
-        ax.text(0.5, 0.85, "Projeções de Dengue - Região Sul (2026-2040)", ha="center", fontsize=14, fontweight="bold", transform=ax.transAxes, color="#2b8d8d")
-        ax.text(0.5, 0.78, "Relatório Executivo Completo", ha="center", fontsize=12, transform=ax.transAxes, style="italic")
-        ax.text(0.5, 0.70, f"Gerado em: {datetime.now().strftime('%d de %B de %Y às %H:%M')}", ha="center", fontsize=10, transform=ax.transAxes, color="gray")
-
-        y_pos = 0.60
-        summary_lines = [
-            f"• Período Histórico: 2015-2024 (10 anos)",
-            f"• Período Projeção: 2026-2040 (15 anos)",
-            f"• Municípios na Região Sul (base geográfica): {coverage.municipios_sul_total:,}",
-            f"• Municípios com dados completos no modelo: {coverage.municipios_com_dados:,}",
-            f"• Registros Mensais Treinamento: {len(panel[panel['year']<=2024]):,}",
-            f"• Cenários Climáticos: 4 (SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5)",
-            f"• Faixas de Latitude Analisadas: 8",
-            f"• Foco metodológico: apenas dados fornecidos (sem imunidade/ajustes externos)",
+        # Pagina 2 - Sumario (inicio do documento)
+        fig = plt.figure(figsize=(11, 8.5))
+        ax = fig.add_subplot(111)
+        ax.axis("off")
+        ax.text(0.5, 0.95, "SUMARIO", ha="center", fontsize=16, fontweight="bold", transform=ax.transAxes)
+        sum_items = [
+            "1 INTRODUCAO ............................................................ 3",
+            "2 OBJETIVOS ............................................................ 3",
+            "3 CONFIGURACAO DO MODELO ............................................... 4",
+            "4 METODOLOGIA .......................................................... 4",
+            "5 RESULTADOS E ANALISE ................................................. 5",
+            "6 DISCUSSAO ............................................................ 6",
+            "7 CONCLUSAO E RECOMENDACOES ............................................ 6",
+            "APENDICE A - DEFINICOES OPERACIONAIS ................................... 7",
         ]
-        for line in summary_lines:
-            ax.text(0.1, y_pos, line, fontsize=10, transform=ax.transAxes, family="monospace")
-            y_pos -= 0.04
-
+        y = 0.86
+        for item in sum_items:
+            ax.text(0.12, y, item, fontsize=11, transform=ax.transAxes, family="serif")
+            y -= 0.08
         plt.tight_layout()
         pdf.savefig(fig, dpi=300, bbox_inches="tight")
         plt.close(fig)
 
-        # Página 2: Metodologia
+        # Pagina 3 - Introducao e objetivos
         fig = plt.figure(figsize=(11, 8.5))
         ax = fig.add_subplot(111)
         ax.axis("off")
-
-        ax.text(0.5, 0.97, "METODOLOGIA", ha="center", fontsize=14, fontweight="bold", transform=ax.transAxes)
-
-        methodology_text = """1. COLETA E PRÉ-PROCESSAMENTO
-   • Dados mensais de dengue 2014-2024 (código municipal)
-   • Temperatura média, precipitação e ENSO (lag-3)
-   • Normalização e imputação de faltantes
-   • Painél integrado mensal
-
-2. MODELAGEM LOG-LINEAR
-   • log(Y+1) = α + β_temp × T_lag3 + β_prec × P_lag3 + 
-                β_enso × ENSO_lag3 + β_lat × latitude + ε
-   • Coeficientes: β_temp=0.661, β_prec=0.093, β_enso=0.043, β_lat=0.142
-   • Intercepto local (robusto, mediana de resíduos 2014-2024)
-
-3. PROJEÇÃO (2026-2040)
-    • Base interanual observada: reuso cíclico dos anos históricos (serrilhado)
-   • Método Delta: climatologia + deltas anuais por SSP
-   • SSP1-2.6: ΔT=0.02°C, ΔP=0.3% ao ano
-   • SSP2-4.5: ΔT=0.04°C, ΔP=0.6% ao ano
-   • SSP3-7.0: ΔT=0.06°C, ΔP=1.0% ao ano
-   • SSP5-8.5: ΔT=0.08°C, ΔP=1.5% ao ano
-    • Sem imunidade e sem calibração externa (apenas dados fornecidos)
-
-4. AGRUPAMENTO E SAÍDA
-   • Agregação por faixa de latitude (8 divisões)
-   • CSVs anualizados por cenário e latitude
-   • Consolidado regional
-   • Gráficos e relatório executivo"""
-
-        y_pos = 0.93
-        for line in methodology_text.split("\n"):
-            if line.strip():
-                fontsize = 9 if line.startswith("   •") else 10
-                fontweight = "bold" if line[0].isdigit() else "normal"
-                ax.text(0.08, y_pos, line, fontsize=fontsize, transform=ax.transAxes, family="monospace", fontweight=fontweight, verticalalignment="top")
-            y_pos -= 0.023
-
+        ax.text(0.07, 0.95, "1 INTRODUCAO", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        y = 0.90
+        y = write_paragraph(
+            ax,
+            "A dengue representa um desafio recorrente para a saude publica brasileira. No Sul, a variabilidade climatica interanual e a heterogeneidade territorial exigem planejamento antecipado e criterio tecnico para alocacao de recursos.",
+            y,
+            width=106,
+            fontsize=11,
+            line_h=0.032,
+        )
+        y -= 0.01
+        y = write_paragraph(
+            ax,
+            "Este relatorio foi estruturado em formato academico para documentar premissas, metodo, resultados e limites da modelagem. A narrativa foi organizada para permitir leitura por equipes tecnicas e por gestores, mantendo rastreabilidade entre graficos e decisoes.",
+            y,
+            width=106,
+            fontsize=11,
+            line_h=0.032,
+        )
+        y -= 0.02
+        ax.text(0.07, y, "2 OBJETIVOS", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        y -= 0.05
+        goals = [
+            "2.1 Estimar o comportamento historico regional de incidentes entre 2015 e 2024.",
+            f"2.2 Projetar incidentes para {PROJECTION_START}-{PROJECTION_END} em quatro cenarios SSP.",
+            "2.3 Comparar diferencas territoriais por oito faixas de latitude.",
+            "2.4 Produzir material interpretativo para apoio a vigilancia epidemiologica.",
+        ]
+        for g in goals:
+            y = write_paragraph(ax, g, y, width=104, fontsize=11, line_h=0.034)
         plt.tight_layout()
         pdf.savefig(fig, dpi=300, bbox_inches="tight")
         plt.close(fig)
 
-        # Página 3: Resultados e Conclusões
+        # Pagina 4 - Configuracao do modelo + Metodologia
         fig = plt.figure(figsize=(11, 8.5))
         ax = fig.add_subplot(111)
         ax.axis("off")
+        ax.text(0.07, 0.95, "3 CONFIGURACAO DO MODELO", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        y = 0.90
+        model_cfg = [
+            f"Janela de treino local (config): {TRAIN_START}-{TRAIN_END}.",
+            f"Ano de calibracao/projecao inicial: {CALIBRATION_YEAR}.",
+            f"Horizonte final de projecao: {PROJECTION_END}.",
+            "Cenarios ativos: SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5.",
+            "Variaveis do modelo: temperatura, precipitacao, ENSO (lag 3) e latitude.",
+            "Sem imunidade dinamica e sem calibracao exogena nesta versao.",
+        ]
+        for s in model_cfg:
+            y = write_paragraph(ax, s, y, width=104, fontsize=11, line_h=0.034)
+        y -= 0.01
+        y = write_paragraph(
+            ax,
+            "Formula estrutural: log(Y+1) = alpha_local + beta_temp*T_lag3 + beta_prec*P_lag3 + beta_enso*ENSO_lag3 + beta_lat*Latitude.",
+            y,
+            width=104,
+            fontsize=11,
+            line_h=0.034,
+        )
+        y = write_paragraph(
+            ax,
+            f"Coeficientes utilizados nesta versao: beta_temp={BETA_TMED:.3f}, beta_prec={BETA_PREC:.3f}, beta_enso={BETA_ENSO:.3f}, beta_lat={BETA_LAT:.3f}.",
+            y,
+            width=104,
+            fontsize=11,
+            line_h=0.034,
+        )
+        y -= 0.02
+        ax.text(0.07, y, "4 METODOLOGIA", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        y -= 0.05
+        methodology = [
+            "4.1 Integracao e limpeza de dados em painel mensal por municipio.",
+            "4.2 Estimacao de intercepto local robusto por serie municipal.",
+            "4.3 Aplicacao de deltas SSP sobre climatologia base 2024.",
+            "4.4 Agregacao anual por faixa de latitude e consolidado regional.",
+            "4.5 Bandas de incerteza percentuais para leitura de risco.",
+        ]
+        for m in methodology:
+            y = write_paragraph(ax, m, y, width=104, fontsize=11, line_h=0.034)
+        plt.tight_layout()
+        pdf.savefig(fig, dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
-        ax.text(0.5, 0.97, "RESULTADOS E CONCLUSÕES", ha="center", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        # Pagina 5 - Resultados regionais com figuras
+        fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(11, 8.5))
+        fig.suptitle("5 RESULTADOS E ANALISE", fontsize=14, fontweight="bold", y=0.98)
 
-        hist_2024 = panel[panel["year"] == 2024]["dengue_cases"].sum()
-        proj_2030_ssp585 = projections[(projections["year"] == 2030) & (projections["scenario"] == "ssp585")]["pred_cases"].sum()
-        proj_2040_ssp126 = projections[(projections["year"] == 2040) & (projections["scenario"] == "ssp126")]["pred_cases"].sum()
+        ax_l.fill_between(hist_reg["year"], 0.0, hist_reg["incidentes"], color="#3a9f9a", alpha=0.24)
+        ax_l.plot(hist_reg["year"], hist_reg["incidentes"], color="#1f7f7a", linewidth=2.0, marker="o", markersize=3)
+        ax_l.set_title("Figura 1 - Serie historica regional", fontsize=10)
+        ax_l.set_xlabel("Ano")
+        ax_l.set_ylabel("Incidentes")
+        ax_l.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax_l.grid(axis="y", linestyle="--", alpha=0.28)
 
-        results_text = f"""RESULTADOS PRINCIPAIS (REGIÃO SUL):
+        for sc in ["ssp126", "ssp245", "ssp370", "ssp585"]:
+            ds = proj_reg[proj_reg["scenario"] == sc].sort_values("year")
+            if ds.empty:
+                continue
+            ax_r.plot(ds["year"], ds["pred_cases"], linewidth=2.0, marker="o", markersize=2.5, label=sc.upper())
+        ax_r.set_title("Figura 2 - Projecoes regionais SSP", fontsize=10)
+        ax_r.set_xlabel("Ano")
+        ax_r.set_ylabel("Incidentes projetados")
+        ax_r.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax_r.grid(axis="y", linestyle="--", alpha=0.28)
+        ax_r.legend(loc="upper left", fontsize=8)
 
-Histórico:
-  • 2024: {hist_2024:,.0f} casos
-  • Média 2015-2024: {panel[panel['year']<=2024]['dengue_cases'].sum()/10:,.0f} casos/ano
+        fig.text(0.08, 0.08, f"Interpretacao: em 2040, o diferencial entre SSP5-8.5 e SSP1-2.6 e de {gap_2040:.1f}%, indicando sensibilidade substancial ao cenario climaticamente mais severo.", fontsize=9.5)
+        plt.tight_layout(rect=[0, 0.11, 1, 0.95])
+        pdf.savefig(fig, dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
-Projeções 2040:
-  • SSP1-2.6 (Otimista): {proj_2040_ssp126:,.0f} casos
-  • SSP5-8.5 (Severo): {projections[(projections['year'] == 2040) & (projections['scenario'] == 'ssp585')]['pred_cases'].sum():,.0f} casos
-  • Intervalo incerto: até {projections[(projections['year'] == 2040)]['pred_cases'].max():,.0f} casos (cenário extremo)
+        # Pagina 6 - Resultados por latitude + discussao/conclusao
+        fig, ax = plt.subplots(figsize=(11, 8.5))
+        faixa_labels = [f"F{i+1}" for i in range(len(lat_2040_ssp585))]
+        x = np.arange(len(faixa_labels))
+        w = 0.36
+        ax.bar(x - w / 2, lat_2040_ssp126["pred_cases"].to_numpy(), w, label="SSP1-2.6", color="#3f8f8f", alpha=0.85)
+        ax.bar(x + w / 2, lat_2040_ssp585["pred_cases"].to_numpy(), w, label="SSP5-8.5", color="#b24a3a", alpha=0.85)
+        ax.set_title("5 RESULTADOS POR FAIXA DE LATITUDE (2040)", fontsize=14, fontweight="bold")
+        ax.set_xlabel("Faixas de latitude")
+        ax.set_ylabel("Incidentes projetados")
+        ax.set_xticks(x)
+        ax.set_xticklabels(faixa_labels)
+        ax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
+        ax.grid(axis="y", linestyle="--", alpha=0.25)
+        ax.legend(loc="upper left")
+        fig.text(0.08, 0.08, "6 DISCUSSAO: o contraste entre faixas reforca a necessidade de priorizacao territorial na vigilancia.", fontsize=9.5)
+        fig.text(0.08, 0.05, "7 CONCLUSAO: a configuracao atual do modelo permite leitura consistente de cenarios e apoio ao planejamento operacional.", fontsize=9.5)
+        plt.tight_layout(rect=[0, 0.08, 1, 0.96])
+        pdf.savefig(fig, dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
-Faixa de incerteza:
-    • Margens sombreadas por cenário
-    • Erro relativo cresce ao longo do horizonte (2026-2040)
-    • Escala em número absoluto de casos (não log)
-
-CONCLUSÕES:
-
-✓ Dengue na região Sul mostra vulnerabilidade diferenciada por latitude
-✓ Cenários SSP5-8.5 e SSP3-7.0 indicam aumentos significativos até 2040
-✓ Curvas projetadas preservam padrão serrilhado com tendência de crescimento
-✓ Relatório focado somente nos dados fornecidos, sem ajustes externos
-✓ Regiões norte (Pr/Sc menores latitudes) mostram maior sensibilidade
-
-PRÓXIMOS PASSOS RECOMENDADOS:
-
-• Validação externa com dados 2025-2026
-• Análise de incerteza nos coeficientes beta
-• Desagregação sazonal pós-2026
-• Incorporação de soroprevalência e mobilidade
-• Simulações estocásticas para intervalos de confiança"""
-
-        y_pos = 0.93
-        for line in results_text.split("\n"):
-            if line.strip():
-                fontsize = 9 if (line.startswith("  •") or line.startswith("✓")) else 10
-                fontweight = "bold" if line[0].isupper() and ":" in line and not line.startswith(" ") else "normal"
-                ax.text(0.08, y_pos, line, fontsize=fontsize, transform=ax.transAxes, family="monospace", fontweight=fontweight, verticalalignment="top")
-            y_pos -= 0.022
-
+        # Pagina 7 - Apendice
+        fig = plt.figure(figsize=(11, 8.5))
+        ax = fig.add_subplot(111)
+        ax.axis("off")
+        ax.text(0.5, 0.95, "APENDICE A - DEFINICOES OPERACIONAIS", ha="center", fontsize=14, fontweight="bold", transform=ax.transAxes)
+        y = 0.88
+        glossary = [
+            "Incidentes: total anual agregado de casos observados/projetados de dengue.",
+            "Cenarios SSP: trajetorias climatico-socioeconomicas usadas para projecao prospectiva.",
+            "Faixa de incerteza: intervalo percentual simetrico em torno da curva projetada.",
+            "Faixas de latitude: agrupamentos espaciais para leitura territorial da serie.",
+            "Lag 3 meses: defasagem aplicada para capturar resposta epidemiologica ao clima.",
+        ]
+        for g in glossary:
+            y = write_paragraph(ax, f"- {g}", y, width=104, fontsize=11, line_h=0.034)
+        ax.text(0.5, 0.08, "Documento estruturado para uso tecnico-institucional e apoio a planejamento.", ha="center", fontsize=9.5, transform=ax.transAxes)
         plt.tight_layout()
         pdf.savefig(fig, dpi=300, bbox_inches="tight")
         plt.close(fig)
@@ -829,7 +1360,7 @@ def main() -> None:
         municipios_com_dados=int(panel["code"].nunique()),
     )
 
-    print(f"\n✓ Painel base construído:")
+    print(f"\n[OK] Painel base construído:")
     print(f"  - Registros: {len(panel):,}")
     print(f"  - Municípios na base geográfica Sul: {coverage.municipios_sul_total:,}")
     print(f"  - Municípios com dados no modelo: {coverage.municipios_com_dados:,}")
@@ -841,12 +1372,12 @@ def main() -> None:
     for code, g in panel.groupby("code"):
         local_intercepts[code] = train_local_intercept(g)
 
-    print(f"\n✓ Treinamento local concluído:")
+    print(f"\n[OK] Treinamento local concluído:")
     print(f"  - Modelos treinados: {len(local_intercepts):,}")
 
     # 3) Calibração regional (desativada para foco exclusivo nos dados fornecidos)
     calib = calibrate_region(panel, local_intercepts)
-    print(f"\n✓ Ajustes externos desativados:")
+    print(f"\n[OK] Ajustes externos desativados:")
     print("  - Sem termo de imunidade")
     print("  - Sem calibração externa de Arapongas")
 
@@ -861,14 +1392,17 @@ def main() -> None:
         raise RuntimeError("Nenhuma projeção gerada.")
 
     projections = pd.concat(all_proj, ignore_index=True)
-    print(f"\n✓ Projeções geradas: {len(projections):,} registros")
+    print(f"\n[OK] Projeções geradas: {len(projections):,} registros")
 
     # 5) Saída por latitude + consolidado
     save_outputs_by_latitude(root_dir, projections, calib)
 
+    # 5.1) Previsão 2025 (ML) com e sem incremento SSP
+    save_ml_2025_forecasts(root_dir, panel, local_intercepts)
+
     # 6) PDFs
     pdf_lat, pdf_exec = save_pdf_reports(root_dir, panel, projections, calib, coverage)
-    print(f"\n✓ Relatórios gerados:")
+    print(f"\n[OK] Relatórios gerados:")
     print(f"  - PDF gráficos: {pdf_lat.name}")
     print(f"  - PDF executivo: {pdf_exec.name}")
 

@@ -1,155 +1,117 @@
 # Projeto Clima x Dengue
 
-<p align="center">
-    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+" />
-    <img src="https://img.shields.io/badge/Regiao-Sul%20do%20Brasil-1f7a8c" alt="Regiao Sul do Brasil" />
-    <img src="https://img.shields.io/badge/Periodo%20historico-2015--2024-2a9d8f" alt="Periodo historico" />
-    <img src="https://img.shields.io/badge/Projecao-2026--2040-e76f51" alt="Projecao 2026 a 2040" />
-    <img src="https://img.shields.io/badge/Cenarios-SSP1--2.6%20%7C%20SSP2--4.5%20%7C%20SSP3--7.0%20%7C%20SSP5--8.5-264653" alt="Cenarios SSP" />
-</p>
+Projeto de modelagem climatico-epidemiologica para antecipar risco de dengue na Regiao Sul do Brasil, com leitura territorial por latitude e projecoes anuais ate 2040.
 
-Plataforma de inteligencia climatico-epidemiologica para antecipar risco de dengue no Sul do Brasil.
+## Visao do projeto
 
-Este projeto integra clima, ENSO e historico epidemiologico para apoiar vigilancia em saude publica com base em evidencia.
+Este repositorio foi organizado para funcionar como uma documentacao tecnica viva: codigo, dados processados, relatorios e graficos conversam entre si.
 
-## Resumo executivo
+Pergunta central:
 
-O Projeto Clima x Dengue transforma dados dispersos em informacao orientada a decisao.
+Como transformar sinais climaticos em evidencia acionavel para vigilancia de dengue antes do pico epidemiologico?
 
-Ele foi desenhado para responder uma pergunta central:
+## O que o projeto entrega
 
-Como antecipar periodos e territorios de maior risco de dengue antes do pico dos casos?
+1. Historico consolidado de incidentes (2015-2024).
+2. Projecoes anuais para 2025-2040 em quatro cenarios SSP.
+3. Leitura regional e por 8 faixas de latitude.
+4. Previsao especifica de 2025 por ML (com e sem incremento SSP).
+5. Relatorios em PDF com narrativa, graficos e implicacoes para decisao.
 
-## O que voce encontra aqui
+## Leitura recomendada (ordem)
 
-- pipeline completo de dados: consolidacao, processamento, validacao, analise e projecao;
-- recortes por latitude e consolidado regional;
-- mapas e paineis para leitura territorial;
-- relatorios tecnicos em formato executivo;
-- metodologia reproduzivel com documentacao de apoio.
+1. [docs/guia_execucao.md](docs/guia_execucao.md)
+2. [output/projecoes_regionais/relatorio_graficos_por_latitude.pdf](output/projecoes_regionais/relatorio_graficos_por_latitude.pdf)
+3. [output/projecoes_regionais/relatorio_executivo_completo.pdf](output/projecoes_regionais/relatorio_executivo_completo.pdf)
+4. [docs/guia_interpretacao.md](docs/guia_interpretacao.md)
 
-## Impacto para a sociedade
+## Como executar
 
-Este repositorio foi estruturado para gerar valor pratico em saude coletiva:
-
-1. alerta antecipado: identifica janelas de maior risco com base em sinais climaticos;
-2. planejamento eficiente: orienta alocacao de equipes, insumos e campanhas;
-3. priorizacao territorial: evidencia diferencas entre municipios e faixas de latitude;
-4. transparencia tecnica: torna metodo, premissas e resultados auditaveis.
-
-Resultado esperado: reduzir tempo de reacao e melhorar a qualidade das decisoes publicas frente a surtos de dengue.
-
-## Fluxo do projeto
-
-```text
-Dados brutos -> Consolidacao -> Processamento por latitude -> Modelagem estatistica
-            -> Projecoes 2026-2040 -> Mapas e relatorios -> Apoio a decisao
-```
-
-Entradas analiticas utilizadas:
-
-- dengue mensal por municipio;
-- temperatura maxima, media e minima;
-- precipitacao;
-- indice ENSO (El Nino, La Nina e Neutro).
-
-## Arquitetura do repositorio
-
-```text
-Projeto_Clima_X_Dengue/
-├── data/
-│   ├── raw/                  # dados primarios (privados)
-│   ├── processed/            # bases intermediarias
-│   └── geodados/             # cache geoespacial
-├── docs/                     # guias de execucao e interpretacao
-├── output/                   # resultados gerados
-└── src/
-        ├── analises/             # analises estatisticas
-        ├── mapas/                # mapas e paineis
-        ├── processamento/        # transformacoes e modelagem
-        ├── relatorios/           # relatorios finais
-        ├── validacao/            # verificacoes de integridade
-        ├── consolidar_dados.py
-        └── pipeline.py
-```
-
-## Scripts chave
-
-| Script | Funcao |
-|---|---|
-| src/processamento/motor_lote_modelagem_v2_por_latitude.py | Motor principal de projecao por latitude |
-| src/processamento/motor_lote_modelagem_clima_saude.py | Entrada legada para o motor principal |
-| src/consolidar_dados.py | Consolidacao da base historica |
-| src/pipeline.py | Pipeline estatistico tradicional |
-
-## Comece em 3 passos
-
-1. Instale as dependencias
+1. Instale dependencias.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Execute o motor principal
+2. Execute o motor principal.
 
 ```bash
 python src/processamento/motor_lote_modelagem_v2_por_latitude.py
 ```
 
-3. Analise os produtos em output/projecoes_regionais e output/analise_estatistica
+3. Consulte as saidas em output/projecoes_regionais.
 
-## Metodologia resumida
+## Metodo em uma pagina
 
-Modelo log-linear com lag climatico de 3 meses e intercepto local por municipio:
+O motor integra dengue mensal, temperatura, precipitacao e ENSO em um painel unico por municipio.
+
+Modelo base:
 
 ```text
 log(Y + 1) = alpha_local
-                     + beta_temp * Temp_lag3
-                     + beta_prec * Prec_lag3
-                     + beta_enso * ENSO_lag3
-                     + beta_lat  * Latitude
+             + beta_temp * Temp_lag3
+             + beta_prec * Prec_lag3
+             + beta_enso * ENSO_lag3
+             + beta_lat  * Latitude
 ```
 
-## Entregas do projeto
+Premissas da versao atual:
 
-Principais artefatos gerados:
+1. Horizonte de projecao: 2025-2040.
+2. Continuidade controlada entre 2024 e 2025.
+3. Quatro cenarios: SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5.
+4. Faixas de incerteza percentuais, simetricas e visiveis por cenario.
+5. Sem ajuste externo de imunidade ou calibracao exogena.
 
-- projecao_regiao_sul_consolidado.csv
-- projecao_latitude_*.csv
-- relatorio_graficos_por_latitude.pdf
-- relatorio_executivo_completo.pdf
-- resumos tecnicos em txt e json
+## Estrutura do repositorio
 
-## Documentacao
+```text
+Projeto_Clima_X_Dengue/
+├── data/
+│   ├── raw/                  # dados primarios (uso interno)
+│   ├── processed/            # consolidacoes intermediarias
+│   └── geodados/             # caches geoespaciais
+├── docs/                     # guias e instrucoes
+├── output/                   # produtos finais e analiticos
+└── src/
+    ├── processamento/        # motor de modelagem
+    ├── analises/             # analises estatisticas
+    ├── mapas/                # mapas e visualizacoes
+    ├── relatorios/           # componentes de relatorios
+    ├── validacao/            # verificacoes de qualidade
+    ├── consolidar_dados.py
+    └── pipeline.py
+```
 
-- [Guia de Execucao](docs/guia_execucao.md)
-- [Guia de Interpretacao](docs/guia_interpretacao.md)
-- [Instrucoes de Mapas por Latitude](docs/instrucoes_mapas_latitude.md)
+## Arquivos principais de saida
 
-## Privacidade e governanca dos dados
+1. output/projecoes_regionais/projecao_regiao_sul_consolidado.csv
+2. output/projecoes_regionais/projecao_latitude_*.csv
+3. output/projecoes_regionais/previsao_ml_2025_municipios.csv
+4. output/projecoes_regionais/previsao_ml_2025_regional.csv
+5. output/projecoes_regionais/relatorio_graficos_por_latitude.pdf
+6. output/projecoes_regionais/relatorio_executivo_completo.pdf
 
-O projeto adota publicacao seletiva para proteger dados sensiveis.
+## Interpretando os dois PDFs
 
-- dados primarios brutos nao sao publicados;
-- CSVs pesados e intermediarios de latitude sao excluidos;
-- sao publicados codigo-fonte, documentacao e relatorios finais.
+1. relatorio_graficos_por_latitude.pdf
+Panorama visual: historico a esquerda, projecao a direita, por faixa de latitude e no consolidado.
 
-As regras estao definidas no arquivo .gitignore.
+2. relatorio_executivo_completo.pdf
+Narrativa completa: contexto, metodo, leitura guiada dos graficos, conclusoes e limites da versao.
 
-## Requisitos
+## Impacto pratico esperado
 
-- Python 3.10+
-- dependencias em requirements.txt
+1. Melhor antecipacao de risco epidemiologico.
+2. Prioriza recursos de vigilancia por territorio.
+3. Apoia decisao com transparencia metodologica.
+4. Facilita comunicacao entre area tecnica e gestao.
 
-## Referencias
+## Governanca dos dados
 
-- Spearman, C. (1904). The proof and measurement of association between two things.
-- Mann, H.B.; Whitney, D.R. (1947). On a test of whether one of two random variables is stochastically larger than the other.
-- Kruskal, W.H.; Wallis, W.A. (1952). Use of ranks in one-criterion variance analysis.
-- Teixeira, T.R.A. et al. (2009). Relationship between dengue and climate factors.
-- SciPy stats documentation: https://docs.scipy.org/doc/scipy/reference/stats.html
-- GeoPandas documentation: https://geopandas.org
+Publicacao seletiva para proteger dados sensiveis:
 
----
+1. Dados brutos nao sao publicados.
+2. Intermediarios pesados permanecem fora do versionamento publico.
+3. Codigo, documentacao e relatorios finais sao priorizados.
 
-Projeto academico com foco em impacto social, vigilancia epidemiologica e decisao baseada em dados.
