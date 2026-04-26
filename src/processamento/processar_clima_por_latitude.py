@@ -1,11 +1,21 @@
 """
 Script para processar dados de temperatura e precipitação por faixas de latitude.
 Cria arquivos divididos por latitude (sem transformação logarítmica) e arquivos de médias mensais.
+
+DEPENDÊNCIA OBRIGATÓRIA:
+  Execute processar_dengue_latitude_mapas.py ANTES deste script.
+  Os arquivos output/csvs_latitude/dengue_faixa_latitude_*.csv devem existir
+  para que o mapeamento de coordenadas dos municípios seja carregado corretamente.
 """
 
+import logging
+import sys
 import pandas as pd
 import os
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
+logger = logging.getLogger(__name__)
 
 # Configuração de caminhos
 BASE_DIR = Path(__file__).parent.parent.parent  # raiz do projeto
@@ -48,12 +58,16 @@ def carregar_mapeamento_latitudes():
     Carrega mapeamento de municípios para faixas de latitude a partir dos arquivos de dengue.
     """
     print("Carregando mapeamento de latitudes dos arquivos de dengue...")
-    
-    # Ler o primeiro arquivo de dengue para obter o mapeamento
-    dengue_file = CSVS_LATITUDE_DIR / 'dengue_faixa_latitude_1.csv'
-    
-    if not dengue_file.exists():
-        raise FileNotFoundError(f"Arquivo de dengue não encontrado: {dengue_file}")
+
+    # Verifica dependência: arquivos de dengue por latitude devem existir
+    dengue_file_check = CSVS_LATITUDE_DIR / 'dengue_faixa_latitude_1.csv'
+    if not dengue_file_check.exists():
+        logger.error(
+            "Arquivo de dengue por latitude não encontrado: %s\n"
+            "Execute 'processar_dengue_latitude_mapas.py' primeiro.",
+            dengue_file_check,
+        )
+        sys.exit(1)
     
     # Ler todos os arquivos de dengue para ter o mapeamento completo
     mapeamento_frames = []

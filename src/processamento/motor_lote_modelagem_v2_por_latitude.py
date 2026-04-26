@@ -24,13 +24,24 @@ from typing import Dict, List, Tuple, Optional
 from datetime import datetime
 
 import numpy as np
+import logging
+
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from matplotlib.backends.backend_pdf import PdfPages
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# ========================= LOGGING =========================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 
 # ========================= CONFIGURACOES GERAIS =========================
@@ -236,37 +247,97 @@ def build_code_lookup_from_latitude_files(csv_paths: List[Path]) -> pd.DataFrame
     lookup = lookup.sort_values(["code"]).drop_duplicates(subset=["code"], keep="first").reset_index(drop=True)
     return lookup
 
-def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    raw_dir = root_dir / "data" / "raw"
-    output_lat_dir = root_dir / "output" / "csvs_latitude"
+def validate_data_sources(root_dir: Path) -> None:
+    """Verifica integridade das fontes de dados antes do processamento.
 
+    Checa existência dos arquivos raw e disponibilidade dos csvs_latitude,
+    emitindo avisos quando o pré-processamento de latitude não foi executado.
+    """
+    raw_required = {
+        "dengue": root_dir / "data" / "raw" / "dengue_MENSAL.csv",
+        "temp_media": root_dir / "data" / "raw" / "Temp_media_MENSAL.csv",
+        "precipitacao": root_dir / "data" / "raw" / "precipitacao_mensal_rev.csv",
+        "enso": root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv",
+    }
+    missing_raw = [str(p) for p in raw_required.values() if not p.exists()]
+    if missing_raw:
+        raise FileNotFoundError(
+            "Arquivos raw ausentes (execute pré-processamento primeiro):\n  "
+            + "\n  ".join(missing_raw)
+        )
+
+    csv_dir = root_dir / "output" / "csvs_latitude"
+    n_dengue = len(list(csv_dir.glob("dengue_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
+    n_temp = len(list(csv_dir.glob("temp_media_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
+    n_prec = len(list(csv_dir.glob("precipitacao_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
+
+    logger.info("Validação de fontes: raw OK | csvs_latitude — dengue=%d, temp=%d, prec=%d", n_dengue, n_temp, n_prec)
+
+    if n_dengue < 8 or n_temp < 8 or n_prec < 8:
+        logger.warning(
+            "output/csvs_latitude/ incompleto (esperado 8 faixas por variável). "
+            "Execute processar_dengue_latitude_mapas.py e processar_clima_por_latitude.py "
+            "antes do motor para garantir consistência total."
+        )
+    else:
+        logger.info("Validação concluída: fontes primárias e csvs_latitude completos.")
+
+
+def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Constrói painel base preferindo output/csvs_latitude/ como fonte canônica.
+
+    Quando os arquivos CSV por latitude estão disponíveis (gerados por
+    processar_dengue_latitude_mapas.py + processar_clima_por_latitude.py),
+    eles são usados como única fonte, garantindo consistência com o modelo ML
+    (ambos os modelos — regressão log-linear e HistGradientBoosting — operam
+    sobre o mesmo conjunto de 1190 municípios e mesmos valores observados).
+
+    Fallback automático para data/raw/ no formato wide quando csvs_latitude
+    não estiver disponível ou incompleto.
+    """
+    csv_dir = root_dir / "output" / "csvs_latitude"
+    dengue_lat = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv")) if csv_dir.exists() else []
+    temp_lat = sorted(csv_dir.glob("temp_media_faixa_latitude_*.csv")) if csv_dir.exists() else []
+    prec_lat = sorted(csv_dir.glob("precipitacao_faixa_latitude_*.csv")) if csv_dir.exists() else []
+
+    if len(dengue_lat) >= 8 and len(temp_lat) >= 8 and len(prec_lat) >= 8:
+        logger.info("build_base_panel → fonte canônica: output/csvs_latitude/ (%d municípios esperados)", TOTAL_MUNICIPIOS_SUL_OFICIAL)
+        panel = load_ml_panel_from_csvs_latitude(root_dir)
+        lookup = (
+            panel[["code", "city_name", "latitude"]]
+            .drop_duplicates(subset=["code"])
+            .reset_index(drop=True)
+        )
+        return panel, lookup
+
+    # ---- Fallback: raw wide-format ----
+    logger.warning("build_base_panel → fallback para data/raw/ (csvs_latitude ausente ou incompleto)")
+    raw_dir = root_dir / "data" / "raw"
     dengue_path = raw_dir / "dengue_MENSAL.csv"
-    temp_path = raw_dir / "Temp_media_MENSAL.csv"
-    prec_path = raw_dir / "precipitacao_mensal_rev.csv"
-    enso_path = raw_dir / "elnino_lanina_2015-2024.csv"
+    temp_path   = raw_dir / "Temp_media_MENSAL.csv"
+    prec_path   = raw_dir / "precipitacao_mensal_rev.csv"
+    enso_path   = raw_dir / "elnino_lanina_2015-2024.csv"
 
     for p in [dengue_path, temp_path, prec_path, enso_path]:
         if not p.exists():
-            raise FileNotFoundError(f"Arquivo essencial nao encontrado: {p}")
+            raise FileNotFoundError(f"Arquivo essencial não encontrado: {p}")
 
     dengue = read_wide_monthly(dengue_path, "dengue_cases")
-    temp = read_wide_monthly(temp_path, "temp_media")
-    prec = read_wide_monthly(prec_path, "precipitacao")
-    enso = read_enso_series(enso_path)
+    temp   = read_wide_monthly(temp_path,   "temp_media")
+    prec   = read_wide_monthly(prec_path,   "precipitacao")
+    enso   = read_enso_series(enso_path)
 
-    panel = dengue.merge(temp, on=["code", "year", "month"], how="inner")
-    panel = panel.merge(prec, on=["code", "year", "month"], how="inner")
-    panel = panel.merge(enso, on=["year", "month"], how="left")
+    panel = dengue.merge(temp,  on=["code", "year", "month"], how="inner")
+    panel = panel.merge(prec,   on=["code", "year", "month"], how="inner")
+    panel = panel.merge(enso,   on=["year", "month"],         how="left")
 
-    csv_paths = [p for p in discover_files(output_lat_dir) if p.suffix.lower() == ".csv"] if output_lat_dir.exists() else []
+    csv_paths = list(csv_dir.glob("*.csv")) if csv_dir.exists() else []
     lookup = build_code_lookup_from_latitude_files(csv_paths)
-
     panel = panel.merge(lookup, on="code", how="left")
-    panel["city_name"] = panel["city_name"].fillna(panel["code"].apply(lambda c: f"municipio_{c}"))
-
-    # Filtro Sul
+    panel["city_name"] = panel["city_name"].fillna(
+        panel["code"].apply(lambda c: f"municipio_{c}")
+    )
     panel = panel[panel["code"].str[:2].isin(["41", "42", "43"])].copy()
-
     panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
     return panel, lookup
 
@@ -761,6 +832,317 @@ def load_historical_incidents_from_csvs_latitude(
     return hist_lat, hist_regional
 
 
+def load_ml_panel_from_csvs_latitude(root_dir: Path) -> pd.DataFrame:
+    """Monta painel mensal para ML a partir dos CSVs por latitude."""
+    csv_dir = root_dir / "output" / "csvs_latitude"
+    if not csv_dir.exists():
+        raise FileNotFoundError(f"Diretório não encontrado: {csv_dir}")
+
+    dengue_files = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv"))
+    temp_files = sorted(csv_dir.glob("temp_media_faixa_latitude_*.csv"))
+    prec_files = sorted(csv_dir.glob("precipitacao_faixa_latitude_*.csv"))
+
+    if not dengue_files or not temp_files or not prec_files:
+        raise RuntimeError("Faltam arquivos de dengue/temperatura/precipitação em output/csvs_latitude")
+
+    dengue_parts: List[pd.DataFrame] = []
+    temp_parts: List[pd.DataFrame] = []
+    prec_parts: List[pd.DataFrame] = []
+
+    for fp in dengue_files:
+        d = pd.read_csv(fp)
+        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "CASOS_DENGUE", "LATITUDE", "NOME_MUNICIPIO", "FAIXA_LATITUDE"}
+        if not req.issubset(set(d.columns)):
+            continue
+        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "CASOS_DENGUE", "LATITUDE", "NOME_MUNICIPIO", "FAIXA_LATITUDE"]].copy()
+        d = d.rename(columns={
+            "CODIGO_MUNICIPIO": "code",
+            "ANO": "year",
+            "MES": "month",
+            "CASOS_DENGUE": "dengue_cases",
+            "LATITUDE": "latitude",
+            "NOME_MUNICIPIO": "city_name",
+            "FAIXA_LATITUDE": "lat_faixa_id",
+        })
+        dengue_parts.append(d)
+
+    for fp in temp_files:
+        d = pd.read_csv(fp)
+        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "TEMP_MEDIA"}
+        if not req.issubset(set(d.columns)):
+            continue
+        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "TEMP_MEDIA"]].copy()
+        d = d.rename(columns={"CODIGO_MUNICIPIO": "code", "ANO": "year", "MES": "month", "TEMP_MEDIA": "temp_media"})
+        temp_parts.append(d)
+
+    for fp in prec_files:
+        d = pd.read_csv(fp)
+        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "PRECIPITACAO_MENSAL"}
+        if not req.issubset(set(d.columns)):
+            continue
+        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "PRECIPITACAO_MENSAL"]].copy()
+        d = d.rename(columns={"CODIGO_MUNICIPIO": "code", "ANO": "year", "MES": "month", "PRECIPITACAO_MENSAL": "precipitacao"})
+        prec_parts.append(d)
+
+    if not dengue_parts:
+        raise RuntimeError("Não foi possível montar painel de dengue a partir dos CSVs por latitude")
+
+    dengue = pd.concat(dengue_parts, ignore_index=True)
+    temp = pd.concat(temp_parts, ignore_index=True) if temp_parts else pd.DataFrame(columns=["code", "year", "month", "temp_media"])
+    prec = pd.concat(prec_parts, ignore_index=True) if prec_parts else pd.DataFrame(columns=["code", "year", "month", "precipitacao"])
+
+    for df in [dengue, temp, prec]:
+        df["code"] = df["code"].astype(str).str.extract(r"(\d{6})", expand=False)
+        df["year"] = df["year"].map(to_int)
+        df["month"] = df["month"].map(to_int)
+
+    dengue["dengue_cases"] = dengue["dengue_cases"].map(to_float).fillna(0.0)
+    dengue["latitude"] = dengue["latitude"].map(to_float)
+    temp["temp_media"] = temp["temp_media"].map(to_float)
+    prec["precipitacao"] = prec["precipitacao"].map(to_float)
+
+    panel = dengue.merge(temp, on=["code", "year", "month"], how="left")
+    panel = panel.merge(prec, on=["code", "year", "month"], how="left")
+
+    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
+    enso = read_enso_series(enso_path)
+    panel = panel.merge(enso, on=["year", "month"], how="left")
+
+    panel = panel.dropna(subset=["code", "year", "month", "latitude"]).copy()
+    panel = panel[(panel["year"] >= TRAIN_START) & (panel["year"] <= TRAIN_END)].copy()
+    panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
+
+    # Imputação simples por mediana mensal para variáveis climáticas.
+    for col in ["temp_media", "precipitacao", "enso"]:
+        panel[col] = panel[col].astype(float)
+        month_med = panel.groupby("month")[col].transform("median")
+        panel[col] = panel[col].fillna(month_med)
+        panel[col] = panel[col].fillna(panel[col].median())
+
+    return panel
+
+
+def _safe_mape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    mask = y_true > 1.0
+    if not np.any(mask):
+        return float("nan")
+    return float(np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100.0)
+
+
+def _build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
+    d = panel.copy().sort_values(["code", "year", "month"]).reset_index(drop=True)
+    d["month_sin"] = np.sin(2.0 * np.pi * d["month"] / 12.0)
+    d["month_cos"] = np.cos(2.0 * np.pi * d["month"] / 12.0)
+
+    d["dengue_lag1"] = d.groupby("code")["dengue_cases"].shift(1)
+    d["dengue_lag2"] = d.groupby("code")["dengue_cases"].shift(2)
+    d["dengue_lag3"] = d.groupby("code")["dengue_cases"].shift(3)
+
+    d["temp_lag1"] = d.groupby("code")["temp_media"].shift(1)
+    d["prec_lag1"] = d.groupby("code")["precipitacao"].shift(1)
+    d["enso_lag1"] = d.groupby("code")["enso"].shift(1)
+
+    d = d.dropna(subset=["dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1"]).copy()
+    return d
+
+
+def _evaluate_split(y_true: np.ndarray, y_pred: np.ndarray, split_name: str) -> Dict[str, float]:
+    return {
+        "split": split_name,
+        "mae": float(mean_absolute_error(y_true, y_pred)),
+        "rmse": float(np.sqrt(mean_squared_error(y_true, y_pred))),
+        "mape_pct": _safe_mape(y_true, y_pred),
+        "r2": float(r2_score(y_true, y_pred)),
+    }
+
+
+def run_full_ml_from_csvs_latitude(root_dir: Path, panel: Optional[pd.DataFrame] = None) -> None:
+    """Treina ML completo com split temporal e projeta 2025-2040 usando csvs_latitude.
+
+    Parameters
+    ----------
+    root_dir : Path
+        Diretório raiz do projeto.
+    panel : pd.DataFrame, optional
+        Painel já carregado por build_base_panel() para evitar dupla leitura.
+        Se None, carrega internamente via load_ml_panel_from_csvs_latitude().
+    """
+    out_dir = root_dir / "output" / "projecoes_regionais" / "ml_completo"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Reutiliza painel já carregado para evitar dupla leitura de disco.
+    if panel is None:
+        logger.info("run_full_ml: carregando painel de csvs_latitude (não fornecido externamente)")
+        panel_ml = load_ml_panel_from_csvs_latitude(root_dir)
+    else:
+        logger.info("run_full_ml: reutilizando painel fornecido (%d registros)", len(panel))
+        panel_ml = panel.copy()
+
+    feat = _build_ml_features(panel_ml)
+
+    feature_cols = [
+        "temp_media", "precipitacao", "enso", "latitude", "month_sin", "month_cos",
+        "dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1",
+    ]
+
+    train_df = feat[feat["year"] <= 2021].copy()
+    val_df = feat[feat["year"] == 2022].copy()
+    test_df = feat[(feat["year"] >= 2023) & (feat["year"] <= 2024)].copy()
+
+    if train_df.empty or val_df.empty or test_df.empty:
+        raise RuntimeError("Split temporal insuficiente para treino/validação/teste do ML completo")
+
+    model = HistGradientBoostingRegressor(
+        loss="squared_error",
+        learning_rate=0.05,
+        max_depth=6,
+        max_iter=500,
+        min_samples_leaf=40,
+        l2_regularization=0.1,
+        random_state=42,
+    )
+
+    y_train_log = np.log1p(train_df["dengue_cases"].to_numpy(dtype=float))
+    model.fit(train_df[feature_cols].to_numpy(dtype=float), y_train_log)
+
+    val_pred = np.expm1(model.predict(val_df[feature_cols].to_numpy(dtype=float))).clip(min=0.0)
+    test_pred = np.expm1(model.predict(test_df[feature_cols].to_numpy(dtype=float))).clip(min=0.0)
+
+    metrics_rows = [
+        _evaluate_split(val_df["dengue_cases"].to_numpy(dtype=float), val_pred, "valid_2022"),
+        _evaluate_split(test_df["dengue_cases"].to_numpy(dtype=float), test_pred, "test_2023_2024"),
+    ]
+    metrics_df = pd.DataFrame(metrics_rows)
+    metrics_df.to_csv(out_dir / "metricas_ml_completo.csv", index=False, encoding="utf-8")
+    with open(out_dir / "metricas_ml_completo.json", "w", encoding="utf-8") as f:
+        json.dump(metrics_rows, f, ensure_ascii=False, indent=2)
+
+    # Re-treino com todo histórico 2015-2024.
+    full_model = HistGradientBoostingRegressor(
+        loss="squared_error",
+        learning_rate=0.05,
+        max_depth=6,
+        max_iter=600,
+        min_samples_leaf=40,
+        l2_regularization=0.1,
+        random_state=42,
+    )
+    full_model.fit(feat[feature_cols].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)))
+
+    # Projeção recursiva mensal 2025-2040 por município e cenário.
+    clim = panel_ml.groupby(["code", "month"], as_index=False).agg(
+        base_temp=("temp_media", "mean"),
+        base_prec=("precipitacao", "mean"),
+        base_enso=("enso", "mean"),
+        latitude=("latitude", "median"),
+        city_name=("city_name", "last"),
+        lat_faixa_id=("lat_faixa_id", "last"),
+    )
+
+    hist_tail = panel_ml.sort_values(["code", "year", "month"]).groupby("code").tail(3)
+    tail_map: Dict[str, List[float]] = {}
+    for code, g in hist_tail.groupby("code"):
+        vals = g.sort_values(["year", "month"])["dengue_cases"].astype(float).tolist()
+        if len(vals) < 3:
+            vals = ([0.0] * (3 - len(vals))) + vals
+        tail_map[code] = vals[-3:]
+
+    climate_tail = panel_ml.sort_values(["code", "year", "month"]).groupby("code").tail(1)
+    ctail_map = {
+        str(r["code"]): (float(r["temp_media"]), float(r["precipitacao"]), float(r["enso"]))
+        for _, r in climate_tail.iterrows()
+    }
+
+    future_rows = []
+    for code, g_code in clim.groupby("code"):
+        code = str(code)
+        lat = float(g_code["latitude"].iloc[0])
+        city_name = str(g_code["city_name"].iloc[0])
+        faixa = g_code["lat_faixa_id"].iloc[0]
+
+        if code not in tail_map:
+            continue
+        dengue_lags = tail_map[code].copy()
+        temp_last, prec_last, enso_last = ctail_map.get(code, (float(g_code["base_temp"].mean()), float(g_code["base_prec"].mean()), float(g_code["base_enso"].mean())))
+
+        month_base = {int(r["month"]): (float(r["base_temp"]), float(r["base_prec"]), float(r["base_enso"])) for _, r in g_code.iterrows()}
+
+        for sc, cfg in SCENARIOS.items():
+            # Reinicia lags por cenário para manter independência das trajetórias.
+            d_lags = dengue_lags.copy()
+            t_lag1, p_lag1, e_lag1 = temp_last, prec_last, enso_last
+
+            for year in range(PROJECTION_START, PROJECTION_END + 1):
+                years_from_2024 = year - (CALIBRATION_YEAR - 1)
+                for month in range(1, 13):
+                    bt, bp, be = month_base.get(month, (np.nan, np.nan, np.nan))
+                    if pd.isna(bt):
+                        bt = float(g_code["base_temp"].mean())
+                    if pd.isna(bp):
+                        bp = float(g_code["base_prec"].mean())
+                    if pd.isna(be):
+                        be = float(g_code["base_enso"].mean())
+
+                    temp = bt + float(cfg["temp_delta_per_year"]) * years_from_2024
+                    prec = bp * (1.0 + float(cfg["precip_delta_pct_per_year"]) * years_from_2024)
+                    enso = be + float(cfg["enso_delta_per_year"]) * years_from_2024
+
+                    month_sin = float(np.sin(2.0 * np.pi * month / 12.0))
+                    month_cos = float(np.cos(2.0 * np.pi * month / 12.0))
+
+                    x = np.array([
+                        temp, prec, enso, lat, month_sin, month_cos,
+                        d_lags[-1], d_lags[-2], d_lags[-3], t_lag1, p_lag1, e_lag1,
+                    ], dtype=float).reshape(1, -1)
+
+                    pred_cases = float(np.expm1(full_model.predict(x)[0]))
+                    pred_cases = max(pred_cases, 0.0)
+
+                    future_rows.append(
+                        {
+                            "code": code,
+                            "city_name": city_name,
+                            "latitude": lat,
+                            "lat_faixa_id": faixa,
+                            "scenario": sc,
+                            "year": year,
+                            "month": month,
+                            "pred_cases_ml": pred_cases,
+                        }
+                    )
+
+                    d_lags.append(pred_cases)
+                    d_lags = d_lags[-3:]
+                    t_lag1, p_lag1, e_lag1 = temp, prec, enso
+
+    fut = pd.DataFrame(future_rows)
+    if fut.empty:
+        raise RuntimeError("ML completo não gerou projeções futuras")
+
+    fut.to_csv(out_dir / "projecao_ml_completa_municipios_mensal.csv", index=False, encoding="utf-8")
+
+    fut_anual = fut.groupby(["code", "city_name", "latitude", "lat_faixa_id", "scenario", "year"], as_index=False)["pred_cases_ml"].sum()
+    fut_anual.to_csv(out_dir / "projecao_ml_completa_municipios_anual.csv", index=False, encoding="utf-8")
+
+    fut_reg = fut_anual.groupby(["scenario", "year"], as_index=False)["pred_cases_ml"].sum()
+    fut_reg["regiao"] = "SUL"
+    fut_reg.to_csv(out_dir / "projecao_ml_completa_regional_anual.csv", index=False, encoding="utf-8")
+
+    # Exporta previsões e observados para inspeção rápida.
+    val_out = val_df[["code", "year", "month", "dengue_cases"]].copy()
+    val_out["pred_cases_ml"] = val_pred
+    val_out["split"] = "valid_2022"
+
+    test_out = test_df[["code", "year", "month", "dengue_cases"]].copy()
+    test_out["pred_cases_ml"] = test_pred
+    test_out["split"] = "test_2023_2024"
+
+    pd.concat([val_out, test_out], ignore_index=True).to_csv(out_dir / "backtest_ml_completo.csv", index=False, encoding="utf-8")
+
+    logger.info("ML completo treinado com csvs_latitude (train/val/test temporal)")
+    logger.info("Saídas ML: output/projecoes_regionais/ml_completo/")
+
+
 def save_pdf_reports(
     root_dir: Path,
     panel: pd.DataFrame,
@@ -806,7 +1188,7 @@ def save_pdf_reports(
 
     with PdfPages(pdf_lat_path) as pdf:
         # Página 1: Visão consolidada (histórico + projeção)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(17, 6.5))
+        fig, ax1 = plt.subplots(figsize=(12, 6.5))
         if not hist_regional_csv.empty:
             hist_regional = hist_regional_csv.copy()
         else:
@@ -823,8 +1205,8 @@ def save_pdf_reports(
         ax1.set_xticks(np.arange(2015, 2025, 1))
         ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
         ax1.grid(False)
-        ax1.grid(axis="y", linestyle="--", alpha=0.30)
-        ax1.grid(axis="x", linestyle="--", alpha=0.12)
+        ax1.grid(axis="y", linestyle="-", alpha=0.22)
+        ax1.grid(axis="x", linestyle="-", alpha=0.08)
 
         max_year = hist_regional.loc[hist_regional["incidentes"].idxmax(), "year"]
         max_cases = hist_regional["incidentes"].max()
@@ -841,18 +1223,11 @@ def save_pdf_reports(
             fontweight="bold",
         )
 
-        hist_zoom = hist_regional[hist_regional["year"] <= 2023].copy()
-        if not hist_zoom.empty and float(hist_zoom["incidentes"].max()) > 0.0:
-            iax = inset_axes(ax1, width="44%", height="40%", loc="upper left", borderpad=1.0)
-            iax.fill_between(hist_zoom["year"], 0.0, hist_zoom["incidentes"], color="#3a9f9a", alpha=0.18)
-            iax.plot(hist_zoom["year"], hist_zoom["incidentes"], color="#1f7f7a", linewidth=1.8, marker="o", markersize=2.7)
-            iax.set_xlim(2015, 2023)
-            iax.set_ylim(0.0, float(hist_zoom["incidentes"].max()) * 1.12)
-            iax.set_xticks([2015, 2019, 2023])
-            iax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-            iax.tick_params(axis="both", labelsize=7)
-            iax.grid(axis="y", linestyle="--", alpha=0.22)
-            iax.set_title("Zoom 2015-2023", fontsize=7)
+        plt.tight_layout()
+        pdf.savefig(fig, dpi=300)
+        plt.close(fig)
+
+        fig, ax2 = plt.subplots(figsize=(12, 6.5))
 
         proj_regional = projections.groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
         hist_regional_series = hist_regional["incidentes"].to_numpy()
@@ -866,7 +1241,7 @@ def save_pdf_reports(
             linewidth=2.2,
             marker="o",
             markersize=3,
-            label="Histórico (2015-2024)",
+            label="Dados observados (2015-2024)",
             zorder=4,
         )
 
@@ -878,8 +1253,6 @@ def save_pdf_reports(
             vals_np = ds["pred_cases"].to_numpy(dtype=float)
             lo, hi = uncertainty_bounds(years_np, vals_np, hist_regional_cv, sc)
             ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
-            ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
-            ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
 
         for sc in scen_order:
             ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
@@ -890,21 +1263,20 @@ def save_pdf_reports(
                 ds["pred_cases"],
                 linewidth=2.3,
                 color=scen_colors[sc],
-                label=scen_labels[sc],
+                label=f"Previsão {scen_labels[sc]}",
                 marker="o",
                 markersize=4,
                 zorder=3,
             )
             y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
-            ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color=scen_colors[sc], linewidth=1.2, linestyle="--", alpha=0.7, zorder=2)
+            ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color="black", linewidth=1.6, linestyle="-", alpha=0.85, zorder=3)
 
-        ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
         ax2.set_title(f"PROJEÇÃO - REGIÃO SUL ({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
         ax2.set_xlabel("ANO", fontsize=10)
-        ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
+        ax2.set_ylabel("")
         ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
         ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-        ax2.grid(True, linestyle="--", alpha=0.3)
+        ax2.grid(True, linestyle="-", alpha=0.20)
         ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
 
         plt.tight_layout()
@@ -913,7 +1285,7 @@ def save_pdf_reports(
 
         # Páginas 2-9: Histórico + Projeção por latitude
         for lat_faixa in sorted(projections["lat_faixa"].dropna().unique())[:8]:
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(17, 6.5))
+            fig, ax1 = plt.subplots(figsize=(12, 6.5))
 
             lat_min = float(lat_faixa.left)
             lat_max = float(lat_faixa.right)
@@ -937,14 +1309,19 @@ def save_pdf_reports(
             ax1.set_xticks(np.arange(2015, 2025, 1))
             ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
             ax1.grid(False)
-            ax1.grid(axis="y", linestyle="--", alpha=0.28)
-            ax1.grid(axis="x", linestyle="--", alpha=0.10)
+            ax1.grid(axis="y", linestyle="-", alpha=0.20)
+            ax1.grid(axis="x", linestyle="-", alpha=0.08)
+
+            plt.tight_layout()
+            pdf.savefig(fig, dpi=300)
+            plt.close(fig)
+
+            fig, ax2 = plt.subplots(figsize=(12, 6.5))
 
             # Projeção
             proj_lat = projections[projections["lat_faixa"] == lat_faixa].groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
 
             # Mantém trecho histórico no painel de projeção (2015-2024), como solicitado.
-            hist_2024_lat = float(hist_lat.loc[hist_lat["year"] == 2024, "incidentes"].sum())
             ax2.plot(
                 hist_lat["year"],
                 hist_lat["incidentes"],
@@ -952,9 +1329,10 @@ def save_pdf_reports(
                 linewidth=2.0,
                 marker="o",
                 markersize=3,
-                label="Histórico (2015-2024)",
+                label="Dados observados (2015-2024)",
                 zorder=4,
             )
+            hist_2024_lat = float(hist_lat.loc[hist_lat["year"] == 2024, "incidentes"].sum())
 
             for sc in scen_fill_order:
                 ds = proj_lat[proj_lat["scenario"] == sc].sort_values("year")
@@ -965,8 +1343,6 @@ def save_pdf_reports(
                     vals_np = ds["pred_cases"].to_numpy(dtype=float)
                     lo, hi = uncertainty_bounds(years_np, vals_np, hist_cv, sc)
                     ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
-                    ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
-                    ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
 
             for sc in scen_order:
                 ds = proj_lat[proj_lat["scenario"] == sc].sort_values("year")
@@ -976,29 +1352,37 @@ def save_pdf_reports(
                         ds["pred_cases"],
                         linewidth=2.3,
                         color=scen_colors[sc],
-                        label=scen_labels[sc],
+                        label=f"Previsão {scen_labels[sc]}",
                         marker="o",
                         markersize=4,
                         zorder=3,
                     )
                     y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
-                    ax2.plot([2024, PROJECTION_START], [hist_2024_lat, y2025], color=scen_colors[sc], linewidth=1.1, linestyle="--", alpha=0.7, zorder=2)
+                    ax2.plot([2024, PROJECTION_START], [hist_2024_lat, y2025], color="black", linewidth=1.6, linestyle="-", alpha=0.85, zorder=3)
 
-            ax2.set_title(f"PROJEÇÃO - FAIXA {lat_label}\n({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
+            ax2.set_title("")
             ax2.set_xlabel("ANO", fontsize=10)
-            ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
-            ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
+            ax2.set_ylabel("")
+            ax2.set_xticks([2015, 2020, 2024, 2030, 2035, 2040])
             ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-            ax2.grid(True, linestyle="--", alpha=0.3)
-            ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
-            ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
+            ax2.grid(True, linestyle="-", alpha=0.20)
+            ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Séries")
+            ax2.text(
+                0.52,
+                0.03,
+                "2024: fim dos dados observados | 2025: início da previsão",
+                transform=ax2.transAxes,
+                fontsize=8.6,
+                color="#333333",
+                ha="center",
+            )
 
             plt.tight_layout()
             pdf.savefig(fig, dpi=300)
             plt.close(fig)
 
         # Última página: Consolidado regional
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+        fig, ax1 = plt.subplots(figsize=(12, 6.5))
 
         if not hist_regional_csv.empty:
             hist_regional = hist_regional_csv.copy()
@@ -1016,8 +1400,8 @@ def save_pdf_reports(
         ax1.set_xticks(np.arange(2015, 2025, 1))
         ax1.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
         ax1.grid(False)
-        ax1.grid(axis="y", linestyle="--", alpha=0.30)
-        ax1.grid(axis="x", linestyle="--", alpha=0.12)
+        ax1.grid(axis="y", linestyle="-", alpha=0.22)
+        ax1.grid(axis="x", linestyle="-", alpha=0.08)
 
         max_year = hist_regional.loc[hist_regional["incidentes"].idxmax(), "year"]
         max_cases = hist_regional["incidentes"].max()
@@ -1034,18 +1418,11 @@ def save_pdf_reports(
             fontweight="bold",
         )
 
-        hist_zoom = hist_regional[hist_regional["year"] <= 2023].copy()
-        if not hist_zoom.empty and float(hist_zoom["incidentes"].max()) > 0.0:
-            iax = inset_axes(ax1, width="44%", height="40%", loc="upper left", borderpad=1.0)
-            iax.fill_between(hist_zoom["year"], 0.0, hist_zoom["incidentes"], color="#2d9590", alpha=0.18)
-            iax.plot(hist_zoom["year"], hist_zoom["incidentes"], color="#1f706c", linewidth=1.8, marker="o", markersize=2.7)
-            iax.set_xlim(2015, 2023)
-            iax.set_ylim(0.0, float(hist_zoom["incidentes"].max()) * 1.12)
-            iax.set_xticks([2015, 2019, 2023])
-            iax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-            iax.tick_params(axis="both", labelsize=7)
-            iax.grid(axis="y", linestyle="--", alpha=0.22)
-            iax.set_title("Zoom 2015-2023", fontsize=7)
+        plt.tight_layout()
+        pdf.savefig(fig, dpi=300)
+        plt.close(fig)
+
+        fig, ax2 = plt.subplots(figsize=(12, 6.5))
 
         proj_regional = projections.groupby(["scenario", "year"], as_index=False)["pred_cases"].sum()
         hist_regional_series = hist_regional["incidentes"].to_numpy()
@@ -1059,7 +1436,7 @@ def save_pdf_reports(
             linewidth=2.2,
             marker="o",
             markersize=3,
-            label="Histórico (2015-2024)",
+            label="Dados observados (2015-2024)",
             zorder=4,
         )
 
@@ -1070,8 +1447,6 @@ def save_pdf_reports(
                 vals_np = ds["pred_cases"].to_numpy(dtype=float)
                 lo, hi = uncertainty_bounds(years_np, vals_np, hist_regional_cv, sc)
                 ax2.fill_between(ds["year"], lo, hi, color=scen_colors[sc], alpha=scen_alpha[sc], linewidth=0, zorder=1)
-                ax2.plot(ds["year"], lo, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
-                ax2.plot(ds["year"], hi, color=scen_colors[sc], linewidth=0.6, alpha=0.30, linestyle=":", zorder=2)
 
         for sc in scen_order:
             ds = proj_regional[proj_regional["scenario"] == sc].sort_values("year")
@@ -1081,21 +1456,20 @@ def save_pdf_reports(
                     ds["pred_cases"],
                     linewidth=2.2,
                     color=scen_colors[sc],
-                    label=scen_labels[sc],
+                    label=f"Previsão {scen_labels[sc]}",
                     marker="s",
                     markersize=5,
                     zorder=3,
                 )
                 y2025 = float(ds.loc[ds["year"] == PROJECTION_START, "pred_cases"].iloc[0]) if (ds["year"] == PROJECTION_START).any() else float(ds["pred_cases"].iloc[0])
-                ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color=scen_colors[sc], linewidth=1.2, linestyle="--", alpha=0.7, zorder=2)
+                ax2.plot([2024, PROJECTION_START], [hist_2024_reg, y2025], color="black", linewidth=1.6, linestyle="-", alpha=0.85, zorder=3)
 
         ax2.set_title(f"CONSOLIDADO PROJETADO - REGIÃO SUL ({PROJECTION_START}-{PROJECTION_END})", fontsize=12, fontweight="bold")
         ax2.set_xlabel("ANO", fontsize=10)
-        ax2.set_ylabel("INCIDENTES PROJETADOS", fontsize=10)
+        ax2.set_ylabel("")
         ax2.set_xticks(np.arange(2015, PROJECTION_END + 1, 5))
         ax2.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-        ax2.grid(True, linestyle="--", alpha=0.3)
-        ax2.axvline(2024.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.6)
+        ax2.grid(True, linestyle="-", alpha=0.20)
         ax2.legend(loc="upper left", fontsize=8.5, frameon=True, title="Cenários (linha + faixa de incerteza %)")
 
         plt.tight_layout()
@@ -1272,7 +1646,7 @@ def save_pdf_reports(
         ax_l.set_xlabel("Ano")
         ax_l.set_ylabel("Incidentes")
         ax_l.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-        ax_l.grid(axis="y", linestyle="--", alpha=0.28)
+        ax_l.grid(axis="y", linestyle="-", alpha=0.20)
 
         for sc in ["ssp126", "ssp245", "ssp370", "ssp585"]:
             ds = proj_reg[proj_reg["scenario"] == sc].sort_values("year")
@@ -1283,7 +1657,7 @@ def save_pdf_reports(
         ax_r.set_xlabel("Ano")
         ax_r.set_ylabel("Incidentes projetados")
         ax_r.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-        ax_r.grid(axis="y", linestyle="--", alpha=0.28)
+        ax_r.grid(axis="y", linestyle="-", alpha=0.20)
         ax_r.legend(loc="upper left", fontsize=8)
 
         fig.text(0.08, 0.08, f"Interpretacao: em 2040, o diferencial entre SSP5-8.5 e SSP1-2.6 e de {gap_2040:.1f}%, indicando sensibilidade substancial ao cenario climaticamente mais severo.", fontsize=9.5)
@@ -1304,7 +1678,7 @@ def save_pdf_reports(
         ax.set_xticks(x)
         ax.set_xticklabels(faixa_labels)
         ax.yaxis.set_major_formatter(FuncFormatter(incidentes_formatter))
-        ax.grid(axis="y", linestyle="--", alpha=0.25)
+        ax.grid(axis="y", linestyle="-", alpha=0.20)
         ax.legend(loc="upper left")
         fig.text(0.08, 0.08, "6 DISCUSSAO: o contraste entre faixas reforca a necessidade de priorizacao territorial na vigilancia.", fontsize=9.5)
         fig.text(0.08, 0.05, "7 CONCLUSAO: a configuracao atual do modelo permite leitura consistente de cenarios e apoio ao planejamento operacional.", fontsize=9.5)
@@ -1342,16 +1716,23 @@ def main() -> None:
     if not root_dir.exists():
         raise FileNotFoundError(f"Diretório raiz não encontrado: {root_dir}")
 
-    print("=" * 90)
-    print("MOTOR V2 - MODELAGEM CLIMA-SAÚDE (DENGUE) | REGIÃO SUL POR LATITUDE")
-    print("=" * 90)
+    logger.info("=" * 70)
+    logger.info("MOTOR V2 — MODELAGEM CLIMA-SAÚDE (DENGUE) | REGIÃO SUL POR LATITUDE")
+    logger.info("=" * 70)
 
-    # 1) Painel base
+    # 0) Validação de fontes antes de qualquer leitura
+    validate_data_sources(root_dir)
+
+    # 1) Painel base (fonte canônica: csvs_latitude quando disponível)
     panel, lookup = build_base_panel(root_dir)
     if panel.empty:
         raise RuntimeError("Painel base vazio após leitura.")
 
-    lookup_sul = lookup[lookup["code"].astype(str).str[:2].isin(["41", "42", "43"])].copy() if not lookup.empty else pd.DataFrame(columns=["code"])
+    lookup_sul = (
+        lookup[lookup["code"].astype(str).str[:2].isin(["41", "42", "43"])].copy()
+        if not lookup.empty
+        else pd.DataFrame(columns=["code"])
+    )
     coverage = CoverageInfo(
         municipios_sul_total=max(
             TOTAL_MUNICIPIOS_SUL_OFICIAL,
@@ -1360,26 +1741,22 @@ def main() -> None:
         municipios_com_dados=int(panel["code"].nunique()),
     )
 
-    print(f"\n[OK] Painel base construído:")
-    print(f"  - Registros: {len(panel):,}")
-    print(f"  - Municípios na base geográfica Sul: {coverage.municipios_sul_total:,}")
-    print(f"  - Municípios com dados no modelo: {coverage.municipios_com_dados:,}")
-    print(f"  - Período: {panel['year'].min()}-{panel['year'].max()}")
-    print(f"  - Latitude range: {panel['latitude'].min():.1f}°S a {panel['latitude'].max():.1f}°S")
+    logger.info("Painel base construído:")
+    logger.info("  Registros        : %s", f"{len(panel):,}")
+    logger.info("  Municípios Sul   : %s", f"{coverage.municipios_sul_total:,}")
+    logger.info("  Municípios dados : %s", f"{coverage.municipios_com_dados:,}")
+    logger.info("  Período          : %s-%s", panel['year'].min(), panel['year'].max())
+    logger.info("  Latitude range   : %.1f°S a %.1f°S", panel['latitude'].min(), panel['latitude'].max())
 
-    # 2) Treinamento local
+    # 2) Treinamento local (intercepto por município)
     local_intercepts: Dict[str, float] = {}
     for code, g in panel.groupby("code"):
         local_intercepts[code] = train_local_intercept(g)
+    logger.info("Treinamento local concluído: %d modelos", len(local_intercepts))
 
-    print(f"\n[OK] Treinamento local concluído:")
-    print(f"  - Modelos treinados: {len(local_intercepts):,}")
-
-    # 3) Calibração regional (desativada para foco exclusivo nos dados fornecidos)
+    # 3) Calibração regional (desativada — sem ajuste externo)
     calib = calibrate_region(panel, local_intercepts)
-    print(f"\n[OK] Ajustes externos desativados:")
-    print("  - Sem termo de imunidade")
-    print("  - Sem calibração externa de Arapongas")
+    logger.info("Calibração externa desativada (sem imunidade, sem âncora Arapongas)")
 
     # 4) Projeção por município
     all_proj = []
@@ -1392,23 +1769,26 @@ def main() -> None:
         raise RuntimeError("Nenhuma projeção gerada.")
 
     projections = pd.concat(all_proj, ignore_index=True)
-    print(f"\n[OK] Projeções geradas: {len(projections):,} registros")
+    logger.info("Projeções log-linear geradas: %s registros", f"{len(projections):,}")
 
-    # 5) Saída por latitude + consolidado
+    # 5) Saída por latitude + consolidado regional
     save_outputs_by_latitude(root_dir, projections, calib)
 
-    # 5.1) Previsão 2025 (ML) com e sem incremento SSP
+    # 5.1) Previsão pontual 2025 (com e sem incremento SSP)
     save_ml_2025_forecasts(root_dir, panel, local_intercepts)
+
+    # 5.2) ML completo (HistGradientBoosting) — reutiliza painel já carregado
+    run_full_ml_from_csvs_latitude(root_dir, panel=panel)
 
     # 6) PDFs
     pdf_lat, pdf_exec = save_pdf_reports(root_dir, panel, projections, calib, coverage)
-    print(f"\n[OK] Relatórios gerados:")
-    print(f"  - PDF gráficos: {pdf_lat.name}")
-    print(f"  - PDF executivo: {pdf_exec.name}")
+    logger.info("Relatórios gerados:")
+    logger.info("  PDF gráficos : %s", pdf_lat.name)
+    logger.info("  PDF executivo: %s", pdf_exec.name)
 
-    print("\n" + "=" * 90)
-    print("CONCLUSÃO: Saída em output/projecoes_regionais/")
-    print("=" * 90)
+    logger.info("=" * 70)
+    logger.info("CONCLUÍDO — Saída em output/projecoes_regionais/")
+    logger.info("=" * 70)
 
 
 if __name__ == "__main__":
