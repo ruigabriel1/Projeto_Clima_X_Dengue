@@ -600,3 +600,22 @@ Após cada passo, abra estes arquivos para confirmar que tudo funcionou:
 | 4 | `output/projecoes_regionais/ml_completo/metricas_ml_completo.json` | Métricas do modelo ML (MAE, RMSE, R²) |
 | 5 | `output/projecoes_sem_incremento/projecao_regiao_sul_sem_incremento_2025_2040.csv` | Baseline sem incremento climático |
 
+---
+
+## F. O Novo Fluxo de Trabalho: Exploração vs Produção
+
+Ao iniciar a refatoração do projeto, introduzimos uma nova peça fundamental: a pasta `notebooks/`.
+
+A Engenharia de Dados e a Ciência de Dados modernas funcionam em dois tempos distintos. O erro anterior do projeto era tentar fazer a **experimentação** (treinar milhares de modelos às cegas para achar o melhor) diretamente no **código de produção** (o script `.py`), gerando travamentos e esperas de mais de uma hora.
+
+### 🔬 Ambiente de Exploração (Jupyter Notebooks - `.ipynb`)
+* **O que é:** Cadernos interativos que misturam texto, código e gráficos no mesmo arquivo.
+* **Para que serve:** Onde a "mágica" da Ciência de Dados acontece. Usamos para carregar os dados, isolar **um único município** (ex: Joinville), plotar gráficos imediatamente, olhar a correlação visualmente e testar algoritmos de Machine Learning (como testar o Prophet vs o HistGradientBoostingRegressor).
+* **Vantagem:** A memória não apaga. Você carrega os dados na Célula 1 e eles ficam na RAM. Na Célula 2 você treina, na Célula 3 você plota. Se quiser mudar a cor do gráfico, você roda só a Célula 3 em milissegundos.
+* **Onde fica no projeto:** Pasta `notebooks/` (ex: `01_exploracao_ml_municipio.ipynb`).
+
+### 🏭 Ambiente de Produção (Scripts Python - `.py`)
+* **O que é:** O código formal, otimizado e focado em escala.
+* **Para que serve:** Uma vez que você validou o modelo matematicamente no Notebook, você copia as regras dele para o script `.py` para aplicar em *loop* nos 1.190 municípios.
+* **Vantagem:** É automatizável. Você coloca num servidor em nuvem (ex: Vertex AI) e ele processa a Região Sul inteira sem intervenção humana.
+* **Onde fica no projeto:** Pasta `src/` e arquivo `main.py`.
