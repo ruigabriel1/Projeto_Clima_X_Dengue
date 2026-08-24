@@ -111,6 +111,9 @@ pip install -r requirements.txt
 ### 2. Ordem de execução obrigatória
 
 ```bash
+# Passo 0 — Consolida dados brutos → data/processed/dados_consolidados.csv
+python main.py process-data
+
 # Passo 1 — Gera csvs_latitude (dengue por faixa)
 python src/processamento/processar_dengue_latitude_mapas.py
 
@@ -118,13 +121,25 @@ python src/processamento/processar_dengue_latitude_mapas.py
 python src/processamento/processar_clima_por_latitude.py
 
 # Passo 3 — Motor principal: projeções SSP + ML + PDFs
-python src/processamento/motor_lote_modelagem_v2_por_latitude.py
+python main.py run-model
 
 # Passo 4 (opcional) — Projeções sem incremento (cenário neutro)
-python src/pipeline-Jubileu_Plus.py
+python src/processamento/motor_lote_modelagem_v2_sem_incremento.py
 ```
 
 > **Nota:** Os passos 1 e 2 são pré-requisitos do motor principal. O motor detecta automaticamente se `output/csvs_latitude/` está populado e usa essa fonte canônica (1.190 municípios com coordenadas) em vez dos arquivos raw em formato wide.
+
+### 3. Validação dos outputs
+
+Após a execução, verifique se estes arquivos foram gerados:
+
+| Passo | Arquivo de validação | Resultado esperado |
+|---|---|---|
+| 0 | `data/processed/dados_consolidados.csv` | 121 linhas, 20 colunas |
+| 1 | `output/csvs_latitude/dengue_faixa_latitude_*.csv` | 8 arquivos por faixa de latitude |
+| 2 | `output/medias_latitude/todas_faixas_medias_mensais.csv` | Médias consolidadas |
+| 3 | `output/projecoes_regionais/relatorio_executivo_completo.pdf` | Relatório com gráficos |
+| 3 | `output/projecoes_regionais/ml_completo/metricas_ml_completo.json` | Métricas do ML |
 
 ---
 

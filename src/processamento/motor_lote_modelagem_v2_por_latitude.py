@@ -45,7 +45,8 @@ logger = logging.getLogger(__name__)
 
 
 # ========================= CONFIGURACOES GERAIS =========================
-ROOT_DATA_DIR = Path(r"c:\Users\ruiga\OneDrive\Documents\Projeto_Clima_X_Dengue")
+# Importa caminho raiz do config centralizado (portabilidade entre máquinas)
+from src.config import BASE_DIR as ROOT_DATA_DIR
 
 TRAIN_START = 2015
 TRAIN_END = 2024

@@ -13,16 +13,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ===== CONFIGURAÇÃO =====
-_BASE = Path(__file__).parent.parent.parent  # raiz do projeto
-ARQUIVO_DENGUE = str(_BASE / "data" / "raw" / "dengue_MENSAL.csv")
-ARQUIVO_ROSA_VENTOS = str(_BASE / "data" / "raw" / "R_transparent.png")
-PASTA_OUTPUT = str(_BASE / "output")
-PASTA_MAPAS = Path(PASTA_OUTPUT) / "mapas_latitude"
-PASTA_CSVS = Path(PASTA_OUTPUT) / "csvs_latitude"
+from src.config import BASE_DIR, DATA_RAW_DIR, OUTPUT_DIR, OUTPUT_CSVS_LATITUDE, OUTPUT_MAPAS_LATITUDE
 
-# Criar pastas se não existirem
-PASTA_MAPAS.mkdir(parents=True, exist_ok=True)
-PASTA_CSVS.mkdir(parents=True, exist_ok=True)
+ARQUIVO_DENGUE = str(DATA_RAW_DIR / "dengue_MENSAL.csv")
+ARQUIVO_ROSA_VENTOS = str(DATA_RAW_DIR / "R_transparent.png")
+PASTA_OUTPUT = str(OUTPUT_DIR)
+PASTA_MAPAS = OUTPUT_MAPAS_LATITUDE
+PASTA_CSVS = OUTPUT_CSVS_LATITUDE
 
 # Faixas de latitude  
 FAIXAS_LATITUDE = [

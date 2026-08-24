@@ -12,9 +12,10 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Configurações
-PASTA_DADOS = Path(__file__).parent.parent / "data" / "raw"
-ARQUIVO_SAIDA = Path(__file__).parent.parent / "data" / "processed" / "dados_consolidados.csv"
+# Configurações — usa caminhos centralizados do config
+from src.config import DATA_RAW_DIR, DATA_PROCESSED_DIR
+PASTA_DADOS = DATA_RAW_DIR
+ARQUIVO_SAIDA = DATA_PROCESSED_DIR / "dados_consolidados.csv"
 
 def carregar_dados_wide_temperatura_dengue(arquivo, tipo_dado):
     """Carrega CSVs de temperatura e dengue (formato wide)"""

@@ -32,7 +32,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 
 # ========================= CONFIGURACOES GERAIS =========================
-ROOT_DATA_DIR = Path(r"c:\Users\ruiga\OneDrive\Documents\Projeto_Clima_X_Dengue")
+# Importa caminho raiz do config centralizado (portabilidade entre máquinas)
+from src.config import BASE_DIR as ROOT_DATA_DIR
 
 TRAIN_START = 2014
 TRAIN_END = 2024

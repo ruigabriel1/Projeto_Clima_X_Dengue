@@ -17,16 +17,12 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger(__name__)
 
-# Configuração de caminhos
-BASE_DIR = Path(__file__).parent.parent.parent  # raiz do projeto
-DADOS_DIR = BASE_DIR / 'data' / 'raw'
-OUTPUT_DIR = BASE_DIR / 'output'
-CSVS_LATITUDE_DIR = OUTPUT_DIR / 'csvs_latitude'
-MEDIAS_LATITUDE_DIR = OUTPUT_DIR / 'medias_latitude'
-
-# Criar diretórios se não existirem
-CSVS_LATITUDE_DIR.mkdir(parents=True, exist_ok=True)
-MEDIAS_LATITUDE_DIR.mkdir(parents=True, exist_ok=True)
+# Configuração de caminhos — usa config centralizado
+from src.config import DATA_RAW_DIR, OUTPUT_CSVS_LATITUDE, OUTPUT_MEDIAS_LATITUDE
+DADOS_DIR = DATA_RAW_DIR
+OUTPUT_DIR = OUTPUT_CSVS_LATITUDE.parent
+CSVS_LATITUDE_DIR = OUTPUT_CSVS_LATITUDE
+MEDIAS_LATITUDE_DIR = OUTPUT_MEDIAS_LATITUDE
 
 # Dicionário com informações dos arquivos de clima
 ARQUIVOS_CLIMA = {
