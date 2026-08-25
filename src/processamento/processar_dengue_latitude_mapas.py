@@ -255,7 +255,7 @@ try:
             
             gdf_mapa['CLASSIFICACAO_VISUAL'] = gdf_mapa['CLASSIFICACAO_VISUAL'].fillna("Sem dados")
             
-            fig, ax = plt.subplots(1, 1, figsize=(10, 14))
+            fig, ax = plt.subplots(1, 1, figsize=(10, 10))
             
             # Definir fundo do oceano (azul claro)
             ax.set_facecolor('#a8d5f5')
@@ -267,14 +267,10 @@ try:
                 from shapely.geometry import box
                 
                 # Criar shapefiles simples para países vizinhos (aproximação)
-                # Paraguai
                 paraguai_bounds = box(-63, -28, -54, -19)
-                # Argentina (parte sul)
                 argentina_bounds = box(-74, -56, -53, -22)
-                # Uruguai
                 uruguai_bounds = box(-59, -35, -53, -30)
                 
-                # Plotar países vizinhos em cinza
                 gdf_paraguai = gpd.GeoDataFrame([1], geometry=[paraguai_bounds], crs='EPSG:4326')
                 gdf_argentina = gpd.GeoDataFrame([1], geometry=[argentina_bounds], crs='EPSG:4326')
                 gdf_uruguai = gpd.GeoDataFrame([1], geometry=[uruguai_bounds], crs='EPSG:4326')
@@ -283,20 +279,24 @@ try:
                 gdf_argentina.plot(ax=ax, color='#d3d3d3', edgecolor='#888888', linewidth=1, zorder=1)
                 gdf_uruguai.plot(ax=ax, color='#d3d3d3', edgecolor='#888888', linewidth=1, zorder=1)
                 
-                # Adicionar labels dos países
-                ax.text(-58, -23, 'Paraguai', fontsize=11, color='#666666', style='italic', 
-                       ha='center', va='center', zorder=15)
-                ax.text(-65, -40, 'Argentina', fontsize=11, color='#666666', style='italic',
-                       ha='center', va='center', zorder=15)
-                ax.text(-56, -32.5, 'Uruguai', fontsize=11, color='#666666', style='italic',
-                       ha='center', va='center', zorder=15)
-                ax.text(-42, -28, 'Oceano Atlântico', fontsize=11, color='#5a7fa8', style='italic',
-                       ha='center', va='center', zorder=15)
+                # Adicionar labels dos países (coordenadas ajustadas para não expandir a tela)
+                ax.text(-56.5, -24.5, 'Paraguai', fontsize=12, color='#666666', style='italic', ha='center', va='center', zorder=15)
+                ax.text(-57.5, -28.5, 'Argentina', fontsize=12, color='#666666', style='italic', ha='center', va='center', zorder=15)
+                ax.text(-55.5, -32.5, 'Uruguai', fontsize=12, color='#666666', style='italic', ha='center', va='center', zorder=15)
+                
+                # Oceano (dinamicamente baseado no limite leste)
+                minx, miny, maxx, maxy = gdf_sul.total_bounds
+                ax.text(maxx + 1.5, -28.0, 'Oceano Atlântico', fontsize=12, color='#5a7fa8', style='italic', ha='center', va='center', zorder=15)
             except:
                 pass
             
+            # Definir limites rígidos do mapa para focar APENAS no Sul do Brasil e não na Argentina
+            minx, miny, maxx, maxy = gdf_sul.total_bounds
+            ax.set_xlim(minx - 2, maxx + 2)
+            ax.set_ylim(miny - 2, maxy + 2)
+            
             # Plotar região Sul com dados de dengue (sobre os países)
-            for categoria in ["Sem dados", "0 a 9", "10 a 99", "100 a 299", "300 a 599", "> 600"]:
+            for categoria in list(CORES_MAPA.keys()):
                 gdf_cat = gdf_mapa[gdf_mapa['CLASSIFICACAO_VISUAL'] == categoria]
                 if len(gdf_cat) > 0:
                     gdf_cat.plot(
@@ -308,25 +308,18 @@ try:
                         zorder=10
                     )
             
-            ax.set_title(f'Incidência da Dengue do Ano {ano}', fontsize=16, fontweight='bold', pad=15)
+            ax.set_title(f'Incidência da Dengue - Região Sul ({ano})', fontsize=20, fontweight='bold', pad=20)
             ax.axis('off')
             
-            # Adicionar rosa dos ventos
-            try:
-                rosa_img = mpimg.imread(ARQUIVO_ROSA_VENTOS)
-                ax_rosa = fig.add_axes([0.05, 0.85, 0.10, 0.10], zorder=30)
-                ax_rosa.imshow(rosa_img)
-                ax_rosa.axis('off')
-            except:
-                pass
+            # (Rosa dos ventos amarela removida a pedido do usuário por quebrar o layout)
             
             # Adicionar mapa de localização do Brasil (inset no canto superior direito)
             try:
                 # Carregar estados do Brasil
                 gdf_estados = geobr.read_state(year=2020)
                 
-                # Criar inset axes no canto superior direito
-                ax_inset = fig.add_axes([0.75, 0.82, 0.20, 0.15], zorder=30)
+                # Criar inset axes no canto superior direito (ajustado para o novo figsize)
+                ax_inset = fig.add_axes([0.68, 0.65, 0.25, 0.25], zorder=30)
                 
                 # Plotar todos os estados em cinza claro
                 gdf_estados.plot(ax=ax_inset, color='#e0e0e0', edgecolor='#999999', linewidth=0.5)
@@ -411,11 +404,15 @@ except Exception as e:
         
         fig, ax = plt.subplots(1, 1, figsize=(10, 14))
         
-        for categoria in ["0 a 9", "10 a 99", "100 a 299", "300 a 599", "> 600"]:
+        # Limites da Região Sul
+        ax.set_xlim(-58, -47)
+        ax.set_ylim(-34, -22)
+        
+        for categoria in list(CORES_MAPA.keys()):
             df_cat = df_ano[df_ano['CLASSIFICACAO_VISUAL'] == categoria]
             if len(df_cat) > 0:
-                sizes = np.where(df_cat['CASOS_DENGUE'] < 100, 60, 
-                        np.where(df_cat['CASOS_DENGUE'] < 600, 120, 200))
+                sizes = np.where(df_cat['CASOS_DENGUE'] < 500, 60, 
+                        np.where(df_cat['CASOS_DENGUE'] < 2000, 120, 200))
                 ax.scatter(
                     df_cat['LONGITUDE'],
                     df_cat['LATITUDE'],
@@ -427,19 +424,12 @@ except Exception as e:
                     label=categoria
                 )
         
-        ax.set_title(f'Incidência da Dengue do Ano {ano}', fontsize=16, fontweight='bold')
+        ax.set_title(f'Incidência da Dengue - Região Sul ({ano})', fontsize=20, fontweight='bold', pad=20)
         ax.set_xlabel('Longitude', fontsize=11)
         ax.set_ylabel('Latitude', fontsize=11)
         ax.grid(True, alpha=0.2, linestyle=':')
         
-        # Adicionar rosa dos ventos
-        try:
-            rosa_img = mpimg.imread(ARQUIVO_ROSA_VENTOS)
-            ax_rosa = fig.add_axes([0.08, 0.85, 0.10, 0.10], zorder=30)
-            ax_rosa.imshow(rosa_img)
-            ax_rosa.axis('off')
-        except:
-            pass
+        # Rosa dos ventos removida
         
         # Legenda customizada
         from matplotlib.patches import Rectangle
