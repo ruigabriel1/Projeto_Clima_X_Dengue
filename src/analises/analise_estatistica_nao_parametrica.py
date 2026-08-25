@@ -35,6 +35,19 @@ class AnalisadorEstatistico:
         # Normalizar nomes das colunas
         self.df.columns = [col.strip().lower() for col in self.df.columns]
         
+        # Mapeamento de compatibilidade: nomes novos → nomes antigos
+        ALIAS_COLUNAS = {
+            'temp_media': 'temperatura media',
+            'temp_minima': 'temperatura minima',
+            'temp_maxima': 'temperatura maxima',
+            'incidencia_dengue': 'casos de dengue',
+            'oni_index': 'el nino',
+            'fase_enso': 'el nino'
+        }
+        for col_nova, col_antiga in ALIAS_COLUNAS.items():
+            if col_nova in self.df.columns and col_antiga not in self.df.columns:
+                self.df[col_antiga] = self.df[col_nova]
+        
     def estatisticas_descritivas(self, coluna):
         """
         Calcula estatísticas descritivas para uma variável

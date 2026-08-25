@@ -1,0 +1,632 @@
+{
+    "descritivas": {},
+    "normalidade": {},
+    "correlacao_spearman": {},
+    "mann_whitney": {},
+    "kruskal_wallis": {},
+    "el_nino_analise": {
+        "eventos_analisados": [
+            -1.3,
+            -1.2,
+            -1.1,
+            -1.0,
+            -0.99,
+            -0.97,
+            -0.93,
+            -0.92,
+            -0.91,
+            -0.9,
+            -0.85,
+            -0.83,
+            -0.81,
+            -0.8,
+            -0.7,
+            -0.68,
+            -0.6,
+            -0.53,
+            -0.5,
+            -0.43,
+            -0.4,
+            -0.37,
+            -0.3,
+            -0.26,
+            -0.21,
+            -0.2,
+            -0.15,
+            -0.11,
+            -0.1,
+            0.0,
+            0.04,
+            0.1,
+            0.15,
+            0.16,
+            0.2,
+            0.3,
+            0.39,
+            0.4,
+            0.48,
+            0.5,
+            0.7,
+            0.71,
+            0.77,
+            0.8,
+            0.9,
+            1.07,
+            1.14,
+            1.2,
+            1.32,
+            1.48,
+            1.5,
+            1.56,
+            1.6,
+            1.78,
+            1.9,
+            1.92,
+            1.95,
+            2.1,
+            2.2,
+            2.4,
+            2.5,
+            2.6
+        ],
+        "n_eventos": 62,
+        "estatisticas_por_evento": {
+            "-1.3": {
+                "n": 1,
+                "media": 1.72,
+                "mediana": 1.72,
+                "desvio_padrao": NaN,
+                "minimo": 1.72,
+                "maximo": 1.72
+            },
+            "-1.2": {
+                "n": 2,
+                "media": 2.6350000000000002,
+                "mediana": 2.6350000000000002,
+                "desvio_padrao": 2.9203510063004416,
+                "minimo": 0.57,
+                "maximo": 4.7
+            },
+            "-1.1": {
+                "n": 1,
+                "media": 98.66,
+                "mediana": 98.66,
+                "desvio_padrao": NaN,
+                "minimo": 98.66,
+                "maximo": 98.66
+            },
+            "-1.0": {
+                "n": 5,
+                "media": 0.9259999999999999,
+                "mediana": 0.53,
+                "desvio_padrao": 1.11185880398547,
+                "minimo": 0.2,
+                "maximo": 2.88
+            },
+            "-0.99": {
+                "n": 3,
+                "media": 43.73333333333333,
+                "mediana": 44.16,
+                "desvio_padrao": 42.951589415682086,
+                "minimo": 0.57,
+                "maximo": 86.47
+            },
+            "-0.97": {
+                "n": 1,
+                "media": 1.08,
+                "mediana": 1.08,
+                "desvio_padrao": NaN,
+                "minimo": 1.08,
+                "maximo": 1.08
+            },
+            "-0.93": {
+                "n": 1,
+                "media": 11.63,
+                "mediana": 11.63,
+                "desvio_padrao": NaN,
+                "minimo": 11.63,
+                "maximo": 11.63
+            },
+            "-0.92": {
+                "n": 1,
+                "media": 1.07,
+                "mediana": 1.07,
+                "desvio_padrao": NaN,
+                "minimo": 1.07,
+                "maximo": 1.07
+            },
+            "-0.91": {
+                "n": 1,
+                "media": 1.16,
+                "mediana": 1.16,
+                "desvio_padrao": NaN,
+                "minimo": 1.16,
+                "maximo": 1.16
+            },
+            "-0.9": {
+                "n": 4,
+                "media": 1.525,
+                "mediana": 0.34,
+                "desvio_padrao": 2.4953089321097432,
+                "minimo": 0.16,
+                "maximo": 5.26
+            },
+            "-0.85": {
+                "n": 1,
+                "media": 11.15,
+                "mediana": 11.15,
+                "desvio_padrao": NaN,
+                "minimo": 11.15,
+                "maximo": 11.15
+            },
+            "-0.83": {
+                "n": 1,
+                "media": 0.82,
+                "mediana": 0.82,
+                "desvio_padrao": NaN,
+                "minimo": 0.82,
+                "maximo": 0.82
+            },
+            "-0.81": {
+                "n": 1,
+                "media": 2.91,
+                "mediana": 2.91,
+                "desvio_padrao": NaN,
+                "minimo": 2.91,
+                "maximo": 2.91
+            },
+            "-0.8": {
+                "n": 3,
+                "media": 5.096666666666667,
+                "mediana": 0.24,
+                "desvio_padrao": 8.464008112787543,
+                "minimo": 0.18,
+                "maximo": 14.87
+            },
+            "-0.7": {
+                "n": 6,
+                "media": 3.3166666666666664,
+                "mediana": 0.22999999999999998,
+                "desvio_padrao": 7.536807458510975,
+                "minimo": 0.15,
+                "maximo": 18.7
+            },
+            "-0.68": {
+                "n": 1,
+                "media": 2.95,
+                "mediana": 2.95,
+                "desvio_padrao": NaN,
+                "minimo": 2.95,
+                "maximo": 2.95
+            },
+            "-0.6": {
+                "n": 3,
+                "media": 0.6866666666666666,
+                "mediana": 0.6,
+                "desvio_padrao": 0.5749202843293436,
+                "minimo": 0.16,
+                "maximo": 1.3
+            },
+            "-0.53": {
+                "n": 1,
+                "media": 7.86,
+                "mediana": 7.86,
+                "desvio_padrao": NaN,
+                "minimo": 7.86,
+                "maximo": 7.86
+            },
+            "-0.5": {
+                "n": 4,
+                "media": 2.2875,
+                "mediana": 0.27,
+                "desvio_padrao": 4.122251609658651,
+                "minimo": 0.14,
+                "maximo": 8.47
+            },
+            "-0.43": {
+                "n": 1,
+                "media": 12.41,
+                "mediana": 12.41,
+                "desvio_padrao": NaN,
+                "minimo": 12.41,
+                "maximo": 12.41
+            },
+            "-0.4": {
+                "n": 5,
+                "media": 0.8960000000000001,
+                "mediana": 0.36,
+                "desvio_padrao": 0.9718950560631533,
+                "minimo": 0.17,
+                "maximo": 2.37
+            },
+            "-0.37": {
+                "n": 1,
+                "media": 3.88,
+                "mediana": 3.88,
+                "desvio_padrao": NaN,
+                "minimo": 3.88,
+                "maximo": 3.88
+            },
+            "-0.3": {
+                "n": 2,
+                "media": 2.62,
+                "mediana": 2.62,
+                "desvio_padrao": 3.196122650963195,
+                "minimo": 0.36,
+                "maximo": 4.88
+            },
+            "-0.26": {
+                "n": 1,
+                "media": 2.48,
+                "mediana": 2.48,
+                "desvio_padrao": NaN,
+                "minimo": 2.48,
+                "maximo": 2.48
+            },
+            "-0.21": {
+                "n": 1,
+                "media": 2.29,
+                "mediana": 2.29,
+                "desvio_padrao": NaN,
+                "minimo": 2.29,
+                "maximo": 2.29
+            },
+            "-0.2": {
+                "n": 2,
+                "media": 0.22499999999999998,
+                "mediana": 0.22499999999999998,
+                "desvio_padrao": 0.09192388155425116,
+                "minimo": 0.16,
+                "maximo": 0.29
+            },
+            "-0.15": {
+                "n": 1,
+                "media": 84.71,
+                "mediana": 84.71,
+                "desvio_padrao": NaN,
+                "minimo": 84.71,
+                "maximo": 84.71
+            },
+            "-0.11": {
+                "n": 1,
+                "media": 3.29,
+                "mediana": 3.29,
+                "desvio_padrao": NaN,
+                "minimo": 3.29,
+                "maximo": 3.29
+            },
+            "-0.1": {
+                "n": 3,
+                "media": 5.196666666666666,
+                "mediana": 0.38,
+                "desvio_padrao": 8.577600674625353,
+                "minimo": 0.11,
+                "maximo": 15.1
+            },
+            "0.0": {
+                "n": 1,
+                "media": 0.09,
+                "mediana": 0.09,
+                "desvio_padrao": NaN,
+                "minimo": 0.09,
+                "maximo": 0.09
+            },
+            "0.04": {
+                "n": 1,
+                "media": 5.98,
+                "mediana": 5.98,
+                "desvio_padrao": NaN,
+                "minimo": 5.98,
+                "maximo": 5.98
+            },
+            "0.1": {
+                "n": 4,
+                "media": 0.225,
+                "mediana": 0.15,
+                "desvio_padrao": 0.23629078131263045,
+                "minimo": 0.05,
+                "maximo": 0.55
+            },
+            "0.15": {
+                "n": 1,
+                "media": 45.13,
+                "mediana": 45.13,
+                "desvio_padrao": NaN,
+                "minimo": 45.13,
+                "maximo": 45.13
+            },
+            "0.16": {
+                "n": 1,
+                "media": 110.53,
+                "mediana": 110.53,
+                "desvio_padrao": NaN,
+                "minimo": 110.53,
+                "maximo": 110.53
+            },
+            "0.2": {
+                "n": 4,
+                "media": 9.075,
+                "mediana": 0.27,
+                "desvio_padrao": 17.763981348034942,
+                "minimo": 0.04,
+                "maximo": 35.72
+            },
+            "0.3": {
+                "n": 4,
+                "media": 0.49750000000000005,
+                "mediana": 0.405,
+                "desvio_padrao": 0.47800801945853033,
+                "minimo": 0.09,
+                "maximo": 1.09
+            },
+            "0.39": {
+                "n": 1,
+                "media": 163.04,
+                "mediana": 163.04,
+                "desvio_padrao": NaN,
+                "minimo": 163.04,
+                "maximo": 163.04
+            },
+            "0.4": {
+                "n": 2,
+                "media": 39.785000000000004,
+                "mediana": 39.785000000000004,
+                "desvio_padrao": 54.12902409983021,
+                "minimo": 1.51,
+                "maximo": 78.06
+            },
+            "0.48": {
+                "n": 1,
+                "media": 67.83,
+                "mediana": 67.83,
+                "desvio_padrao": NaN,
+                "minimo": 67.83,
+                "maximo": 67.83
+            },
+            "0.5": {
+                "n": 10,
+                "media": 13.341,
+                "mediana": 4.65,
+                "desvio_padrao": 19.233710828184513,
+                "minimo": 0.05,
+                "maximo": 63.07
+            },
+            "0.7": {
+                "n": 5,
+                "media": 5.46,
+                "mediana": 4.58,
+                "desvio_padrao": 5.07983267440966,
+                "minimo": 0.43,
+                "maximo": 12.51
+            },
+            "0.71": {
+                "n": 1,
+                "media": 286.24,
+                "mediana": 286.24,
+                "desvio_padrao": NaN,
+                "minimo": 286.24,
+                "maximo": 286.24
+            },
+            "0.77": {
+                "n": 1,
+                "media": 23.46,
+                "mediana": 23.46,
+                "desvio_padrao": NaN,
+                "minimo": 23.46,
+                "maximo": 23.46
+            },
+            "0.8": {
+                "n": 2,
+                "media": 0.105,
+                "mediana": 0.105,
+                "desvio_padrao": 0.021213203435596427,
+                "minimo": 0.09,
+                "maximo": 0.12
+            },
+            "0.9": {
+                "n": 3,
+                "media": 4.996666666666667,
+                "mediana": 4.41,
+                "desvio_padrao": 5.184952587375639,
+                "minimo": 0.13,
+                "maximo": 10.45
+            },
+            "1.07": {
+                "n": 1,
+                "media": 4.4,
+                "mediana": 4.4,
+                "desvio_padrao": NaN,
+                "minimo": 4.4,
+                "maximo": 4.4
+            },
+            "1.14": {
+                "n": 1,
+                "media": 328.61,
+                "mediana": 328.61,
+                "desvio_padrao": NaN,
+                "minimo": 328.61,
+                "maximo": 328.61
+            },
+            "1.2": {
+                "n": 1,
+                "media": 1.78,
+                "mediana": 1.78,
+                "desvio_padrao": NaN,
+                "minimo": 1.78,
+                "maximo": 1.78
+            },
+            "1.32": {
+                "n": 1,
+                "media": 2.43,
+                "mediana": 2.43,
+                "desvio_padrao": NaN,
+                "minimo": 2.43,
+                "maximo": 2.43
+            },
+            "1.48": {
+                "n": 1,
+                "media": 121.46,
+                "mediana": 121.46,
+                "desvio_padrao": NaN,
+                "minimo": 121.46,
+                "maximo": 121.46
+            },
+            "1.5": {
+                "n": 1,
+                "media": 0.38,
+                "mediana": 0.38,
+                "desvio_padrao": NaN,
+                "minimo": 0.38,
+                "maximo": 0.38
+            },
+            "1.56": {
+                "n": 1,
+                "media": 1.86,
+                "mediana": 1.86,
+                "desvio_padrao": NaN,
+                "minimo": 1.86,
+                "maximo": 1.86
+            },
+            "1.6": {
+                "n": 1,
+                "media": 20.4,
+                "mediana": 20.4,
+                "desvio_padrao": NaN,
+                "minimo": 20.4,
+                "maximo": 20.4
+            },
+            "1.78": {
+                "n": 2,
+                "media": 22.73,
+                "mediana": 22.73,
+                "desvio_padrao": 28.963093757400987,
+                "minimo": 2.25,
+                "maximo": 43.21
+            },
+            "1.9": {
+                "n": 1,
+                "media": 0.36,
+                "mediana": 0.36,
+                "desvio_padrao": NaN,
+                "minimo": 0.36,
+                "maximo": 0.36
+            },
+            "1.92": {
+                "n": 1,
+                "media": 5.84,
+                "mediana": 5.84,
+                "desvio_padrao": NaN,
+                "minimo": 5.84,
+                "maximo": 5.84
+            },
+            "1.95": {
+                "n": 1,
+                "media": 8.06,
+                "mediana": 8.06,
+                "desvio_padrao": NaN,
+                "minimo": 8.06,
+                "maximo": 8.06
+            },
+            "2.1": {
+                "n": 1,
+                "media": 15.72,
+                "mediana": 15.72,
+                "desvio_padrao": NaN,
+                "minimo": 15.72,
+                "maximo": 15.72
+            },
+            "2.2": {
+                "n": 1,
+                "media": 0.24,
+                "mediana": 0.24,
+                "desvio_padrao": NaN,
+                "minimo": 0.24,
+                "maximo": 0.24
+            },
+            "2.4": {
+                "n": 1,
+                "media": 0.29,
+                "mediana": 0.29,
+                "desvio_padrao": NaN,
+                "minimo": 0.29,
+                "maximo": 0.29
+            },
+            "2.5": {
+                "n": 1,
+                "media": 8.95,
+                "mediana": 8.95,
+                "desvio_padrao": NaN,
+                "minimo": 8.95,
+                "maximo": 8.95
+            },
+            "2.6": {
+                "n": 2,
+                "media": 1.4449999999999998,
+                "mediana": 1.4449999999999998,
+                "desvio_padrao": 0.445477272147525,
+                "minimo": 1.13,
+                "maximo": 1.76
+            }
+        },
+        "kruskal_wallis": {
+            "estatistica_h": 73.33573490376116,
+            "p_valor": 0.13376087030200026,
+            "graus_liberdade": 61,
+            "diferenca_significativa": false,
+            "interpretacao": "NÃO há diferença significativa entre eventos (p ≥ 0.05)"
+        }
+    },
+    "analise_temperatura_media": {
+        "descritivas": {
+            "temperatura media": {
+                "n_observacoes": 121,
+                "media": 20.201652892561984,
+                "desvio_padrao": 3.085184042891509,
+                "mediana": 20.69,
+                "q1": 18.22,
+                "q3": 22.61,
+                "minimo": 11.57,
+                "maximo": 25.39,
+                "iqr": 4.390000000000001
+            },
+            "casos_dengue": {
+                "n_observacoes": 120,
+                "media": 16.962749999999996,
+                "desvio_padrao": 46.70839492253503,
+                "mediana": 1.7,
+                "q1": 0.29,
+                "q3": 8.65,
+                "minimo": 0.04,
+                "maximo": 328.61,
+                "iqr": 8.360000000000001
+            }
+        },
+        "normalidade": {
+            "temperatura media": {
+                "teste": "Shapiro-Wilk",
+                "estatistica": 0.9614212547563231,
+                "p_valor": 0.0015598560749831916,
+                "alpha": 0.05,
+                "distribuicao_normal": false,
+                "interpretacao": "Dados NÃO seguem distribuição normal (p ≤ 0.05)",
+                "n_amostras": 121
+            },
+            "casos_dengue": {
+                "teste": "Shapiro-Wilk",
+                "estatistica": 0.39490009063907283,
+                "p_valor": 4.281218009297641e-20,
+                "alpha": 0.05,
+                "distribuicao_normal": false,
+                "interpretacao": "Dados NÃO seguem distribuição normal (p ≤ 0.05)",
+                "n_amostras": 120
+            }
+        },
+        "correlacao_spearman": {
+            "variavel_1": "temperatura media",
+            "variavel_2": "casos de dengue",
+            "rho": -0.1813106962777677,
+            "p_valor": 0.04749848609376509,
+            "n_observacoes": 120,
+            "forca_correlacao": "Fraca",
+            "direcao": "negativa",
+            "significativa": 
