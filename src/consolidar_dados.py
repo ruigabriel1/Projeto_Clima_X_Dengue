@@ -18,7 +18,7 @@ PASTA_DADOS = DATA_RAW_DIR
 ARQUIVO_SAIDA = DATA_PROCESSED_DIR / "dados_consolidados.csv"
 
 def carregar_dados_wide_temperatura_dengue(arquivo, tipo_dado):
-    """Carrega CSVs de temperatura e dengue (formato wide)"""
+    """Carrega CSVs de temperatura e dengue (formato wide) com filtros de qualidade"""
     # Lê CSV pulando as 2 primeiras linhas (cabeçalho)
     df = pd.read_csv(arquivo, sep=';', skiprows=2)
     
@@ -32,9 +32,19 @@ def carregar_dados_wide_temperatura_dengue(arquivo, tipo_dado):
     colunas_excluir = ['year', 'mes', 'data', 'municipio', 'CÓDIGO DO MUNICÍPIO', 'Unnamed: 0']
     colunas_municipios = [col for col in df.columns if col not in colunas_excluir]
     
-    # Converte para numérico e calcula média
+    # Converte para numérico
     df_numeric = df[colunas_municipios].apply(pd.to_numeric, errors='coerce')
-    df[tipo_dado] = df_numeric.mean(axis=1, skipna=True)
+    
+    # FILTRO DE QUALIDADE: INMET usa valores negativos extremos (-999, -99.9, -9999) como Erro/Sem Dado
+    # Removemos qualquer valor absoluto absurdamente alto para temperatura e precipitação
+    if 'temp' in tipo_dado.lower() or 'precip' in tipo_dado.lower():
+        df_numeric = df_numeric.where((df_numeric > -50) & (df_numeric < 10000))
+    elif 'dengue' in tipo_dado.lower():
+        df_numeric = df_numeric.fillna(0) # Lacunas de dengue são zero casos
+        df_numeric = df_numeric.where(df_numeric >= 0)
+    
+    # Calcula a média da linha (região) ignorando os NaNs e arredonda 2 casas decimais
+    df[tipo_dado] = df_numeric.mean(axis=1, skipna=True).round(2)
     
     return df[['data', tipo_dado]].dropna(subset=['data'])
 
@@ -60,9 +70,12 @@ def carregar_precipitacao(arquivo):
     colunas_excluir = ['year', 'mes', 'data', 'municipio', 'CÓDIGO DO MUNICÍPIO', 'Unnamed: 0']
     colunas_municipios = [col for col in df.columns if col not in colunas_excluir]
     
-    # Média
+    # Converte e aplica Filtro de Qualidade
     df_numeric = df[colunas_municipios].apply(pd.to_numeric, errors='coerce')
-    df['precipitacao'] = df_numeric.mean(axis=1, skipna=True)
+    df_numeric = df_numeric.where((df_numeric > -50) & (df_numeric < 10000))
+    
+    # Média com arredondamento
+    df['precipitacao'] = df_numeric.mean(axis=1, skipna=True).round(2)
     
     return df[['data', 'precipitacao']].dropna(subset=['data'])
 

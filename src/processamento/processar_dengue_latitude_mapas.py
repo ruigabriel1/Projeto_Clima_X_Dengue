@@ -34,28 +34,31 @@ FAIXAS_LATITUDE = [
 ]
 
 def classificar_incidencia(valor):
-    """Classifica incidência em categorias para visualização"""
+    """Classifica incidência em categorias para visualização de Surtos Reais"""
     if pd.isna(valor) or valor < 0:
         return "Sem dados"
-    elif valor < 10:
-        return "0 a 9"
-    elif valor < 100:
-        return "10 a 99"
-    elif valor < 300:
-        return "100 a 299"
-    elif valor < 600:
-        return "300 a 599"
+    elif valor == 0:
+        return "Zero"
+    elif valor < 50:
+        return "1 a 49"
+    elif valor < 500:
+        return "50 a 499"
+    elif valor < 2000:
+        return "500 a 1.999"
+    elif valor < 10000:
+        return "2.000 a 9.999"
     else:
-        return "> 600"
+        return "> 10.000"
 
-# Cores para os mapas
+# Cores para os mapas (Paleta atualizada)
 CORES_MAPA = {
     "Sem dados": "#f0f0f0",
-    "0 a 9": "#ffffcc",
-    "10 a 99": "#ffeda0",
-    "100 a 299": "#feb24c",
-    "300 a 599": "#f03b20",
-    "> 600": "#bd0026"
+    "Zero": "#ffffcc",
+    "1 a 49": "#ffeda0",
+    "50 a 499": "#feb24c",
+    "500 a 1.999": "#fd8d3c",
+    "2.000 a 9.999": "#f03b20",
+    "> 10.000": "#bd0026"
 }
 
 print("=" * 70)
@@ -342,10 +345,14 @@ try:
             except:
                 pass
             
-            # Legenda customizada
+            # Configurar legenda
             from matplotlib.patches import Rectangle
             legend_elements = []
-            for cat in ["0 a 9", "10 a 99", "100 a 299", "300 a 599", "> 600"]:
+            
+            # Usar diretamente as chaves do dicionário CORES_MAPA na ordem em que foram definidas
+            categorias = list(CORES_MAPA.keys())
+            
+            for cat in categorias:
                 legend_elements.append(Rectangle((0,0),1,1, facecolor=CORES_MAPA[cat], edgecolor='#666666', linewidth=0.5, label=cat))
             
             leg = ax.legend(handles=legend_elements, title='Incidência dengue por 100 mil/hab', 
@@ -437,7 +444,10 @@ except Exception as e:
         # Legenda customizada
         from matplotlib.patches import Rectangle
         legend_elements = []
-        for cat in ["0 a 9", "10 a 99", "100 a 299", "300 a 599", "> 600"]:
+        
+        categorias = list(CORES_MAPA.keys())
+        
+        for cat in categorias:
             legend_elements.append(Rectangle((0,0),1,1, facecolor=CORES_MAPA[cat], edgecolor='#666666', linewidth=0.5, label=cat))
         
         leg = ax.legend(handles=legend_elements, title='Incidência dengue por 100 mil/hab',
