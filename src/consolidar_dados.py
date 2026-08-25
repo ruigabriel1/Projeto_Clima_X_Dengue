@@ -91,23 +91,27 @@ def carregar_elnino(arquivo):
     # Remove colunas vazias
     df = df.dropna(axis=1, how='all')
     
-    # Melt para formato long
+    # Remove linhas onde o ano é NaN
+    df = df.dropna(subset=['ano'])
+    df['ano'] = df['ano'].astype(int).astype(str)
+    
+    # Melt para formato long (Mapeamento flexível para lidar com encoding)
     meses_map = {
-        'janeiro': 1, 'fevereiro': 2, 'março': 3, 'abril': 4, 
-        'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
-        'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
+        'jan': 1, 'fev': 2, 'mar': 3, 'abr': 4, 
+        'mai': 5, 'jun': 6, 'jul': 7, 'ago': 8,
+        'set': 9, 'out': 10, 'nov': 11, 'dez': 12
     }
     
-    colunas_meses = [col for col in df.columns if col.lower() in meses_map]
+    colunas_meses = [col for col in df.columns if col[:3].lower() in meses_map]
     
     df_long = df.melt(id_vars=['ano'], value_vars=colunas_meses, 
                       var_name='mes_nome', value_name='oni_index')
     
     # Mapeia nome do mês para número
-    df_long['mes'] = df_long['mes_nome'].str.lower().map(meses_map)
+    df_long['mes'] = df_long['mes_nome'].str[:3].str.lower().map(meses_map)
     
     # Cria data
-    df_long['data'] = pd.to_datetime(df_long['ano'].astype(str) + '-' + df_long['mes'].astype(str).str.zfill(2), 
+    df_long['data'] = pd.to_datetime(df_long['ano'] + '-' + df_long['mes'].astype(str).str.zfill(2), 
                                      format='%Y-%m', errors='coerce')
     
     # Converte ONI para numérico (trata vírgulas)
