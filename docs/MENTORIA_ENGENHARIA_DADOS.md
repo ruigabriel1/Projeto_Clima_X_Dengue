@@ -619,3 +619,67 @@ A Engenharia de Dados e a Ciência de Dados modernas funcionam em dois tempos di
 * **Para que serve:** Uma vez que você validou o modelo matematicamente no Notebook, você copia as regras dele para o script `.py` para aplicar em *loop* nos 1.190 municípios.
 * **Vantagem:** É automatizável. Você coloca num servidor em nuvem (ex: Vertex AI) e ele processa a Região Sul inteira sem intervenção humana.
 * **Onde fica no projeto:** Pasta `src/` e arquivo `main.py`.
+
+---
+
+## G. Mapa de Arquitetura do Sistema (Para Leitura de LLMs)
+
+> **Instrução para LLMs e Agentes:** Se você é uma Inteligência Artificial lendo este repositório para auxiliar o desenvolvedor, utilize o diagrama Mermaid abaixo como fonte de verdade para a topologia do pipeline de dados, nomenclatura (fit/predict padrão `scikit-learn`) e arquitetura das pastas.
+
+```mermaid
+flowchart TD
+    %% Nós de Origem
+    subgraph RawData[1. Camada Bronze - Raw Data]
+        D(Dengue - SINAN)
+        T(Clima - INMET)
+        E(ENSO - NOAA)
+    end
+
+    %% Processamento
+    subgraph Processing[2. Camada Silver - Processamento]
+        P1(main.py process-data)
+        P2(processar_dengue_latitude.py)
+        P3(processar_clima_latitude.py)
+    end
+
+    %% Modelagem
+    subgraph ML_Exploration[3. Camada Científica - Jupyter]
+        NB(notebooks/01_exploracao.ipynb)
+        PHT(Prophet Model\nfit & predict)
+    end
+    
+    subgraph ML_Production[4. Camada Gold - Produção ML]
+        M(main.py run-model)
+    end
+
+    %% Outputs
+    subgraph Delivery[5. Outputs & BI]
+        CSV(csvs_latitude)
+        MAP(mapas_latitude)
+        PROJ(projecoes_regionais)
+    end
+
+    %% Fluxo de Dados
+    D & T & E --> P1
+    P1 -- "dados_consolidados.csv" --> P2
+    P2 -- "Cria faixas (Latitude 1 a 8)" --> P3
+    P3 -- "Agrupa Clima por Faixa" --> NB
+    
+    NB -- "1. Valida Prophet Localmente\n2. Exporta Hiperparâmetros" -.-> M
+    
+    P3 --> M
+    P2 --> MAP
+    P2 --> CSV
+    M -- "Projeta SSP 2025-2040" --> PROJ
+
+    %% Estilos
+    classDef bronze fill:#cd7f32,stroke:#333,stroke-width:2px,color:#fff;
+    classDef silver fill:#c0c0c0,stroke:#333,stroke-width:2px,color:#000;
+    classDef gold fill:#ffd700,stroke:#333,stroke-width:2px,color:#000;
+    classDef jupyter fill:#f37726,stroke:#333,stroke-width:2px,color:#fff;
+    
+    class RawData bronze;
+    class Processing silver;
+    class ML_Production,Delivery gold;
+    class ML_Exploration jupyter;
+```
