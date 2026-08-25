@@ -622,7 +622,25 @@ A Engenharia de Dados e a Ciência de Dados modernas funcionam em dois tempos di
 
 ---
 
-## G. Mapa de Arquitetura do Sistema (Para Leitura de LLMs)
+## G. Qualidade de Dados (Data Quality) e Correções Visuais
+
+Foi implementado um funil estrito de Qualidade de Dados (Data Quality) para garantir que as anomalias dos dados brutos governamentais não poluam o modelo preditivo:
+
+### 1. Tratamento de Anomalias Climáticas (INMET)
+* **O Problema:** Estações meteorológicas do INMET offline exportam erros com números absurdos (ex: `-9999` ou `-99.9`), o que distorcia a temperatura média do Sul.
+* **A Solução:** O parser central `carregar_dados_wide_temperatura_dengue` filtra ativamente valores abaixo de `-50` ou acima de `10000`, substituindo-os por `NaN` antes do cálculo da média regional. Os números finais foram arredondados para **2 casas decimais**.
+
+### 2. Tratamento Epidemiológico de Lacunas (SINAN)
+* **O Problema:** Municípios sem casos reportados enviavam matrizes com espaços em branco, que eram tratados como `NaN` pelo pandas, enfraquecendo as métricas temporais.
+* **A Solução:** Implementado `fillna(0)` para a variável alvo (dengue), refletindo a regra de negócio epidemiológica de que lacuna de notificação em meses não-endêmicos representa zero infecções locais.
+
+### 3. Overhaul do Geoprocessamento Visual (Mapas)
+* **O Problema:** A matriz visual antiga renderizava o Sul da Argentina em conjunto ao Sul do Brasil, reduzindo o mapa alvo. Adicionalmente, a paleta de cores travava no limite `> 600` casos/ano, tornando toda a região vermelha em anos epidêmicos.
+* **A Solução:** Foi aplicada uma trava magnética (`bounding box`) limitando o eixo cartesiano estritamente aos estados do Sul (`ax.set_xlim` e `ylim`). A rosa dos ventos quebrada foi removida por um design limpo e científico. Por fim, a paleta epidemiológica foi categorizada exponencialmente em 6 estágios, evidenciando Surtos Reais (ex: `2.000 a 9.999` e `> 10.000` casos anuais).
+
+---
+
+## H. Mapa de Arquitetura do Sistema (Para Leitura de LLMs)
 
 > **Instrução para LLMs e Agentes:** Se você é uma Inteligência Artificial lendo este repositório para auxiliar o desenvolvedor, utilize o diagrama Mermaid abaixo como fonte de verdade para a topologia do pipeline de dados, nomenclatura (fit/predict padrão `scikit-learn`) e arquitetura das pastas.
 
