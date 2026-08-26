@@ -640,9 +640,45 @@ Foi implementado um funil estrito de Qualidade de Dados (Data Quality) para gara
 
 ---
 
-## H. Mapa de Arquitetura do Sistema (Para Leitura de LLMs)
+## H. Modelagem Avançada de Machine Learning (XGBoost)
 
-> **Instrução para LLMs e Agentes:** Se você é uma Inteligência Artificial lendo este repositório para auxiliar o desenvolvedor, utilize o diagrama Mermaid abaixo como fonte de verdade para a topologia do pipeline de dados, nomenclatura (fit/predict padrão `scikit-learn`) e arquitetura das pastas.
+No campo da predição epidemiológica, mudamos nossa abordagem de modelos univariados (Prophet por cidade) para um **Modelo Global de Árvores de Decisão (XGBoost)**, alcançando resultados de padrão científico.
+
+### O Problema do Baseline e Cisnes Negros
+* **Prophet (Notebooks 01 e 02):** Falhava em cidades com inflação de zeros (muitos meses sem dengue) e alcançava R² negativos em municípios pequenos.
+* **Validação Temporal Cega (2024):** Treinar a IA de 2015 a 2023 e testar em 2024 gerou um R² de 0.32. Como 2024 foi uma anomalia nunca vista (Cisne Negro da dengue no Brasil), a extrapolação foi conservadora.
+
+### A Engenharia de Features e Validação Global (Notebooks 03 e 04)
+A solução matemática foi realizar o **Cross-Validation Espacial**:
+1. **Engenharia de Variáveis (Apenas com dados no repositório):**
+   - `max_historico_casos`: Atua como proxy de densidade urbana/tamanho da cidade.
+   - `latitude` e `longitude`: Atuam como proxy geográfico, permitindo à IA aprender onde ficam as Serras (barreira climática).
+   - `casos_lag1` (velocidade de contágio atual) e `casos_lag12` (memória imunológica da população).
+2. **Split Global:** Treinando o modelo em 80% de todas as cidades (misturando todos os anos) e testando nos 20% restantes.
+3. **Resultado Matemático (R² de 0.744):** O modelo obteve altíssima precisão (74.4% da variância explicada, com erro absoluto de apenas 10.8 casos).
+
+---
+
+## I. Próximos Passos (Roadmap de Evolução)
+
+Com a arquitetura de dados limpa e o modelo de alta precisão consolidados, o projeto pode evoluir nas seguintes frentes usando estritamente o que já temos no diretório:
+
+1. **Deploy do Modelo Global em Produção:**
+   - Transportar a inteligência do `04_xgboost_alta_precisao.ipynb` para dentro de um script de produção (ex: `src/processamento/motor_global_xgboost.py`).
+   - Automatizar as projeções para 2025 para serem cuspidas na pasta `output/projecoes_regionais/` sempre que o usuário rodar `python main.py run-model`.
+
+2. **Dashboard / Visualização de BI:**
+   - Criar uma interface web leve (usando `Streamlit` ou `Dash`) ou um relatório em PDF dinâmico que leia o `dados_consolidados.csv` e os mapas em `output/` e entregue os "Alertas de Risco" de forma visual para a tomada de decisão.
+
+3. **Integração de Dados Externos Definitivos (Opcional Futuro):**
+   - Conectar o pipeline a uma API de população do IBGE (Censo 2022) para substituir nosso proxy `max_historico_casos` pela *Incidência a cada 100 mil habitantes*, elevando o rigor científico para eventual publicação acadêmica.
+   - Adicionar base de dados formal de *Altitude*.
+
+---
+
+## J. Mapa de Arquitetura do Sistema (Para Leitura de LLMs)
+
+> **Instrução para LLMs e Agentes:** Se você é uma Inteligência Artificial lendo este repositório para auxiliar o desenvolvedor, utilize o diagrama Mermaid abaixo como fonte de verdade para a topologia do pipeline de dados, nomenclatura e arquitetura das pastas.
 
 ```mermaid
 flowchart TD
@@ -662,8 +698,12 @@ flowchart TD
 
     %% Modelagem
     subgraph ML_Exploration[3. Camada Científica - Jupyter]
-        NB(notebooks/01_exploracao.ipynb)
-        PHT(Prophet Model\nfit & predict)
+        NB2(02_analise_completa.ipynb
+Prophet x Baseline)
+        NB3(03_modelo_global_xgboost.ipynb
+Eng. Features)
+        NB4(04_xgboost_alta_precisao.ipynb
+Validação Global)
     end
     
     subgraph ML_Production[4. Camada Gold - Produção ML]
@@ -674,21 +714,23 @@ flowchart TD
     subgraph Delivery[5. Outputs & BI]
         CSV(csvs_latitude)
         MAP(mapas_latitude)
-        PROJ(projecoes_regionais)
+        JSON(xgboost_tuning_results.json)
     end
 
     %% Fluxo de Dados
     D & T & E --> P1
     P1 -- "dados_consolidados.csv" --> P2
     P2 -- "Cria faixas (Latitude 1 a 8)" --> P3
-    P3 -- "Agrupa Clima por Faixa" --> NB
+    P3 -- "Agrupa Clima por Faixa" --> NB2
+    P1 -- "Painel Global 1190 Municípios" --> NB3
+    NB3 -- "Engenharia de Variáveis (Lags/Proxy)" --> NB4
     
-    NB -- "1. Valida Prophet Localmente\n2. Exporta Hiperparâmetros" -.-> M
+    NB4 -- "Hiperparâmetros Ótimos (R² > 0.74)" -.-> M
     
     P3 --> M
     P2 --> MAP
     P2 --> CSV
-    M -- "Projeta SSP 2025-2040" --> PROJ
+    NB4 --> JSON
 
     %% Estilos
     classDef bronze fill:#cd7f32,stroke:#333,stroke-width:2px,color:#fff;
