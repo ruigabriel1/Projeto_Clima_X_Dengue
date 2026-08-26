@@ -1,44 +1,66 @@
-# 🦟 Predição Epidemiológica de Dengue com XGBoost
+# Predição Epidemiológica de Dengue — Região Sul do Brasil
 
-Este projeto utiliza Engenharia de Dados e Machine Learning (XGBoost) para prever surtos de dengue na Região Sul do Brasil, cruzando dados climáticos (INMET), epidemiológicos (SINAN) e anomalias oceânicas (El Niño/NOAA).
+Projeto de **Engenharia de Dados e Machine Learning** que cruza dados climáticos (INMET), epidemiológicos (SINAN) e anomalias oceânicas (NOAA/El Niño) para prever surtos de dengue nos 1.190 municípios da Região Sul.
 
-## 🚀 O Grande Resultado: Antecipando o "Cisne Negro"
-Em nosso teste de validação cruzada global, o modelo de Inteligência Artificial foi capaz de prever os surtos do ano de 2024 (o ano com o maior recorde epidêmico do Brasil) com **alta precisão científica**:
-* **R² Score:** `0.744` (74,4% da variância climática e biológica explicada).
-* **MAE:** Erro médio de apenas `10.8` casos por cidade ao mês.
+## Resultado Principal
 
-Para alcançar este resultado sem depender de APIs externas para cada município, utilizamos Engenharia de Features avançada:
-* `max_historico_casos` como **Proxy de Densidade Urbana**.
-* `latitude / longitude` cruzadas como **Bússola Geográfica** (detectando a barreira natural das Serras).
-* `casos_lag1` e `casos_lag12` para calcular matematicamente a **Velocidade de Contágio** e a **Memória Imunológica de Rebanho**.
+| Métrica | Valor |
+|---------|-------|
+| Algoritmo | XGBoost Regressor (Gradient Boosted Trees) |
+| R² Score (Cross-Validation Global) | **0.744** |
+| MAE (Erro Médio Absoluto) | **10.8 casos / cidade / mês** |
+| Cobertura | 1.190 municípios × 10 anos (142.800 registros) |
 
----
+O modelo foi validado com Cross-Validation Espacial (treino em 80% das cidades, teste em 20%) e demonstrou capacidade de capturar os padrões sazonais e geográficos da dengue, incluindo o surto recorde de 2024.
 
-## 🏗️ Estrutura da Documentação e Portfólio
+## Estrutura do Repositório
 
-Se você deseja entender a fundo como este projeto foi construído, leia nossa documentação definitiva:
+```
+Projeto_Clima_X_Dengue/
+├── data/
+│   ├── raw/                    # Camada Bronze: CSVs brutos (SINAN, INMET, NOAA)
+│   ├── processed/              # Camada Silver: dados_consolidados.csv
+│   └── geodados/               # GeoPackages para mapas (cache local)
+├── output/
+│   ├── csvs_latitude/          # Camada Silver: 48 CSVs por faixa de latitude
+│   ├── mapas_latitude/         # Mapas coropléticos anuais
+│   └── *.png / *.json          # Gráficos e métricas do modelo
+├── notebooks/
+│   ├── 02_analise_completa_ml.ipynb   # EDA + Prophet vs Baseline
+│   ├── 03_modelo_global_xgboost.ipynb # XGBoost: Teste Temporal (2024)
+│   └── 04_xgboost_alta_precisao.ipynb # XGBoost: Validação Global (R²=0.74)
+├── src/                        # Código-fonte do pipeline
+├── docs/                       # Documentação técnica
+│   ├── ARQUITETURA_DE_DADOS.md # Pipeline Medallion (Bronze/Silver/Gold)
+│   ├── CIENCIA_DE_DADOS_XGBOOST.md # Decisões de modelagem
+│   └── legado/                 # Documentos de versões anteriores
+├── main.py                     # CLI principal (process-data, run-model, generate-reports)
+└── requirements.txt
+```
 
-1. [🏛️ Arquitetura de Dados (Medallion)](docs/ARQUITETURA_DE_DADOS.md): Como saímos do caos governamental em CSVs sujos para um painel analítico prateado.
-2. [🧠 Ciência de Dados & XGBoost](docs/CIENCIA_DE_DADOS_XGBOOST.md): A explicação do salto de precisão, abandonando modelos ingênuos (Prophet) em favor de uma Árvore Global (XGBoost).
-3. [📖 Diário do Projeto (Histórico)](docs/historico_diario_projeto.md): O log cronológico do desenvolvimento.
+## Como Rodar
 
----
-
-## ⚙️ Como Rodar (Setup)
-
-**1. Instalar dependências:**
 ```bash
+# 1. Instalar dependências
 pip install -r requirements.txt
-pip install xgboost jupyter
-```
+pip install xgboost
 
-**2. Rodar a extração e limpeza (Bronze -> Silver):**
-```bash
+# 2. Processar dados brutos (Bronze → Silver)
 python main.py process-data
-```
 
-**3. Validar o Modelo Machine Learning:**
-Abra o Jupyter e rode o notebook interativo do modelo final:
-```bash
+# 3. Explorar o modelo interativamente
 jupyter notebook notebooks/04_xgboost_alta_precisao.ipynb
 ```
+
+## Documentação
+
+- [Arquitetura de Dados (Medallion)](docs/ARQUITETURA_DE_DADOS.md) — Pipeline completo: ingestão, limpeza e preparação para ML
+- [Ciência de Dados & XGBoost](docs/CIENCIA_DE_DADOS_XGBOOST.md) — Decisões de modelagem, features e validação
+
+## Fontes de Dados
+
+| Sigla | Nome Completo | O que fornece |
+|-------|--------------|---------------|
+| **SINAN** | Sistema de Informação de Agravos de Notificação (Ministério da Saúde) | Casos mensais de dengue por município |
+| **INMET** | Instituto Nacional de Meteorologia | Temperatura média, mínima, máxima e precipitação mensal |
+| **NOAA** | National Oceanic and Atmospheric Administration (EUA) | Índice ONI (Oceanic Niño Index) para classificação El Niño/La Niña |
