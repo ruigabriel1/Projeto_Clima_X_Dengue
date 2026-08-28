@@ -60,6 +60,18 @@ def main():
     parser_reports.add_argument("--file", type=str, help="Caminho opcional do arquivo processado.", default=None)
     parser_reports.set_defaults(func=command_generate_reports)
 
+    # Comando build-dw
+    def command_build_dw(args):
+        print("Construindo Data Warehouse SQLite...")
+        try:
+            from src.processamento import build_data_warehouse
+            build_data_warehouse.build_dw()
+        except Exception as e:
+            print(f"Erro ao construir DW: {e}")
+
+    parser_dw = subparsers.add_parser("build-dw", help="Constrói o Data Warehouse SQLite (Analytics).")
+    parser_dw.set_defaults(func=command_build_dw)
+
     args = parser.parse_args()
 
     if args.command:
