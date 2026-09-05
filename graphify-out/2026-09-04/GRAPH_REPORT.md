@@ -4,8 +4,8 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 618 nodes · 1091 edges · 29 communities (27 shown, 1 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.87)
+- 630 nodes · 1097 edges · 35 communities (27 shown, 3 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -37,10 +37,12 @@
 - gerar_paineis_comparativos.py
 - gerar_mapas_faixas_latitude.py
 - loaders.py
+- Medallion Architecture
 - criar_mapa_dengue_agregado_total.py
 - main.py
 - consolidar_medias_latitude.py
 - converter_csv_para_xlsx_log.py
+- Compass Rose
 - criar_cache_geodados.py
 
 ## God Nodes (most connected - your core abstractions)
@@ -70,7 +72,10 @@
 ## Import Cycles
 - None detected.
 
-## Communities (29 total, 1 thin omitted)
+## Hyperedges (group relationships)
+- **Medallion Data Layers** — data_readme, docs_arquitetura_de_dados, docs_legado_historico_diario_projeto [EXTRACTED 0.95]
+
+## Communities (35 total, 3 thin omitted)
 
 ### Community 0 - "motor_lote_modelagem_v2_por_latitude.py"
 Cohesion: 0.09
@@ -164,38 +169,38 @@ Nodes (11): calcular_media_por_faixa(), carregar_dados_faixas(), classificar_inc
 Cohesion: 0.22
 Nodes (10): GeoDataFrame, carregar_dados_brutos(), carregar_dados_processados(), carregar_geodados(), DataFrame, Carrega dados da pasta data/processed, Carrega shapefiles ou geojson da pasta data/geodados, Salva dataframe na pasta data/processed (+2 more)
 
-### Community 23 - "criar_mapa_dengue_agregado_total.py"
+### Community 24 - "criar_mapa_dengue_agregado_total.py"
 Cohesion: 0.40
 Nodes (5): classificar_incidencia(), criar_mapa_dengue_total(), Script para criar mapa de incidência total de dengue (2015-2024) Segue o padrão…, Classifica incidência em categorias visuais (casos totais agregados), Cria mapa de incidência total de dengue 2015-2024
 
-### Community 24 - "main.py"
+### Community 25 - "main.py"
 Cohesion: 0.70
 Nodes (4): command_generate_reports(), command_process_data(), command_run_model(), main()
 
-### Community 25 - "consolidar_medias_latitude.py"
+### Community 26 - "consolidar_medias_latitude.py"
 Cohesion: 0.50
 Nodes (3): consolidar_medias_latitude(), Script para consolidar médias mensais por faixa de latitude. Agrupa todos os…, Consolida os dados de dengue por faixa de latitude, calculando médias mensais.
 
-### Community 26 - "converter_csv_para_xlsx_log.py"
+### Community 27 - "converter_csv_para_xlsx_log.py"
 Cohesion: 0.50
 Nodes (3): converter_csv_log_para_xlsx(), Script para converter arquivos CSV para XLSX aplicando transformação…, Converte todos os arquivos CSV da pasta csvs_latitude para XLSX aplicando…
 
 ## Knowledge Gaps
-- **1 isolated node(s):** `Cores`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 254 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 isolated node(s):** `Cores`, `XGBoost Global Model`, `Compass Rose`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 262 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `pipeline_completo()` connect `VisualizadorDados` to `ValidadorIntegridadeDados`, `AnalisadorEstatistico`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Why does `ValidadorIntegridadeDados` connect `ValidadorIntegridadeDados` to `VisualizadorDados`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Why does `AnalisadorEstatistico` connect `AnalisadorEstatistico` to `VisualizadorDados`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
-- **What connects `Cores` to the rest of the system?**
-  _1 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `Cores`, `XGBoost Global Model`, `Compass Rose` to the rest of the system?**
+  _3 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `motor_lote_modelagem_v2_por_latitude.py` be split into smaller, more focused modules?**
   _Cohesion score 0.08644067796610169 - nodes in this community are weakly interconnected._
 - **Should `gerar_relatorio_abnt_projecoes_ssp.py` be split into smaller, more focused modules?**

@@ -249,97 +249,77 @@ def build_code_lookup_from_latitude_files(csv_paths: List[Path]) -> pd.DataFrame
     return lookup
 
 def validate_data_sources(root_dir: Path) -> None:
-    """Verifica integridade das fontes de dados antes do processamento.
-
-    Checa existência dos arquivos raw e disponibilidade dos csvs_latitude,
-    emitindo avisos quando o pré-processamento de latitude não foi executado.
-    """
-    raw_required = {
-        "dengue": root_dir / "data" / "raw" / "dengue_MENSAL.csv",
-        "temp_media": root_dir / "data" / "raw" / "Temp_media_MENSAL.csv",
-        "precipitacao": root_dir / "data" / "raw" / "precipitacao_mensal_rev.csv",
-        "enso": root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv",
-    }
-    missing_raw = [str(p) for p in raw_required.values() if not p.exists()]
-    if missing_raw:
-        raise FileNotFoundError(
-            "Arquivos raw ausentes (execute pré-processamento primeiro):\n  "
-            + "\n  ".join(missing_raw)
-        )
-
+    """Verifica integridade das fontes de dados antes do processamento."""
+    raw_dir = root_dir / "data" / "raw"
     csv_dir = root_dir / "output" / "csvs_latitude"
-    n_dengue = len(list(csv_dir.glob("dengue_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
-    n_temp = len(list(csv_dir.glob("temp_media_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
-    n_prec = len(list(csv_dir.glob("precipitacao_faixa_latitude_*.csv"))) if csv_dir.exists() else 0
 
-    logger.info("Validação de fontes: raw OK | csvs_latitude — dengue=%d, temp=%d, prec=%d", n_dengue, n_temp, n_prec)
+    required_raw = [
+        raw_dir / "elnino_lanina_2015-2024.csv"
+    ]
+    missing_raw = [p for p in required_raw if not p.exists()]
+    
+    if missing_raw:
+        missing_str = "\n  ".join(str(p) for p in missing_raw)
+        logger.error(f"Arquivos raw ausentes:\n  {missing_str}")
+        raise FileNotFoundError(f"Arquivos essenciais ausentes:\n  {missing_str}")
 
-    if n_dengue < 8 or n_temp < 8 or n_prec < 8:
-        logger.warning(
-            "output/csvs_latitude/ incompleto (esperado 8 faixas por variável). "
-            "Execute processar_dengue_latitude_mapas.py e processar_clima_por_latitude.py "
-            "antes do motor para garantir consistência total."
-        )
-    else:
-        logger.info("Validação concluída: fontes primárias e csvs_latitude completos.")
+    logger.info("Validação concluída: arquivos do El Nino e painel híbrido disponíveis.")
 
 
 def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Constrói painel base preferindo output/csvs_latitude/ como fonte canônica.
-
-    Quando os arquivos CSV por latitude estão disponíveis (gerados por
-    processar_dengue_latitude_mapas.py + processar_clima_por_latitude.py),
-    eles são usados como única fonte, garantindo consistência com o modelo ML
-    (ambos os modelos — regressão log-linear e HistGradientBoosting — operam
-    sobre o mesmo conjunto de 1190 municípios e mesmos valores observados).
-
-    Fallback automático para data/raw/ no formato wide quando csvs_latitude
-    não estiver disponível ou incompleto.
-    """
-    csv_dir = root_dir / "output" / "csvs_latitude"
-    dengue_lat = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv")) if csv_dir.exists() else []
-    temp_lat = sorted(csv_dir.glob("temp_media_faixa_latitude_*.csv")) if csv_dir.exists() else []
-    prec_lat = sorted(csv_dir.glob("precipitacao_faixa_latitude_*.csv")) if csv_dir.exists() else []
-
-    if len(dengue_lat) >= 8 and len(temp_lat) >= 8 and len(prec_lat) >= 8:
-        logger.info("build_base_panel → fonte canônica: output/csvs_latitude/ (%d municípios esperados)", TOTAL_MUNICIPIOS_SUL_OFICIAL)
-        panel = load_ml_panel_from_csvs_latitude(root_dir)
-        lookup = (
-            panel[["code", "city_name", "latitude"]]
-            .drop_duplicates(subset=["code"])
-            .reset_index(drop=True)
-        )
-        return panel, lookup
-
-    # ---- Fallback: raw wide-format ----
-    logger.warning("build_base_panel → fallback para data/raw/ (csvs_latitude ausente ou incompleto)")
-    raw_dir = root_dir / "data" / "raw"
-    dengue_path = raw_dir / "dengue_MENSAL.csv"
-    temp_path   = raw_dir / "Temp_media_MENSAL.csv"
-    prec_path   = raw_dir / "precipitacao_mensal_rev.csv"
-    enso_path   = raw_dir / "elnino_lanina_2015-2024.csv"
-
-    for p in [dengue_path, temp_path, prec_path, enso_path]:
-        if not p.exists():
-            raise FileNotFoundError(f"Arquivo essencial não encontrado: {p}")
-
-    dengue = read_wide_monthly(dengue_path, "dengue_cases")
-    temp   = read_wide_monthly(temp_path,   "temp_media")
-    prec   = read_wide_monthly(prec_path,   "precipitacao")
-    enso   = read_enso_series(enso_path)
-
-    panel = dengue.merge(temp,  on=["code", "year", "month"], how="inner")
-    panel = panel.merge(prec,   on=["code", "year", "month"], how="inner")
-    panel = panel.merge(enso,   on=["year", "month"],         how="left")
-
-    csv_paths = list(csv_dir.glob("*.csv")) if csv_dir.exists() else []
-    lookup = build_code_lookup_from_latitude_files(csv_paths)
-    panel = panel.merge(lookup, on="code", how="left")
-    panel["city_name"] = panel["city_name"].fillna(
-        panel["code"].apply(lambda c: f"municipio_{c}")
-    )
-    panel = panel[panel["code"].str[:2].isin(["41", "42", "43"])].copy()
+    import sqlite3
+    db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
+    
+    logger.info("build_base_panel → Arquitetura 100% API (Lendo do SQLite)")
+    
+    if not db_path.exists():
+        raise FileNotFoundError(f"Banco de dados da API não encontrado em {db_path}. Execute o ingestor_api_sul.py primeiro.")
+        
+    conn = sqlite3.connect(db_path)
+    try:
+        panel = pd.read_sql_query("SELECT * FROM ingestao_api", conn)
+    except Exception as e:
+        conn.close()
+        raise RuntimeError(f"Falha ao ler tabela ingestao_api: {e}")
+    conn.close()
+    
+    if panel.empty:
+        raise ValueError("Tabela ingestao_api está vazia.")
+        
+    logger.info(f"Painel lido com {len(panel)} registros.")
+    
+    logger.info("  -> Adicionando features geoespaciais e meteorológicas do painel base")
+    
+    # ENSO Merge
+    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
+    if enso_path.exists():
+        df_enso = pd.read_csv(enso_path, sep=';')
+        panel = pd.merge(panel, df_enso, on=['ANO', 'MES'], how='left')
+    
+    logger.info("  -> Padronizando nomes das colunas para o modelo de ML")
+    panel = panel.rename(columns={
+        "CODIGO_MUNICIPIO": "code",
+        "NOME_MUNICIPIO": "city_name",
+        "ANO": "year",
+        "MES": "month",
+        "LATITUDE": "latitude",
+        "LONGITUDE": "longitude",
+        "FAIXA_LATITUDE": "faixa_latitude",
+        "temp_media": "temp_media",
+        "temp_maxima": "temp_maxima",
+        "temp_minima": "temp_minima",
+        "precipitacao": "precipitacao",
+        "CASOS_DENGUE": "dengue_cases",
+        "ENSO": "enso"
+    })
+    
     panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
+    
+    lookup = (
+        panel[["code", "city_name", "latitude"]]
+        .drop_duplicates(subset=["code"])
+        .reset_index(drop=True)
+    )
     return panel, lookup
 
 def north_weight(latitude: float) -> float:

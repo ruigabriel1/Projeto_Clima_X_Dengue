@@ -5,54 +5,6 @@
     "ast_hash": "f29b914939b32b81118ca1e64cd4383c",
     "semantic_hash": "f29b914939b32b81118ca1e64cd4383c"
   },
-  "src/analises/analise_dengue_latitude_pdf.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "22afc9b5038bd067df17ee94aa312019",
-    "semantic_hash": "22afc9b5038bd067df17ee94aa312019"
-  },
-  "src/analises/analise_detalhada_media.py": {
-    "mtime": 1766251064.0,
-    "seen": 1788529413.943371,
-    "ast_hash": "40a6967a93ca9a208957d8bab4a03247",
-    "semantic_hash": "40a6967a93ca9a208957d8bab4a03247"
-  },
-  "src/analises/analise_el_nino_la_nina_latitude_pdf.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "6b686c0701d5a90214eaf135b0061360",
-    "semantic_hash": "6b686c0701d5a90214eaf135b0061360"
-  },
-  "src/analises/analise_el_nino_la_nina_parametrica_pdf.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "58cd379df8e4627b9779efd95260d4c6",
-    "semantic_hash": "58cd379df8e4627b9779efd95260d4c6"
-  },
-  "src/analises/analise_estatistica_nao_parametrica.py": {
-    "mtime": 1787687623.236354,
-    "seen": 1788529413.943371,
-    "ast_hash": "ddd1c068d72d710c72b1497a80250638",
-    "semantic_hash": "ddd1c068d72d710c72b1497a80250638"
-  },
-  "src/analises/analise_global_dengue_log_pdf.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "6bba90ee4d8f5cd2864e5fb2b13e8463",
-    "semantic_hash": "6bba90ee4d8f5cd2864e5fb2b13e8463"
-  },
-  "src/analises/analise_regressao_lag3_completa.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "0a58df8d057a3e00692072b3571d4dae",
-    "semantic_hash": "0a58df8d057a3e00692072b3571d4dae"
-  },
-  "src/analises/analise_regressao_multipla_pdf.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "81f2026ab27cca8c7ae76f4a0ef706e7",
-    "semantic_hash": "81f2026ab27cca8c7ae76f4a0ef706e7"
-  },
   "src/config.py": {
     "mtime": 1782942799.871922,
     "seen": 1788529413.943371,
@@ -71,83 +23,17 @@
     "ast_hash": "9c56d79cc5c46f4a44356d3b62512e90",
     "semantic_hash": "9c56d79cc5c46f4a44356d3b62512e90"
   },
-  "src/mapas/criar_cache_geodados.py": {
-    "mtime": 1771532451.3047433,
-    "seen": 1788529413.943371,
-    "ast_hash": "3175bd746120b3bb2650d4aa57fd9d05",
-    "semantic_hash": "3175bd746120b3bb2650d4aa57fd9d05"
-  },
-  "src/mapas/criar_mapa_dengue_agregado_total.py": {
-    "mtime": 1771532774.9784932,
-    "seen": 1788529413.943371,
-    "ast_hash": "80b478855134c3b8c70d18217833438f",
-    "semantic_hash": "80b478855134c3b8c70d18217833438f"
-  },
-  "src/mapas/criar_mapas_temperatura.py": {
-    "mtime": 1763317246.0,
-    "seen": 1788529413.943371,
-    "ast_hash": "aca815214d8300efb9ba9d1e75c57f19",
-    "semantic_hash": "aca815214d8300efb9ba9d1e75c57f19"
-  },
-  "src/mapas/gerar_mapas_faixas_latitude.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "34f15c0a3f25349db5636cdcdde7f883",
-    "semantic_hash": "34f15c0a3f25349db5636cdcdde7f883"
-  },
-  "src/mapas/gerar_mapas_municipios_latitude.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "37a733d6048b3172f285fd1c2057ac87",
-    "semantic_hash": "37a733d6048b3172f285fd1c2057ac87"
-  },
-  "src/mapas/gerar_paineis_comparativos.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "e07a7d491b0bac2bd83c91b70f4cecc3",
-    "semantic_hash": "e07a7d491b0bac2bd83c91b70f4cecc3"
-  },
-  "src/mapas/gerar_todos_mapas.py": {
-    "mtime": 1771532410.6407788,
-    "seen": 1788529413.943371,
-    "ast_hash": "1c4d7f3cef75df7be629a73d6a6181ff",
-    "semantic_hash": "1c4d7f3cef75df7be629a73d6a6181ff"
-  },
-  "src/pipeline.py": {
-    "mtime": 1771532387.3089688,
-    "seen": 1788529413.943371,
-    "ast_hash": "52f951080c90bf506ea2568345f877fd",
-    "semantic_hash": "52f951080c90bf506ea2568345f877fd"
-  },
   "src/processamento/build_data_warehouse.py": {
     "mtime": 1787878085.053406,
     "seen": 1788529413.943371,
     "ast_hash": "70c600344197c374f15abae8feaf6914",
     "semantic_hash": "70c600344197c374f15abae8feaf6914"
   },
-  "src/processamento/consolidar_medias_latitude.py": {
-    "mtime": 1771532423.4077294,
-    "seen": 1788529413.943371,
-    "ast_hash": "e84c5c782315965bf568166219a05f76",
-    "semantic_hash": "e84c5c782315965bf568166219a05f76"
-  },
-  "src/processamento/converter_csv_para_xlsx_log.py": {
-    "mtime": 1771532423.4140103,
-    "seen": 1788529413.943371,
-    "ast_hash": "44f510bb155a7bef5c5ee169350fbb10",
-    "semantic_hash": "44f510bb155a7bef5c5ee169350fbb10"
-  },
   "src/processamento/motor_lote_modelagem_v2_por_latitude.py": {
     "mtime": 1787597228.396622,
     "seen": 1788529413.943371,
     "ast_hash": "1e3587542b67e610a743c80339dd3a5d",
     "semantic_hash": "1e3587542b67e610a743c80339dd3a5d"
-  },
-  "src/processamento/motor_lote_modelagem_v2_sem_incremento.py": {
-    "mtime": 1776106214.165807,
-    "seen": 1788529413.943371,
-    "ast_hash": "4ead7a393d3a4581e434253daf1c8f41",
-    "semantic_hash": "4ead7a393d3a4581e434253daf1c8f41"
   },
   "src/processamento/processar_clima_por_latitude.py": {
     "mtime": 1787597249.940914,
@@ -160,54 +46,6 @@
     "seen": 1788529413.943371,
     "ast_hash": "4d6bd19344407461680665da8e57fdb5",
     "semantic_hash": "4d6bd19344407461680665da8e57fdb5"
-  },
-  "src/relatorios/gerar_relatorio_abnt_projecoes_ssp.py": {
-    "mtime": 1776108114.3720934,
-    "seen": 1788529413.943371,
-    "ast_hash": "2cf9a178e5c6051fec5e013b284321c1",
-    "semantic_hash": "2cf9a178e5c6051fec5e013b284321c1"
-  },
-  "src/relatorios/gerar_relatorio_abnt_sem_incremento.py": {
-    "mtime": 1776108259.4177122,
-    "seen": 1788529413.943371,
-    "ast_hash": "c9b983a9d53b03897d61daa197eb0742",
-    "semantic_hash": "c9b983a9d53b03897d61daa197eb0742"
-  },
-  "src/relatorios/gerar_relatorio_pdf.py": {
-    "mtime": 1771532432.3054569,
-    "seen": 1788529413.943371,
-    "ast_hash": "f2e2333d2cf2da4e3123256408a43a5b",
-    "semantic_hash": "f2e2333d2cf2da4e3123256408a43a5b"
-  },
-  "src/relatorios/gerar_relatorios_latitude_individuais.py": {
-    "mtime": 1771532432.3054569,
-    "seen": 1788529413.943371,
-    "ast_hash": "f93eb2373068c4d42350d82e4d0939f4",
-    "semantic_hash": "f93eb2373068c4d42350d82e4d0939f4"
-  },
-  "src/validacao/validar_integridade_dados.py": {
-    "mtime": 1787687588.7991912,
-    "seen": 1788529413.943371,
-    "ast_hash": "b863ca58a257254a22f1b16a7eb0fa03",
-    "semantic_hash": "b863ca58a257254a22f1b16a7eb0fa03"
-  },
-  "src/validacao/validar_mapas_latitude.py": {
-    "mtime": 1771532440.6882417,
-    "seen": 1788529413.943371,
-    "ast_hash": "3bd58ef115dcdc26b9b84ca857c6f714",
-    "semantic_hash": "3bd58ef115dcdc26b9b84ca857c6f714"
-  },
-  "src/validacao/validar_todas_tarefas.py": {
-    "mtime": 1771532464.7543972,
-    "seen": 1788529413.943371,
-    "ast_hash": "f1aceb0d1979735516b27717673b388f",
-    "semantic_hash": "f1aceb0d1979735516b27717673b388f"
-  },
-  "src/validacao/visualizar_dados.py": {
-    "mtime": 1771532451.3047433,
-    "seen": 1788529413.943371,
-    "ast_hash": "1138f98ae7741e27a1ab984d7d871ec8",
-    "semantic_hash": "1138f98ae7741e27a1ab984d7d871ec8"
   },
   "README.md": {
     "mtime": 1787763722.246444,
@@ -268,5 +106,11 @@
     "seen": 1788534853.5011938,
     "ast_hash": "637d6bd7f81645babbd20ab3f88d8853",
     "semantic_hash": "637d6bd7f81645babbd20ab3f88d8853"
+  },
+  "1527966_modelagem_dengue_com_id.pdf": {
+    "mtime": 1787595257.9898715,
+    "seen": 1788541157.6512415,
+    "ast_hash": "1b61419bac0a4baeffc9c86ed2271294",
+    "semantic_hash": "1b61419bac0a4baeffc9c86ed2271294"
   }
 }
