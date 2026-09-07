@@ -1,116 +1,90 @@
-# Arquitetura de Dados — Pipeline Medallion
+# Arquitetura de Dados — Pipeline Medallion (Evolução API/SQLite)
 
-Este documento descreve a arquitetura de dados do projeto, seguindo o padrão **Medallion Architecture** (Bronze → Silver → Gold) adaptado para execução local com visão de migração para nuvem.
+Este documento descreve a arquitetura de dados atual do projeto, baseada em consumo robusto de APIs, cache geoespacial e orquestração via banco de dados local (SQLite). O modelo segue o padrão **Medallion Architecture** adaptado para execução ágil.
 
-## Visão Geral do Pipeline
+## Visão Geral do Pipeline (Atual)
 
 ```mermaid
-flowchart LR
-    subgraph Bronze["Camada Bronze (Ingestão Crua)"]
-        S1[SINAN\nCasos de Dengue]
-        S2[INMET\nClima]
-        S3[NOAA\nEl Niño]
+flowchart TD
+    subgraph Fontes["Fontes de Dados (APIs e Arquivos)"]
+        A1[API InfoDengue\n(Dengue, Zika, Chik)]
+        A2[API Open-Meteo\n(Clima Diário)]
+        A3[Geopackage\n(cache_municipios_sul)]
+        A4[NOAA\n(ENSO CSV)]
     end
 
-    subgraph Silver["Camada Silver (Limpeza & Qualidade)"]
-        P1[consolidar_dados.py]
-        P2[processar_dengue_latitude.py]
-        P3[processar_clima_latitude.py]
-        CSV_S[dados_consolidados.csv]
-        CSV_L[csvs_latitude/\n48 arquivos]
+    subgraph Bronze["Camada Bronze (Ingestão & Banco de Dados)"]
+        R1[ingestor_api_sul.py]
+        DB[(dengue_analytics.db\nSQLite)]
+        
+        R1 -- Baixa --> A1 & A2 & A3
+        R1 -- Salva --> DB
+        
+        T1[Tabela: ingestao_saude]
+        T2[Tabela: ingestao_clima]
+        
+        DB --- T1 & T2
     end
 
-    subgraph Gold["Camada Gold (Feature Store)"]
-        BP[build_base_panel]
-        FE[Engenharia de Features\n7 variáveis derivadas]
-        XGB[XGBoost Regressor\nR² = 0.744]
+    subgraph Silver["Camada Silver (Merge & Transformação)"]
+        M1[motor_lote_modelagem_v2_por_latitude.py]
+        M1 -- Lê --> DB
+        M1 -- Lê --> A4
+        M1 -- Agrega por Mês/Ano --> P1[Painel Base na Memória]
     end
 
-    S1 & S2 & S3 --> P1
-    P1 --> CSV_S
-    P1 --> P2 --> CSV_L
-    P1 --> P3 --> CSV_L
-    CSV_L --> BP --> FE --> XGB
+    subgraph Gold["Camada Gold (Machine Learning)"]
+        P1 --> ML1[Local Intercepts\n(Regressão por Município)]
+        ML1 --> ML2[XGBoost\n(8 Modelos por Latitude)]
+        ML2 --> OUT[Previsões 2025]
+    end
+
+    Fontes --> Bronze --> Silver --> Gold
 ```
 
 ---
 
-## 1. Camada Bronze — Ingestão Crua
+## 1. Camada Bronze — Ingestão via API e SQLite
 
-**Princípio:** Os dados são armazenados exatamente como vieram da fonte oficial, sem nenhuma modificação. Esta camada serve como histórico imutável e auditável.
+**Princípio:** Extrair os dados diretamente das fontes oficiais, lidando com paginação, *rate limits* e conectividade, gravando-os em tabelas segregadas num banco relacional leve.
 
-| Fonte | Arquivo | Schema |
-|-------|---------|--------|
-| SINAN | `data/raw/dengue_MENSAL.csv` | Formato wide: linhas = municípios, colunas = meses (Jan/2015 a Dez/2024) |
-| INMET | `data/raw/Temp_media_MENSAL.csv`, `Temp_minima_MENSAL.csv`, `Temp_maxima_MENSAL.csv`, `precipitacao_mensal_rev.csv` | Mesmo formato wide |
-| NOAA | `data/raw/elnino_lanina_2015-2024.csv` | Formato tabular: ano, mês, índice ONI |
+*   **Motor de Ingestão:** `src/processamento/ingestor_api_sul.py`
+    *   **Alvo `infodengue`:** Coleta dados epidemiológicos por semana e agrega por mês. Identifica os códigos IBGE de 7 dígitos.
+    *   **Alvo `openmeteo`:** Coleta 11 anos de clima diário via API Archive. Agrupa dados brutos em médias/somas mensais. Possui "Freio de Mão" (20s delay) para burlar bloqueios (Burst Limit).
+*   **Armazenamento:** Banco de Dados SQLite (`data/processed/dengue_analytics.db`). 
+    *   O banco garante resiliência: se a internet cair ou o rate limit estourar, o robô sabe exatamente de qual cidade retomar na próxima execução, sem perder o progresso.
 
-**Armazenamento Local:** `data/raw/`
-**Equivalente Cloud:** Data Lake (Google Cloud Storage bucket ou AWS S3), com particionamento por fonte e data de ingestão. Os arquivos seriam ingeridos via Cloud Functions ou Apache Airflow como DAG agendada.
+## 2. Camada Silver — Merge & Transformação Mensal
 
----
+**Princípio:** Combinar as tabelas separadas do banco de dados e os arquivos externos (El Niño) num painel unificado pronto para a IA.
 
-## 2. Camada Silver — Limpeza & Qualidade
+*   **Transformação:** Feita diretamente pela função `build_base_panel()` dentro do script do motor de ML.
+*   **Regras Aplicadas:**
+    *   Cruzamento de Municípios (`CODIGO_MUNICIPIO`) e Tempo (`ANO`, `MES`).
+    *   Cruzamento das anomalias oceânicas (ENSO - El Niño/La Niña) através do CSV local (`data/raw/elnino_lanina_2015-2024.csv`).
+    *   Conversão de dados geográficos e numéricos, mitigação de `NaNs`.
 
-**Princípio:** Aplicar regras de qualidade e transformar os dados wide (uma coluna por mês) em formato long (uma linha por município/mês), garantindo a integridade para consumo analítico.
+## 3. Camada Gold — Feature Store e Machine Learning
 
-### Regras de Qualidade Implementadas
+**Princípio:** Treinar o modelo preditivo considerando características imunológicas, temporais e espaciais.
 
-| Regra | Implementação | Justificativa |
-|-------|---------------|---------------|
-| Filtro de Outliers Climáticos | `temp.where((temp > -50) & (temp < 10000))` | Estações INMET offline exportam valores como -9999 ou -99.9 |
-| Preenchimento de Lacunas Epidemiológicas | `dengue.fillna(0)` | Meses sem notificação no SINAN representam zero casos, não dados faltantes |
-| Arredondamento | `.round(2)` | Padronizar precisão para 2 casas decimais |
-| Parser ENSO resiliente | Matching por prefixo de 3 caracteres (`jan`, `fev`, `mar`) | O CSV do NOAA usa nomes de meses em português com possíveis problemas de encoding |
-
-### Saídas da Camada Silver
-
-| Artefato | Local | Descrição |
-|----------|-------|-----------|
-| Dados Consolidados | `data/processed/dados_consolidados.csv` | Série temporal regional agregada (121 registros mensais) |
-| CSVs por Latitude | `output/csvs_latitude/` (48 arquivos) | Dados por município, separados em 8 faixas de latitude × 4 variáveis (dengue, temp_media, temp_minima, precipitação) |
-
-**Armazenamento Local:** `data/processed/` e `output/csvs_latitude/`
-**Equivalente Cloud:** Tabelas em Data Warehouse (Google BigQuery ou AWS Redshift), ou arquivos Parquet particionados no Data Lake. A limpeza seria orquestrada por Apache Airflow / Cloud Composer com validação via Great Expectations.
+*   **Engenharia de Features:** Variáveis derivadas criadas *on the fly*, como lags temporais (`temp_lag3`, `casos_lag1`, `casos_lag12`) que representam a memória imunológica e velocidade de contágio.
+*   **Modelagem Dupla (Híbrida):**
+    1.  **Imunidade Local:** O `train_local_intercept` treina Regressões Lineares individuais para cada um dos 1.191 municípios, capturando a vulnerabilidade endêmica de cada cidade.
+    2.  **Macromodelo Climático:** O XGBoost é treinado dividindo o mapa da região Sul em 8 faixas de latitude, generalizando o impacto climático na proliferação do vetor.
 
 ---
 
-## 3. Camada Gold — Feature Store para ML
+## 4. Evolução Histórica (O Nosso Legado)
 
-**Princípio:** Construir o painel final de features derivadas, prontas para consumo direto pelo algoritmo de Machine Learning, sem necessidade de transformações adicionais.
+Este projeto passou por uma enorme evolução arquitetural para chegar ao estágio atual de autonomia e resiliência. Deixamos este histórico documentado para demonstrar o avanço de maturidade de engenharia de dados.
 
-### Construção do Painel
+### A Arquitetura Antiga (v1 - Baseada em CSVs)
+No início, a pipeline dependia puramente da ingestão manual e processamento de arquivos CSV gigantescos:
+*   Os dados vinham do **SINAN** (`dengue_MENSAL.csv`) num formato "wide" doloroso de manipular (colunas espalhadas por mês).
+*   O clima vinha de extrações do **INMET** (`Temp_media_MENSAL.csv`, `precipitacao_mensal_rev.csv`, etc.).
+*   A limpeza era feita por scripts intermediários como `consolidar_dados.py` e separada fisicamente em 48 arquivos CSV por latitude (`output/csvs_latitude/`).
 
-A função `build_base_panel()` em `src/processamento/motor_lote_modelagem_v2_por_latitude.py` é responsável por:
-1. Carregar os 48 CSVs da Camada Silver
-2. Cruzar dengue × clima × ENSO por município/mês
-3. Retornar um DataFrame de **142.800 linhas** (1.190 municípios × 120 meses)
-
-### Schema Final (7 Features de Entrada + 1 Target)
-
-| Feature | Nome Técnico | Tipo | Descrição |
-|---------|-------------|------|-----------|
-| Temperatura Média (lag 3 meses) | `temp_lag3` | float | Temperatura média do município, defasada em 3 meses |
-| Precipitação (lag 3 meses) | `prec_lag3` | float | Chuva mensal em mm, defasada em 3 meses |
-| Índice El Niño (lag 3 meses) | `enso_lag3` | float | Índice ONI do NOAA, defasado em 3 meses |
-| Latitude | `latitude` | float | Coordenada geográfica do município |
-| Pico Histórico | `max_historico` | float | Máximo de casos em um único mês na história da cidade (proxy de população) |
-| Casos Mês Anterior | `casos_lag1` | float | Dengue no mês t-1 (velocidade de contágio) |
-| Casos Mesmo Mês Ano Anterior | `casos_lag12` | float | Dengue no mês t-12 (memória imunológica) |
-| **Target** | `dengue_cases` | float | Casos de dengue no mês corrente |
-
-**Armazenamento Local:** Gerado em memória (DataFrame Pandas) durante a execução dos notebooks
-**Equivalente Cloud:** Feature Store (Vertex AI Feature Store, SageMaker Feature Store, ou Feast). As features seriam materializadas em tabelas versionadas para rastreabilidade de experimentos.
-
----
-
-## 4. Orquestração (Atual vs Evolução)
-
-| Aspecto | Implementação Atual | Evolução Planejada |
-|---------|--------------------|--------------------|
-| **Orquestração** | `main.py` com CLI (Click) | Apache Airflow / Cloud Composer com DAGs agendadas |
-| **Armazenamento Bronze** | `data/raw/` (filesystem local) | GCS Bucket / S3 com versionamento |
-| **Armazenamento Silver** | `data/processed/` + `output/csvs_latitude/` | BigQuery / Redshift + Parquet no Data Lake |
-| **Feature Store** | DataFrame em memória | Vertex AI Feature Store / Feast |
-| **Modelo ML** | XGBoost treinado no notebook | MLflow para versionamento + Vertex AI para serving |
-| **Monitoramento** | Verificação manual | Great Expectations + alertas automáticos |
+### Por que Evoluímos para a v2 (APIs + Banco)?
+A arquitetura de CSVs não era sustentável para escalar. As bases do SINAN demoravam para atualizar e as estações do INMET tinham muitas falhas de medição (-9999). 
+Nós criamos o **Robô de Ingestão (ingestor_api_sul.py)** que consome diretamente as APIs (InfoDengue da Fiocruz e Open-Meteo). Ao gravar tudo em um **Banco SQLite** com tabelas desacopladas (`ingestao_saude` e `ingestao_clima`), resolvemos o problema de paralelismo, permitindo que a coleta de saúde e clima acontecesse simultaneamente sem corromper arquivos ou dar conflito, e tornando todo o sistema imune a quedas.
