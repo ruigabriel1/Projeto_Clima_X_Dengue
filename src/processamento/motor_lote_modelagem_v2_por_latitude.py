@@ -270,56 +270,79 @@ def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     import sqlite3
     db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
     
-    logger.info("build_base_panel → Arquitetura 100% API (Lendo do SQLite)")
+    logger.info("build_base_panel → Lendo tabelas desacopladas do SQLite (Saúde + Clima)")
     
     if not db_path.exists():
-        raise FileNotFoundError(f"Banco de dados da API não encontrado em {db_path}. Execute o ingestor_api_sul.py primeiro.")
+        raise FileNotFoundError(f"Banco da API não encontrado em {db_path}. Execute os robôs de ingestão.")
         
     conn = sqlite3.connect(db_path)
+    
+    # Lendo Saúde
     try:
-        panel = pd.read_sql_query("SELECT * FROM ingestao_api", conn)
-    except Exception as e:
-        conn.close()
-        raise RuntimeError(f"Falha ao ler tabela ingestao_api: {e}")
+        df_saude = pd.read_sql_query("SELECT * FROM ingestao_saude", conn)
+        logger.info(f"Tabela de Saúde lida: {len(df_saude)} registros.")
+    except Exception:
+        logger.warning("Tabela ingestao_saude não existe ainda.")
+        df_saude = pd.DataFrame()
+        
+    # Lendo Clima
+    try:
+        df_clima = pd.read_sql_query("SELECT * FROM ingestao_clima", conn)
+        logger.info(f"Tabela de Clima lida: {len(df_clima)} registros.")
+    except Exception:
+        logger.warning("Tabela ingestao_clima não existe ainda.")
+        df_clima = pd.DataFrame()
+        
     conn.close()
     
-    if panel.empty:
-        raise ValueError("Tabela ingestao_api está vazia.")
+    if df_saude.empty and df_clima.empty:
+        raise ValueError("Nenhuma tabela tem dados. Rode o ingestor primeiro.")
         
-    logger.info(f"Painel lido com {len(panel)} registros.")
+    # Merge Saúde + Clima
+    if not df_saude.empty and not df_clima.empty:
+        # Remover colunas duplicadas geradas pela mesma chave (exceto as de junção)
+        cols_to_drop = ['LATITUDE', 'LONGITUDE', 'FAIXA_LATITUDE', 'NOME_MUNICIPIO']
+        df_clima = df_clima.drop(columns=[c for c in cols_to_drop if c in df_clima.columns])
+        panel = pd.merge(df_saude, df_clima, on=['CODIGO_MUNICIPIO', 'ANO', 'MES'], how='outer')
+    else:
+        panel = df_saude if not df_saude.empty else df_clima
     
-    logger.info("  -> Adicionando features geoespaciais e meteorológicas do painel base")
-    
-    # ENSO Merge
-    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
-    if enso_path.exists():
-        df_enso = pd.read_csv(enso_path, sep=';')
-        panel = pd.merge(panel, df_enso, on=['ANO', 'MES'], how='left')
-    
-    logger.info("  -> Padronizando nomes das colunas para o modelo de ML")
-    panel = panel.rename(columns={
+    logger.info("  -> Padronizando nomes das colunas para o ML (Fallback para antigas caso ausentes)")
+    # Mapeamento dinâmico ignorando o que não existir
+    rename_map = {
         "CODIGO_MUNICIPIO": "code",
         "NOME_MUNICIPIO": "city_name",
         "ANO": "year",
         "MES": "month",
         "LATITUDE": "latitude",
         "LONGITUDE": "longitude",
-        "FAIXA_LATITUDE": "faixa_latitude",
+        "FAIXA_LATITUDE": "lat_faixa_id",
         "temp_media": "temp_media",
         "temp_maxima": "temp_maxima",
         "temp_minima": "temp_minima",
         "precipitacao": "precipitacao",
         "CASOS_DENGUE": "dengue_cases",
         "ENSO": "enso"
-    })
+    }
+    panel = panel.rename(columns={k: v for k, v in rename_map.items() if k in panel.columns})
     
-    panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
+    # ENSO Merge
+    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
+    if enso_path.exists():
+        df_enso = read_enso_series(enso_path)
+        panel = pd.merge(panel, df_enso, on=['year', 'month'], how='left')
+
     
-    lookup = (
-        panel[["code", "city_name", "latitude"]]
-        .drop_duplicates(subset=["code"])
-        .reset_index(drop=True)
-    )
+    if "code" in panel.columns and "year" in panel.columns and "month" in panel.columns:
+        panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
+    
+    # Criar lookup geográfico apenas com os presentes
+    req_cols = [c for c in ["code", "city_name", "latitude"] if c in panel.columns]
+    if len(req_cols) == 3:
+        lookup = panel[req_cols].drop_duplicates(subset=["code"]).reset_index(drop=True)
+    else:
+        lookup = pd.DataFrame()
+        
     return panel, lookup
 
 def north_weight(latitude: float) -> float:
