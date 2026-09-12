@@ -52,7 +52,7 @@ TRAIN_START = 2015
 TRAIN_END = 2024
 CALIBRATION_YEAR = 2025
 PROJECTION_START = 2025
-PROJECTION_END = 2040
+PROJECTION_END = 2025
 
 ARAPONGAS_LAT = -23.42
 ARAPONGAS_REAL_2025 = 1455.0
@@ -325,6 +325,8 @@ def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
         "ENSO": "enso"
     }
     panel = panel.rename(columns={k: v for k, v in rename_map.items() if k in panel.columns})
+    if "code" in panel.columns:
+        panel["code"] = panel["code"].astype(str).str.extract(r"(\d{6})", expand=False)
     
     # ENSO Merge — Leitura do banco SQLite (tabela ingestao_enso)
     try:
@@ -339,6 +341,10 @@ def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     
     if "code" in panel.columns and "year" in panel.columns and "month" in panel.columns:
         panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
+    
+    # --- FILTRO EXCLUSIVO PARA SÃO CARLOS SC (VALOR FIXADO CONFORME DECISÃO DO USUÁRIO) ---
+    logger.info("FILTRANDO PAINEL: Foco exclusivo na cidade de São Carlos (IBGE 421600).")
+    panel = panel[panel["code"] == "421600"].copy()
     
     # Criar lookup geográfico apenas com os presentes
     req_cols = [c for c in ["code", "city_name", "latitude"] if c in panel.columns]
@@ -643,7 +649,12 @@ def save_outputs_by_latitude(root_dir: Path, projections: pd.DataFrame, calibrat
             removed_city_csv += 1
 
     # Binning em 8 faixas de latitude
-    lat_bins = np.linspace(projections["latitude"].min(), projections["latitude"].max(), 9)
+    min_lat = projections["latitude"].min()
+    max_lat = projections["latitude"].max()
+    if min_lat == max_lat:
+        lat_bins = [min_lat - 1.0, min_lat + 1.0]
+    else:
+        lat_bins = np.linspace(min_lat, max_lat, 9)
     projections["lat_faixa"] = pd.cut(projections["latitude"], bins=lat_bins, include_lowest=True)
 
     # CSVs por faixa de latitude
@@ -795,139 +806,60 @@ def incidentes_formatter(x, _pos):
     return f"{int(x):,}".replace(",", ".")
 
 
-def load_historical_incidents_from_csvs_latitude(
+def load_historical_incidents_from_sqlite(
     root_dir: Path,
     lat_bins: np.ndarray,
     model_codes: Optional[set] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Carrega histórico diretamente de output/csvs_latitude para preservar integridade dos incidentes observados."""
-    csv_dir = root_dir / "output" / "csvs_latitude"
-    files = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv"))
-    if not files:
+    """Carrega histórico diretamente do SQLite para preservar integridade dos incidentes observados."""
+    import sqlite3
+    db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
+    
+    if not db_path.exists():
         return pd.DataFrame(columns=["lat_faixa", "year", "incidentes"]), pd.DataFrame(columns=["year", "incidentes"])
 
-    frames = []
-    for fp in files:
-        try:
-            d = pd.read_csv(fp)
-        except Exception:
-            continue
-        required = {"CODIGO_MUNICIPIO", "ANO", "CASOS_DENGUE", "LATITUDE"}
-        if not required.issubset(set(d.columns)):
-            continue
-        part = d[["CODIGO_MUNICIPIO", "ANO", "CASOS_DENGUE", "LATITUDE"]].copy()
-        part["CODIGO_MUNICIPIO"] = part["CODIGO_MUNICIPIO"].astype(str).str.extract(r"(\d{6})", expand=False)
-        if model_codes:
-            part = part[part["CODIGO_MUNICIPIO"].isin(model_codes)].copy()
-        part["ANO"] = part["ANO"].map(to_int)
-        part["CASOS_DENGUE"] = part["CASOS_DENGUE"].map(to_float).fillna(0.0)
-        part["LATITUDE"] = part["LATITUDE"].map(to_float)
-        part = part.dropna(subset=["ANO", "LATITUDE"])
-        frames.append(part)
+    conn = sqlite3.connect(db_path)
+    try:
+        query = "SELECT CODIGO_MUNICIPIO, ANO, CASOS_DENGUE FROM ingestao_saude WHERE ANO >= 2015 AND ANO <= 2024"
+        d = pd.read_sql_query(query, conn)
+    except Exception:
+        d = pd.DataFrame()
+    
+    try:
+        d_clima = pd.read_sql_query("SELECT DISTINCT CODIGO_MUNICIPIO, LATITUDE FROM ingestao_clima", conn)
+        d = pd.merge(d, d_clima, on="CODIGO_MUNICIPIO", how="inner")
+    except Exception:
+        d["LATITUDE"] = np.nan
+        
+    conn.close()
 
-    if not frames:
+    if d.empty:
         return pd.DataFrame(columns=["lat_faixa", "year", "incidentes"]), pd.DataFrame(columns=["year", "incidentes"])
 
-    all_hist = pd.concat(frames, ignore_index=True)
-    all_hist = all_hist[(all_hist["ANO"] >= 2015) & (all_hist["ANO"] <= 2024)].copy()
-    all_hist["lat_faixa"] = pd.cut(all_hist["LATITUDE"], bins=lat_bins, include_lowest=True)
+    d["CODIGO_MUNICIPIO"] = d["CODIGO_MUNICIPIO"].astype(str).str.extract(r"(\d{6})", expand=False)
+    if model_codes:
+        d = d[d["CODIGO_MUNICIPIO"].isin(model_codes)].copy()
+    
+    d["ANO"] = d["ANO"].map(to_int)
+    d["CASOS_DENGUE"] = d["CASOS_DENGUE"].map(to_float).fillna(0.0)
+    d["LATITUDE"] = d["LATITUDE"].map(to_float)
+    d = d.dropna(subset=["ANO", "LATITUDE"])
 
-    hist_lat = all_hist.groupby(["lat_faixa", "ANO"], as_index=False, observed=False)["CASOS_DENGUE"].sum()
+    if d.empty:
+        return pd.DataFrame(columns=["lat_faixa", "year", "incidentes"]), pd.DataFrame(columns=["year", "incidentes"])
+
+    d["lat_faixa"] = pd.cut(d["LATITUDE"], bins=lat_bins, include_lowest=True)
+
+    hist_lat = d.groupby(["lat_faixa", "ANO"], as_index=False, observed=False)["CASOS_DENGUE"].sum()
     hist_lat = hist_lat.rename(columns={"ANO": "year", "CASOS_DENGUE": "incidentes"})
 
-    hist_regional = all_hist.groupby("ANO", as_index=False)["CASOS_DENGUE"].sum()
+    hist_regional = d.groupby("ANO", as_index=False)["CASOS_DENGUE"].sum()
     hist_regional = hist_regional.rename(columns={"ANO": "year", "CASOS_DENGUE": "incidentes"})
+    
     return hist_lat, hist_regional
 
 
-def load_ml_panel_from_csvs_latitude(root_dir: Path) -> pd.DataFrame:
-    """Monta painel mensal para ML a partir dos CSVs por latitude."""
-    csv_dir = root_dir / "output" / "csvs_latitude"
-    if not csv_dir.exists():
-        raise FileNotFoundError(f"Diretório não encontrado: {csv_dir}")
-
-    dengue_files = sorted(csv_dir.glob("dengue_faixa_latitude_*.csv"))
-    temp_files = sorted(csv_dir.glob("temp_media_faixa_latitude_*.csv"))
-    prec_files = sorted(csv_dir.glob("precipitacao_faixa_latitude_*.csv"))
-
-    if not dengue_files or not temp_files or not prec_files:
-        raise RuntimeError("Faltam arquivos de dengue/temperatura/precipitação em output/csvs_latitude")
-
-    dengue_parts: List[pd.DataFrame] = []
-    temp_parts: List[pd.DataFrame] = []
-    prec_parts: List[pd.DataFrame] = []
-
-    for fp in dengue_files:
-        d = pd.read_csv(fp)
-        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "CASOS_DENGUE", "LATITUDE", "NOME_MUNICIPIO", "FAIXA_LATITUDE"}
-        if not req.issubset(set(d.columns)):
-            continue
-        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "CASOS_DENGUE", "LATITUDE", "NOME_MUNICIPIO", "FAIXA_LATITUDE"]].copy()
-        d = d.rename(columns={
-            "CODIGO_MUNICIPIO": "code",
-            "ANO": "year",
-            "MES": "month",
-            "CASOS_DENGUE": "dengue_cases",
-            "LATITUDE": "latitude",
-            "NOME_MUNICIPIO": "city_name",
-            "FAIXA_LATITUDE": "lat_faixa_id",
-        })
-        dengue_parts.append(d)
-
-    for fp in temp_files:
-        d = pd.read_csv(fp)
-        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "TEMP_MEDIA"}
-        if not req.issubset(set(d.columns)):
-            continue
-        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "TEMP_MEDIA"]].copy()
-        d = d.rename(columns={"CODIGO_MUNICIPIO": "code", "ANO": "year", "MES": "month", "TEMP_MEDIA": "temp_media"})
-        temp_parts.append(d)
-
-    for fp in prec_files:
-        d = pd.read_csv(fp)
-        req = {"CODIGO_MUNICIPIO", "ANO", "MES", "PRECIPITACAO_MENSAL"}
-        if not req.issubset(set(d.columns)):
-            continue
-        d = d[["CODIGO_MUNICIPIO", "ANO", "MES", "PRECIPITACAO_MENSAL"]].copy()
-        d = d.rename(columns={"CODIGO_MUNICIPIO": "code", "ANO": "year", "MES": "month", "PRECIPITACAO_MENSAL": "precipitacao"})
-        prec_parts.append(d)
-
-    if not dengue_parts:
-        raise RuntimeError("Não foi possível montar painel de dengue a partir dos CSVs por latitude")
-
-    dengue = pd.concat(dengue_parts, ignore_index=True)
-    temp = pd.concat(temp_parts, ignore_index=True) if temp_parts else pd.DataFrame(columns=["code", "year", "month", "temp_media"])
-    prec = pd.concat(prec_parts, ignore_index=True) if prec_parts else pd.DataFrame(columns=["code", "year", "month", "precipitacao"])
-
-    for df in [dengue, temp, prec]:
-        df["code"] = df["code"].astype(str).str.extract(r"(\d{6})", expand=False)
-        df["year"] = df["year"].map(to_int)
-        df["month"] = df["month"].map(to_int)
-
-    dengue["dengue_cases"] = dengue["dengue_cases"].map(to_float).fillna(0.0)
-    dengue["latitude"] = dengue["latitude"].map(to_float)
-    temp["temp_media"] = temp["temp_media"].map(to_float)
-    prec["precipitacao"] = prec["precipitacao"].map(to_float)
-
-    panel = dengue.merge(temp, on=["code", "year", "month"], how="left")
-    panel = panel.merge(prec, on=["code", "year", "month"], how="left")
-
-    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
-    enso = read_enso_series(enso_path)
-    panel = panel.merge(enso, on=["year", "month"], how="left")
-
-    panel = panel.dropna(subset=["code", "year", "month", "latitude"]).copy()
-    panel = panel[(panel["year"] >= TRAIN_START) & (panel["year"] <= TRAIN_END)].copy()
-    panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
-
-    # Imputação simples por mediana mensal para variáveis climáticas.
-    for col in ["temp_media", "precipitacao", "enso"]:
-        panel[col] = panel[col].astype(float)
-        month_med = panel.groupby("month")[col].transform("median")
-        panel[col] = panel[col].fillna(month_med)
-        panel[col] = panel[col].fillna(panel[col].median())
-
-    return panel
+# (load_ml_panel_from_csvs_latitude foi removida pois o motor passou a utilizar exclusivamente build_base_panel via SQLite)
 
 
 def _safe_mape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -964,27 +896,24 @@ def _evaluate_split(y_true: np.ndarray, y_pred: np.ndarray, split_name: str) -> 
     }
 
 
-def run_full_ml_from_csvs_latitude(root_dir: Path, panel: Optional[pd.DataFrame] = None) -> None:
-    """Treina ML completo com split temporal e projeta 2025-2040 usando csvs_latitude.
+def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> None:
+    """Treina ML completo com split temporal e projeta 2025-2040.
 
     Parameters
     ----------
     root_dir : Path
         Diretório raiz do projeto.
-    panel : pd.DataFrame, optional
-        Painel já carregado por build_base_panel() para evitar dupla leitura.
-        Se None, carrega internamente via load_ml_panel_from_csvs_latitude().
+    panel : pd.DataFrame
+        Painel de dados carregado via build_base_panel().
     """
     out_dir = root_dir / "output" / "projecoes_regionais" / "ml_completo"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Reutiliza painel já carregado para evitar dupla leitura de disco.
-    if panel is None:
-        logger.info("run_full_ml: carregando painel de csvs_latitude (não fornecido externamente)")
-        panel_ml = load_ml_panel_from_csvs_latitude(root_dir)
-    else:
-        logger.info("run_full_ml: reutilizando painel fornecido (%d registros)", len(panel))
-        panel_ml = panel.copy()
+    if panel is None or panel.empty:
+        raise ValueError("Painel de dados não pode ser vazio para executar ML completo.")
+        
+    logger.info("run_full_ml: inicializando com painel fornecido (%d registros)", len(panel))
+    panel_ml = panel.copy()
 
     feat = _build_ml_features(panel_ml)
 
@@ -1167,11 +1096,16 @@ def save_pdf_reports(
     plt.style.use("seaborn-v0_8-whitegrid")
     hist = panel[(panel["year"] >= 2015) & (panel["year"] <= 2024)].copy()
 
-    lat_bins = np.linspace(projections["latitude"].min(), projections["latitude"].max(), 9)
+    min_lat = projections["latitude"].min()
+    max_lat = projections["latitude"].max()
+    if min_lat == max_lat:
+        lat_bins = [min_lat - 1.0, min_lat + 1.0]
+    else:
+        lat_bins = np.linspace(min_lat, max_lat, 9)
     projections["lat_faixa"] = pd.cut(projections["latitude"], bins=lat_bins, include_lowest=True)
     hist["lat_faixa"] = pd.cut(hist["latitude"], bins=lat_bins, include_lowest=True)
     model_codes = set(panel["code"].astype(str).unique().tolist())
-    hist_lat_csv, hist_regional_csv = load_historical_incidents_from_csvs_latitude(root_dir, lat_bins, model_codes=model_codes)
+    hist_lat_csv, hist_regional_csv = load_historical_incidents_from_sqlite(root_dir, lat_bins, model_codes=model_codes)
 
     scen_order = ["ssp126", "ssp245", "ssp370", "ssp585"]
     scen_fill_order = ["ssp585", "ssp370", "ssp245", "ssp126"]
@@ -1785,8 +1719,8 @@ def main() -> None:
     # 5.1) Previsão pontual 2025 (com e sem incremento SSP)
     save_ml_2025_forecasts(root_dir, panel, local_intercepts)
 
-    # 5.2) ML completo (HistGradientBoosting) — reutiliza painel já carregado
-    run_full_ml_from_csvs_latitude(root_dir, panel=panel)
+    # 5.2) ML completo (HistGradientBoosting) — painel SQLite
+    run_full_ml(root_dir, panel=panel)
 
     # 6) PDFs
     pdf_lat, pdf_exec = save_pdf_reports(root_dir, panel, projections, calib, coverage)
