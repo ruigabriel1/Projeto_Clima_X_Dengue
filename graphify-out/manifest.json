@@ -11,41 +11,17 @@
     "ast_hash": "97479fa94e3a9cff422bb474e89cfcf3",
     "semantic_hash": "97479fa94e3a9cff422bb474e89cfcf3"
   },
-  "src/consolidar_dados.py": {
-    "mtime": 1787683116.3376656,
-    "seen": 1788529413.943371,
-    "ast_hash": "e21589197b057412a1850e8aea28dca4",
-    "semantic_hash": "e21589197b057412a1850e8aea28dca4"
-  },
   "src/data/loaders.py": {
     "mtime": 1782942817.827716,
     "seen": 1788529413.943371,
     "ast_hash": "9c56d79cc5c46f4a44356d3b62512e90",
     "semantic_hash": "9c56d79cc5c46f4a44356d3b62512e90"
   },
-  "src/processamento/build_data_warehouse.py": {
-    "mtime": 1787878085.053406,
-    "seen": 1788529413.943371,
-    "ast_hash": "70c600344197c374f15abae8feaf6914",
-    "semantic_hash": "70c600344197c374f15abae8feaf6914"
-  },
   "src/processamento/motor_lote_modelagem_v2_por_latitude.py": {
-    "mtime": 1787597228.396622,
-    "seen": 1788529413.943371,
-    "ast_hash": "1e3587542b67e610a743c80339dd3a5d",
-    "semantic_hash": "1e3587542b67e610a743c80339dd3a5d"
-  },
-  "src/processamento/processar_clima_por_latitude.py": {
-    "mtime": 1787597249.940914,
-    "seen": 1788529413.943371,
-    "ast_hash": "a459addfad607c0c3a1017778b634bc0",
-    "semantic_hash": "a459addfad607c0c3a1017778b634bc0"
-  },
-  "src/processamento/processar_dengue_latitude_mapas.py": {
-    "mtime": 1787681977.0534935,
-    "seen": 1788529413.943371,
-    "ast_hash": "4d6bd19344407461680665da8e57fdb5",
-    "semantic_hash": "4d6bd19344407461680665da8e57fdb5"
+    "mtime": 1789085691.8177705,
+    "seen": 1789088815.0879052,
+    "ast_hash": "3be0a82b2b465d6bfcfc52a06016b436",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1787763722.246444,
@@ -60,10 +36,10 @@
     "semantic_hash": "3e08532ac9f5aecd16fb7247d6905cde"
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
-    "mtime": 1787763722.2469501,
-    "seen": 1788534853.5011938,
-    "ast_hash": "bc6c95a57d09959a4c0ed57e6ec92ee8",
-    "semantic_hash": "bc6c95a57d09959a4c0ed57e6ec92ee8"
+    "mtime": 1789085758.6541963,
+    "seen": 1789088815.0879052,
+    "ast_hash": "bc203469108f9046b6b46a3bbb3ec7b1",
+    "semantic_hash": ""
   },
   "docs/CIENCIA_DE_DADOS_XGBOOST.md": {
     "mtime": 1787763722.2469501,
@@ -112,5 +88,23 @@
     "seen": 1788541157.6512415,
     "ast_hash": "1b61419bac0a4baeffc9c86ed2271294",
     "semantic_hash": "1b61419bac0a4baeffc9c86ed2271294"
+  },
+  "scripts/poc_api_ml.py": {
+    "mtime": 1788550263.0121753,
+    "seen": 1789088815.0879052,
+    "ast_hash": "79c05b30f1578a41098b919af103dd7d",
+    "semantic_hash": ""
+  },
+  "src/processamento/coletar_sao_carlos.py": {
+    "mtime": 1789087428.1937528,
+    "seen": 1789088815.0879052,
+    "ast_hash": "2aeadb312fece7bb165461a9bd598c39",
+    "semantic_hash": ""
+  },
+  "src/processamento/ingestor_api_sul.py": {
+    "mtime": 1789085624.221646,
+    "seen": 1789088815.0879052,
+    "ast_hash": "60b74fb0c0798c9c259d0252910cbaf1",
+    "semantic_hash": ""
   }
 }

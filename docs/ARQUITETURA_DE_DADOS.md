@@ -10,33 +10,33 @@ flowchart TD
         A1[API InfoDengue\n(Dengue, Zika, Chik)]
         A2[API Open-Meteo\n(Clima Diário)]
         A3[Geopackage\n(cache_municipios_sul)]
-        A4[NOAA\n(ENSO CSV)]
+        A4[API NOAA\n(Índice ONI / ENSO)]
     end
 
     subgraph Bronze["Camada Bronze (Ingestão & Banco de Dados)"]
         R1[ingestor_api_sul.py]
         DB[(dengue_analytics.db\nSQLite)]
         
-        R1 -- Baixa --> A1 & A2 & A3
+        R1 -- Baixa --> A1 & A2 & A3 & A4
         R1 -- Salva --> DB
         
         T1[Tabela: ingestao_saude]
         T2[Tabela: ingestao_clima]
+        T3[Tabela: ingestao_enso]
         
-        DB --- T1 & T2
+        DB --- T1 & T2 & T3
     end
 
     subgraph Silver["Camada Silver (Merge & Transformação)"]
         M1[motor_lote_modelagem_v2_por_latitude.py]
         M1 -- Lê --> DB
-        M1 -- Lê --> A4
         M1 -- Agrega por Mês/Ano --> P1[Painel Base na Memória]
     end
 
     subgraph Gold["Camada Gold (Machine Learning)"]
         P1 --> ML1[Local Intercepts\n(Regressão por Município)]
         ML1 --> ML2[XGBoost\n(8 Modelos por Latitude)]
-        ML2 --> OUT[Previsões 2025]
+        ML2 --> OUT[Previsões 2026+]
     end
 
     Fontes --> Bronze --> Silver --> Gold
@@ -51,7 +51,9 @@ flowchart TD
 *   **Motor de Ingestão:** `src/processamento/ingestor_api_sul.py`
     *   **Alvo `infodengue`:** Coleta dados epidemiológicos por semana e agrega por mês. Identifica os códigos IBGE de 7 dígitos.
     *   **Alvo `openmeteo`:** Coleta 11 anos de clima diário via API Archive. Agrupa dados brutos em médias/somas mensais. Possui "Freio de Mão" (20s delay) para burlar bloqueios (Burst Limit).
-*   **Armazenamento:** Banco de Dados SQLite (`data/processed/dengue_analytics.db`). 
+    *   **Alvo `noaa`:** Baixa o índice ONI (Oceanic Niño Index) diretamente da URL pública da NOAA, converte de trimestral deslizante para mensal e salva na tabela `ingestao_enso`.
+*   **Armazenamento:** Banco de Dados SQLite (`data/processed/dengue_analytics.db`).
+    *   **3 tabelas desacopladas:** `ingestao_saude`, `ingestao_clima` e `ingestao_enso`.
     *   O banco garante resiliência: se a internet cair ou o rate limit estourar, o robô sabe exatamente de qual cidade retomar na próxima execução, sem perder o progresso.
 
 ## 2. Camada Silver — Merge & Transformação Mensal
@@ -61,7 +63,7 @@ flowchart TD
 *   **Transformação:** Feita diretamente pela função `build_base_panel()` dentro do script do motor de ML.
 *   **Regras Aplicadas:**
     *   Cruzamento de Municípios (`CODIGO_MUNICIPIO`) e Tempo (`ANO`, `MES`).
-    *   Cruzamento das anomalias oceânicas (ENSO - El Niño/La Niña) através do CSV local (`data/raw/elnino_lanina_2015-2024.csv`).
+    *   Cruzamento das anomalias oceânicas (ENSO - El Niño/La Niña) via tabela `ingestao_enso` do banco SQLite (dados do índice ONI da NOAA).
     *   Conversão de dados geográficos e numéricos, mitigação de `NaNs`.
 
 ## 3. Camada Gold — Feature Store e Machine Learning

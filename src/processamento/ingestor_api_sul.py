@@ -9,6 +9,14 @@ from src.config import DATA_PROCESSED_DIR
 import time
 from datetime import datetime, timedelta
 
+# ============ MAPEAMENTO TRIMESTRAL → MENSAL (NOAA ONI) ============
+TRIMESTRE_PARA_MESES = {
+    'DJF': [12, 1, 2], 'JFM': [1, 2, 3], 'FMA': [2, 3, 4],
+    'MAM': [3, 4, 5],  'AMJ': [4, 5, 6], 'MJJ': [5, 6, 7],
+    'JJA': [6, 7, 8],  'JAS': [7, 8, 9], 'ASO': [8, 9, 10],
+    'SON': [9, 10, 11], 'OND': [10, 11, 12], 'NDJ': [11, 12, 1]
+}
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -132,6 +140,48 @@ def fetch_clima(lat, lon, geocode, start_year=2015, end_year=2025):
             time.sleep(10)
     return pd.DataFrame()
 
+def ingest_noaa_enso(start_year=2015):
+    """Baixa o índice ONI (El Niño / La Niña) da NOAA e converte para valores mensais."""
+    url = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+    logger.info("[ENSO - NOAA] Baixando índice ONI da URL oficial...")
+    
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    
+    # Parsear o texto (formato: SEAS  YR  TOTAL  ANOM)
+    records = []
+    for line in resp.text.strip().split('\n'):
+        parts = line.split()
+        if len(parts) < 4:
+            continue
+        seas, yr_str = parts[0], parts[1]
+        try:
+            yr = int(yr_str)
+            anom = float(parts[3])
+        except ValueError:
+            continue  # Pula o header
+        if yr < start_year - 1:  # pega 1 ano antes para cobrir trimestres de borda
+            continue
+        if seas not in TRIMESTRE_PARA_MESES:
+            continue
+        for mes in TRIMESTRE_PARA_MESES[seas]:
+            # Ajuste de ano para trimestres que cruzam virada de ano
+            ano_efetivo = yr
+            if seas == 'DJF' and mes == 12:
+                ano_efetivo = yr - 1
+            elif seas == 'NDJ' and mes == 1:
+                ano_efetivo = yr + 1
+            records.append({'ANO': ano_efetivo, 'MES': mes, 'ENSO_ONI': anom})
+    
+    df = pd.DataFrame(records)
+    # Média dos trimestres que cobrem cada mês (suavização)
+    df = df.groupby(['ANO', 'MES']).agg({'ENSO_ONI': 'mean'}).reset_index()
+    df['ENSO_ONI'] = df['ENSO_ONI'].round(2)
+    df = df[df['ANO'] >= start_year].sort_values(['ANO', 'MES']).reset_index(drop=True)
+    
+    logger.info(f"[ENSO - NOAA] {len(df)} registros mensais parseados (de {df['ANO'].min()} até {df['ANO'].max()}).")
+    return df
+
 def process_saude(row):
     geocode = row['code_muni']
     geocode_7 = row['code_muni_7']
@@ -183,11 +233,29 @@ def process_clima(row):
     return df_clima
 
 def main():
-    parser = argparse.ArgumentParser(description="Ingestor de APIs (Dupla Personalidade)")
-    parser.add_argument('--alvo', type=str, choices=['infodengue', 'openmeteo'], required=True, help="Qual API baixar: infodengue ou openmeteo")
+    parser = argparse.ArgumentParser(description="Ingestor de APIs (Tripla Personalidade)")
+    parser.add_argument('--alvo', type=str, choices=['infodengue', 'openmeteo', 'noaa'], required=True, help="Qual API baixar: infodengue, openmeteo ou noaa")
     args = parser.parse_args()
     
     alvo = args.alvo
+    
+    # ========== FLUXO ESPECIAL: NOAA (1 request único, sem loop de cidades) ==========
+    if alvo == 'noaa':
+        logger.info("=== INICIANDO ROBÔ ALVO: NOAA (El Niño / La Niña) ===")
+        df_enso = ingest_noaa_enso(start_year=2015)
+        if df_enso.empty:
+            logger.error("[ENSO - NOAA] Nenhum dado retornado. Abortando.")
+            return
+        os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+        conn = sqlite3.connect(DB_PATH)
+        df_enso.to_sql('ingestao_enso', conn, if_exists='replace', index=False)
+        count = conn.execute('SELECT COUNT(*) FROM ingestao_enso').fetchone()[0]
+        conn.close()
+        logger.info(f"[ENSO - NOAA] Tabela 'ingestao_enso' salva com {count} registros em {DB_PATH.name}")
+        logger.info(f"=== INGESTÃO NOAA CONCLUÍDA ===")
+        return
+    
+    # ========== FLUXO PADRÃO: InfoDengue / OpenMeteo (loop de cidades) ==========
     tabela_alvo = 'ingestao_saude' if alvo == 'infodengue' else 'ingestao_clima'
     process_func = process_saude if alvo == 'infodengue' else process_clima
     

@@ -250,20 +250,20 @@ def build_code_lookup_from_latitude_files(csv_paths: List[Path]) -> pd.DataFrame
 
 def validate_data_sources(root_dir: Path) -> None:
     """Verifica integridade das fontes de dados antes do processamento."""
-    raw_dir = root_dir / "data" / "raw"
-    csv_dir = root_dir / "output" / "csvs_latitude"
+    import sqlite3
+    db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
 
-    required_raw = [
-        raw_dir / "elnino_lanina_2015-2024.csv"
-    ]
-    missing_raw = [p for p in required_raw if not p.exists()]
+    if not db_path.exists():
+        raise FileNotFoundError(f"Banco da API não encontrado em {db_path}. Execute os robôs de ingestão.")
     
-    if missing_raw:
-        missing_str = "\n  ".join(str(p) for p in missing_raw)
-        logger.error(f"Arquivos raw ausentes:\n  {missing_str}")
-        raise FileNotFoundError(f"Arquivos essenciais ausentes:\n  {missing_str}")
+    conn = sqlite3.connect(db_path)
+    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+    conn.close()
+    
+    if 'ingestao_enso' not in tables:
+        raise FileNotFoundError("Tabela 'ingestao_enso' não encontrada. Execute: --alvo noaa")
 
-    logger.info("Validação concluída: arquivos do El Nino e painel híbrido disponíveis.")
+    logger.info("Validação concluída: tabela ENSO e banco SQLite disponíveis.")
 
 
 def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -326,11 +326,15 @@ def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     }
     panel = panel.rename(columns={k: v for k, v in rename_map.items() if k in panel.columns})
     
-    # ENSO Merge
-    enso_path = root_dir / "data" / "raw" / "elnino_lanina_2015-2024.csv"
-    if enso_path.exists():
-        df_enso = read_enso_series(enso_path)
+    # ENSO Merge — Leitura do banco SQLite (tabela ingestao_enso)
+    try:
+        conn_enso = sqlite3.connect(db_path)
+        df_enso = pd.read_sql_query("SELECT ANO as year, MES as month, ENSO_ONI as enso FROM ingestao_enso", conn_enso)
+        conn_enso.close()
         panel = pd.merge(panel, df_enso, on=['year', 'month'], how='left')
+        logger.info(f"  -> ENSO merge concluído: {len(df_enso)} registros do banco SQLite.")
+    except Exception as e:
+        logger.warning(f"Tabela ingestao_enso não encontrada: {e}. Coluna enso ficará vazia.")
 
     
     if "code" in panel.columns and "year" in panel.columns and "month" in panel.columns:
