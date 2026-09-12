@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prodígia — Previsão Epidêmica Inteligente</title>
+  <meta name="description" content="Interface de treinamento e visualização do modelo preditivo de Dengue baseado em XGBoost.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <h1>Prodígia</h1>
+      <p>Motor de Previsão Epidêmica · XGBoost · Clima × Dengue</p>
+    </header>
+
+    <!-- Status do Banco -->
+    <div class="status-row" id="statusRow">
+      <div class="stat-card"><span class="value" id="stCidades">–</span><span class="label">Cidades</span></div>
+      <div class="stat-card"><span class="value" id="stRegistros">–</span><span class="label">Registros Saúde</span></div>
+      <div class="stat-card"><span class="value" id="stClima">–</span><span class="label">Registros Clima</span></div>
+      <div class="stat-card"><span class="value" id="stPeriodo">–</span><span class="label">Período</span></div>
+    </div>
+
+    <!-- Painel de Treinamento -->
+    <section class="panel">
+      <div class="panel-title">⚡ Painel de Treinamento</div>
+
+      <div class="scope-options">
+        <div class="scope-option">
+          <input type="radio" name="modo" id="mRapido" value="rapido" checked>
+          <label for="mRapido">🚀 Rápido<br><small>São Carlos</small></label>
+        </div>
+        <div class="scope-option">
+          <input type="radio" name="modo" id="mRegional" value="regional">
+          <label for="mRegional">⚙️ Regional<br><small>Faixa Latitude</small></label>
+        </div>
+        <div class="scope-option">
+          <input type="radio" name="modo" id="mCompleto" value="completo">
+          <label for="mCompleto">🌎 Completo<br><small>1.191 Cidades</small></label>
+        </div>
+      </div>
+
+      <span class="advanced-toggle" id="advToggle">▸ Filtro avançado (cidade específica)</span>
+      <div class="advanced-body" id="advBody">
+        <select id="cidadeSelect">
+          <option value="">— Selecionar cidade —</option>
+        </select>
+      </div>
+
+      <button class="btn-train" id="btnTreinar">Treinar Prodígia</button>
+
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">Aguardando...</div>
+      </div>
+    </section>
+
+    <!-- Dashboard de Resultados -->
+    <section id="results">
+      <div class="panel">
+        <div class="panel-title">📊 Resultados do Treinamento</div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value"><span id="erro-abs-val">--</span> <span style="font-size: 0.8rem; color: #7f8c8d;">Casos</span></div>
+                <div class="metric-label">MARGEM DE ERRO (2025)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value status-good" id="tendencia-val">--</div>
+                <div class="metric-label">PREVISÃO DE TENDÊNCIA</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value status-good" id="risco-val">--</div>
+                <div class="metric-label">ALERTA EPIDEMIOLÓGICO 2025</div>
+            </div>
+        </div>
+
+        <div class="chart-wrap">
+          <h3>Casos Reais vs Previsão XGBoost (Anual)</h3>
+          <canvas id="chartBarras"></canvas>
+        </div>
+
+        <div class="chart-wrap">
+          <h3>Importância das Variáveis (Feature Importance)</h3>
+          <canvas id="chartFI"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">Prodígia v1.0 · Projeto Clima × Dengue · SQLite Medallion Architecture</footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

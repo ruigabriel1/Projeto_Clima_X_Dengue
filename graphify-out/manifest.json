@@ -18,9 +18,9 @@
     "semantic_hash": "9c56d79cc5c46f4a44356d3b62512e90"
   },
   "src/processamento/motor_lote_modelagem_v2_por_latitude.py": {
-    "mtime": 1789085691.8177705,
-    "seen": 1789088815.0879052,
-    "ast_hash": "3be0a82b2b465d6bfcfc52a06016b436",
+    "mtime": 1789233304.0862448,
+    "seen": 1789237825.542734,
+    "ast_hash": "813d24d3c05dc231431d7ec03827e49b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -105,6 +105,24 @@
     "mtime": 1789085624.221646,
     "seen": 1789088815.0879052,
     "ast_hash": "60b74fb0c0798c9c259d0252910cbaf1",
+    "semantic_hash": ""
+  },
+  "docs/comandos_uteis.ps1": {
+    "mtime": 1789228802.4588044,
+    "seen": 1789237825.542734,
+    "ast_hash": "337c5070ee1a43fa3572835909bb1099",
+    "semantic_hash": ""
+  },
+  "scratch/plot_sc.py": {
+    "mtime": 1789236327.333298,
+    "seen": 1789237825.542734,
+    "ast_hash": "734a72699ff7e120ca63d366b74d922b",
+    "semantic_hash": ""
+  },
+  "scratch/valida_sc.png": {
+    "mtime": 1789236355.6325214,
+    "seen": 1789237825.542734,
+    "ast_hash": "3a0143d5396e226fc3de5ce5d1c4b1e3",
     "semantic_hash": ""
   }
 }
