@@ -266,7 +266,7 @@ def validate_data_sources(root_dir: Path) -> None:
     logger.info("Validação concluída: tabela ENSO e banco SQLite disponíveis.")
 
 
-def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def build_base_panel(root_dir: Path, modo: str = "regional") -> Tuple[pd.DataFrame, pd.DataFrame]:
     import sqlite3
     db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
     
@@ -342,9 +342,11 @@ def build_base_panel(root_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     if "code" in panel.columns and "year" in panel.columns and "month" in panel.columns:
         panel = panel.sort_values(["code", "year", "month"]).reset_index(drop=True)
     
-    # --- FILTRO EXCLUSIVO PARA SÃO CARLOS SC (VALOR FIXADO CONFORME DECISÃO DO USUÁRIO) ---
-    logger.info("FILTRANDO PAINEL: Foco exclusivo na cidade de São Carlos (IBGE 421600).")
-    panel = panel[panel["code"] == "421600"].copy()
+    if modo == "rapido":
+        logger.info("FILTRANDO PAINEL: Foco exclusivo na cidade de São Carlos (IBGE 421600).")
+        panel = panel[panel["code"] == "421600"].copy()
+    else:
+        logger.info("MODO REGIONAL: Processando todas as cidades da Região Sul.")
     
     # Criar lookup geográfico apenas com os presentes
     req_cols = [c for c in ["code", "city_name", "latitude"] if c in panel.columns]
@@ -1653,20 +1655,20 @@ def save_pdf_reports(
 
 # ========================= MAIN =========================
 
-def main() -> None:
+def main(modo: str = "regional") -> None:
     root_dir = ROOT_DATA_DIR
     if not root_dir.exists():
         raise FileNotFoundError(f"Diretório raiz não encontrado: {root_dir}")
 
     logger.info("=" * 70)
-    logger.info("MOTOR V2 — MODELAGEM CLIMA-SAÚDE (DENGUE) | REGIÃO SUL POR LATITUDE")
+    logger.info(f"MOTOR V2 — MODELAGEM CLIMA-SAÚDE (DENGUE) | MODO: {modo.upper()}")
     logger.info("=" * 70)
 
     # 0) Validação de fontes antes de qualquer leitura
     validate_data_sources(root_dir)
 
     # 1) Painel base (fonte canônica: csvs_latitude quando disponível)
-    panel, lookup = build_base_panel(root_dir)
+    panel, lookup = build_base_panel(root_dir, modo=modo)
     if panel.empty:
         raise RuntimeError("Painel base vazio após leitura.")
 

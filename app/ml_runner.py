@@ -87,15 +87,12 @@ def treinar(
     from sklearn.ensemble import HistGradientBoostingRegressor
     from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-    panel, lookup = build_base_panel(ROOT_DIR)
+    panel, lookup = build_base_panel(ROOT_DIR, modo=modo)
     emit(f"Painel carregado: {len(panel)} registros", 15)
 
-    # Aplicar filtro de escopo
+    # Aplicar filtro avançado se código IBGE específico for solicitado
     if codigo_ibge:
         panel = panel[panel["code"] == str(codigo_ibge)].copy()
-    elif modo == "rapido":
-        panel = panel[panel["code"] == "421600"].copy()
-    # "regional" e "completo" usam o painel inteiro por enquanto
 
     n_cidades = panel["code"].nunique()
     emit(f"Escopo: {n_cidades} cidade(s) selecionada(s)", 20)
