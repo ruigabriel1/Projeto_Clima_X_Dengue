@@ -48,7 +48,7 @@ def obter_faixa_latitude(lat):
 def fetch_infodengue(geocode, disease='dengue', start_year=2015, end_year=2025):
     url = f"https://info.dengue.mat.br/api/alertcity?geocode={geocode}&disease={disease}&format=json&ew_start=1&ew_end=53&ey_start={start_year}&ey_end={end_year}"
     try:
-        resp = requests.get(url, timeout=20)
+        resp = requests.get(url, timeout=60)
         if resp.status_code == 200:
             data = resp.json()
             if not data: return pd.DataFrame()
@@ -98,7 +98,7 @@ def fetch_clima(lat, lon, geocode, start_year=2015, end_year=2025):
     
     while True:
         try:
-            resp = requests.get(url, timeout=20)
+            resp = requests.get(url, timeout=60)
             if resp.status_code == 200:
                 d = resp.json()
                 if 'daily' not in d: return pd.DataFrame()
