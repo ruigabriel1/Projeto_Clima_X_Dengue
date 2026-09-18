@@ -1,16 +1,16 @@
-# Graph Report - Projeto_Clima_X_Dengue  (2026-09-16)
+# Graph Report - Projeto_Clima_X_Dengue  (2026-09-17)
 
 ## Corpus Check
-- 22 files · ~24,479 words
+- 21 files · ~23,686 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 119 nodes · 197 edges · 23 communities (8 shown, 6 thin omitted)
+- 117 nodes · 197 edges · 21 communities (8 shown, 5 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d1ea99f`
+- Built from commit: `cec9ad66`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,7 +24,6 @@
 - Medallion Architecture
 - main.py
 - Compass Rose
-- Dengue Modeling with ID
 - server.py
 - app.js
 - validate_data_sources
@@ -60,7 +59,7 @@
 ## Hyperedges (group relationships)
 - **Medallion Data Layers** — data_readme, docs_arquitetura_de_dados, docs_legado_historico_diario_projeto [EXTRACTED 0.95]
 
-## Communities (23 total, 6 thin omitted)
+## Communities (21 total, 5 thin omitted)
 
 ### Community 0 - "Path"
 Cohesion: 0.31
@@ -95,18 +94,18 @@ Cohesion: 0.39
 Nodes (5): carregarResultados(), iniciarTreino(), renderChartBarras(), renderChartFI(), renderMetricas()
 
 ## Knowledge Gaps
-- **3 isolated node(s):** `Dengue Modeling with ID`, `XGBoost Global Model`, `Compass Rose`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 41 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2 isolated node(s):** `XGBoost Global Model`, `Compass Rose`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 39 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `treinar()` connect `ml_runner.py` to `server.py`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
+  _High betweenness centrality (0.098) - this node is a cross-community bridge._
 - **Why does `run_full_ml()` connect `ml_runner.py` to `Path`, `DataFrame`, `motor_lote_modelagem_v2_por_latitude.py`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Why does `build_base_panel()` connect `ml_runner.py` to `Path`, `DataFrame`, `motor_lote_modelagem_v2_por_latitude.py`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **What connects `Dengue Modeling with ID`, `XGBoost Global Model`, `Compass Rose` to the rest of the system?**
-  _3 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+- **What connects `XGBoost Global Model`, `Compass Rose` to the rest of the system?**
+  _2 weakly-connected nodes found - possible documentation gaps or missing edges._

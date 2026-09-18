@@ -976,17 +976,6 @@
       "source_location": "L252"
     },
     {
-      "id": "scripts_poc_api_ml",
-      "label": "poc_api_ml.py",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "poc_api_ml.py",
-      "file_type": "code",
-      "norm_label": "poc_api_ml.py",
-      "source_file": "scripts/poc_api_ml.py",
-      "source_location": "L1"
-    },
-    {
       "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_803",
       "label": "Sombras em cen\u00e1rios de refer\u00eancia, no estilo do exemplo IPCC.",
       "_origin": "ast",
@@ -1249,22 +1238,6 @@
       "norm_label": "main.py",
       "source_file": "main.py",
       "source_location": "L1"
-    },
-    {
-      "id": "1527966_modelagem_dengue_com_id_dengue_modeling",
-      "label": "Dengue Modeling with ID",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 10,
-      "community_name": "Dengue Modeling with ID",
-      "contributor": null,
-      "file_type": "paper",
-      "norm_label": "dengue modeling with id",
-      "rationale": null,
-      "source_file": "1527966_modelagem_dengue_com_id.pdf",
-      "source_location": null,
-      "source_url": null
     },
     {
       "id": "data_readme",
@@ -3679,5 +3652,5 @@
       "source_file": "docs/ARQUITETURA_DE_DADOS.md"
     }
   ],
-  "built_at_commit": "0d1ea99fb7905b87f09c65f6431695d03c32bf4b"
+  "built_at_commit": "cec9ad66c922a09ac1fe13205a2e7d509287c888"
 }

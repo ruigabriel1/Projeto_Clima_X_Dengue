@@ -83,18 +83,6 @@
     "ast_hash": "637d6bd7f81645babbd20ab3f88d8853",
     "semantic_hash": "637d6bd7f81645babbd20ab3f88d8853"
   },
-  "1527966_modelagem_dengue_com_id.pdf": {
-    "mtime": 1787595257.9898715,
-    "seen": 1788541157.6512415,
-    "ast_hash": "1b61419bac0a4baeffc9c86ed2271294",
-    "semantic_hash": "1b61419bac0a4baeffc9c86ed2271294"
-  },
-  "scripts/poc_api_ml.py": {
-    "mtime": 1788550263.0121753,
-    "seen": 1789088815.0879052,
-    "ast_hash": "79c05b30f1578a41098b919af103dd7d",
-    "semantic_hash": ""
-  },
   "src/processamento/coletar_sao_carlos.py": {
     "mtime": 1789087428.1937528,
     "seen": 1789088815.0879052,
