@@ -274,6 +274,59 @@ body {
   max-height: 320px;
 }
 
+/* ── Data Tables (Academic) ── */
+.table-responsive {
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table th {
+  background: var(--surface);
+  color: var(--accent);
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+}
+.data-table tr:hover {
+  background: rgba(88, 166, 255, 0.05);
+}
+.data-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.var-up { color: var(--danger); }
+.var-up::before { content: "▲ "; font-size: 0.7rem; }
+.var-down { color: var(--success); }
+.var-down::before { content: "▼ "; font-size: 0.7rem; }
+
+/* ── Metrics Grid (3 cards) ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Highlight colors for metric values ── */
+.highlight-green { color: var(--success) !important; }
+.highlight-yellow { color: var(--warning) !important; }
+.highlight-red { color: var(--danger) !important; }
+
 /* ── Footer ── */
 .footer {
   text-align: center;

@@ -78,22 +78,66 @@
             </div>
         </div>
 
+        <!-- Tabela Epidemiológica -->
         <div class="chart-wrap">
-          <h3>Casos Reais vs Previsão XGBoost (Anual)</h3>
+          <h3>📋 Resumo Epidemiológico Anual</h3>
+          <div class="table-responsive">
+            <table class="data-table" id="tabelaEpidem">
+              <thead><tr><th>Ano</th><th>Casos Totais</th><th>Incid./100 mil</th><th>Pico Mensal</th><th>Mês do Pico</th><th>Variação (%)</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Gráfico de Barras Anuais (existente) -->
+        <div class="chart-wrap">
+          <h3>📊 Casos Reais vs Previsão XGBoost (Anual)</h3>
           <canvas id="chartBarras"></canvas>
         </div>
 
+        <!-- NOVO: Série Temporal Mensal -->
         <div class="chart-wrap">
-          <h3>Importância das Variáveis (Feature Importance)</h3>
+          <h3>📈 Série Temporal Mensal — Real vs Previsto</h3>
+          <canvas id="chartSerieTemporal"></canvas>
+        </div>
+
+        <!-- NOVO: Clima vs Dengue -->
+        <div class="chart-wrap">
+          <h3>🌡️ Anomalias Climáticas vs Incidência de Dengue</h3>
+          <canvas id="chartClima"></canvas>
+        </div>
+
+        <!-- NOVO: Heatmap Sazonal -->
+        <div class="chart-wrap">
+          <h3>🗓️ Sazonalidade — Heatmap de Casos (Meses × Anos)</h3>
+          <canvas id="chartHeatmap"></canvas>
+        </div>
+
+        <!-- NOVO: Tabela Correlação Climática -->
+        <div class="chart-wrap">
+          <h3>🔬 Correlação Climática (Pearson)</h3>
+          <div class="table-responsive">
+            <table class="data-table" id="tabelaCorrelacao">
+              <thead><tr><th>Preditor Climático</th><th>Lag (meses)</th><th>r de Pearson</th><th>p-valor</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Feature Importance (existente) -->
+        <div class="chart-wrap">
+          <h3>🧬 Importância das Variáveis (Feature Importance)</h3>
           <canvas id="chartFI"></canvas>
         </div>
       </div>
     </section>
 
-    <footer class="footer">Prodígia v1.0 · Projeto Clima × Dengue · SQLite Medallion Architecture</footer>
+    <footer class="footer">Prodígia v2.0 · Projeto Clima × Dengue · SQLite Medallion Architecture</footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-  <script src="/static/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2"></script>
+  <script src="/static/app.js?v=2"></script>
 </body>
 </html>
+
