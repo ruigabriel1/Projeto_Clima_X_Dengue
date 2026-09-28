@@ -1,39 +1,31 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   ProdÃ­gia â€” Frontend Logic (SSE + Chart.js)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════════
+   Prodígia — Frontend Logic (SSE + Chart.js)
+   ═══════════════════════════════════════════════════════════ */
 
 const $ = (s) => document.querySelector(s);
 
-let chartBarras = null;
-let chartFI = null;
-let chartSerieTemporal = null;
-let chartClima = null;
+let chartBarrasProjecao = null;
+let chartCenarios = null;
+let chartSazonal = null;
 let chartHeatmap = null;
-let chartCenarios = null; // NOVO
 
 function getCSSVar(name) {
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
-// Register Matrix Plugin for Chart.js 4 if available
-if (window["chartjs-chart-matrix"]) {
-  Chart.register(window["chartjs-chart-matrix"].MatrixController, window["chartjs-chart-matrix"].MatrixElement);
-}
-
-// â”€â”€ InicializaÃ§Ã£o â”€â”€
+// ── Inicialização ──
 document.addEventListener("DOMContentLoaded", () => {
   // Inicializar Tema
   const isDark = localStorage.getItem("theme") === "dark";
   if (isDark) document.body.classList.add("dark-mode");
   const themeBtn = $("#themeToggle");
   if (themeBtn) {
-    themeBtn.textContent = isDark ? "â˜€ï¸ Tema Claro" : "ðŸŒ™ Tema Escuro";
+    themeBtn.textContent = isDark ? "☀️ Tema Claro" : "🌙 Tema Escuro";
     themeBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark-mode");
       const dark = document.body.classList.contains("dark-mode");
       localStorage.setItem("theme", dark ? "dark" : "light");
-      themeBtn.textContent = dark ? "â˜€ï¸ Tema Claro" : "ðŸŒ™ Tema Escuro";
-      // Opcional: recarregar pÃ¡gina para re-renderizar grÃ¡ficos com novas cores
+      themeBtn.textContent = dark ? "☀️ Tema Claro" : "🌙 Tema Escuro";
       window.location.reload(); 
     });
   }
@@ -45,12 +37,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const body = $("#advBody");
     body.classList.toggle("open");
     $("#advToggle").textContent = body.classList.contains("open")
-      ? "â–¾ Filtro avanÃ§ado (cidade especÃ­fica)"
-      : "â–¸ Filtro avanÃ§ado (cidade especÃ­fica)";
+      ? "▾ Filtro avançado (cidade específica)"
+      : "▸ Filtro avançado (cidade específica)";
   });
 });
 
-// â”€â”€ Status do Banco â”€â”€
+// ── Status do Banco ──
 async function loadStatus() {
   try {
     const r = await fetch("/api/status");
@@ -64,7 +56,7 @@ async function loadStatus() {
   }
 }
 
-// â”€â”€ Lista de Cidades â”€â”€
+// ── Lista de Cidades ──
 async function loadCidades() {
   try {
     const r = await fetch("/api/cidades");
@@ -81,7 +73,7 @@ async function loadCidades() {
   }
 }
 
-// â”€â”€ Treinamento â”€â”€
+// ── Treinamento ──
 async function iniciarTreino() {
   const btn = $("#btnTreinar");
   btn.disabled = true;
@@ -92,6 +84,7 @@ async function iniciarTreino() {
   $("#progressFill").style.width = "0%";
   $("#progressLabel").textContent = "Iniciando...";
   $("#results").classList.remove("visible");
+  $("#results").style.display = "none";
 
   const modo = document.querySelector('input[name="modo"]:checked').value;
   const cidadeSel = $("#cidadeSelect").value;
@@ -110,23 +103,7 @@ async function iniciarTreino() {
     const es = new EventSource("/api/treinar/progresso");
     es.onmessage = (ev) => {
       const data = JSON.parse(ev.data);
-      if (data.metricas) {
-        document.getElementById('erro-abs-val').innerText = `Â±${data.metricas.erro_abs}`;
-        
-        const tendEl = document.getElementById('tendencia-val');
-        tendEl.innerText = data.metricas.tendencia;
-        tendEl.className = data.metricas.tendencia.includes("Acertou") ? "metric-value highlight-green" : "metric-value highlight-red";
-
-        const riscoEl = document.getElementById('risco-val');
-        riscoEl.innerText = data.metricas.risco;
-        if (data.metricas.risco === "Baixo") {
-            riscoEl.className = "metric-value highlight-green";
-        } else if (data.metricas.risco === "MÃ©dio") {
-            riscoEl.className = "metric-value highlight-yellow";
-        } else {
-            riscoEl.className = "metric-value highlight-red";
-        }
-      }
+      
       if (data.pct >= 0) {
         $("#progressFill").style.width = data.pct + "%";
         $("#progressLabel").textContent = data.msg;
@@ -134,29 +111,29 @@ async function iniciarTreino() {
       if (data.pct >= 100) {
         es.close();
         btn.disabled = false;
-        btn.textContent = "Treinar ProdÃ­gia";
+        btn.textContent = "Treinar Prodígia";
         carregarResultados();
       }
       if (data.pct === -1) {
         es.close();
         btn.disabled = false;
-        btn.textContent = "Treinar ProdÃ­gia";
+        btn.textContent = "Treinar Prodígia";
         $("#progressLabel").textContent = data.msg;
       }
     };
     es.onerror = () => {
       es.close();
       btn.disabled = false;
-      btn.textContent = "Treinar ProdÃ­gia";
+      btn.textContent = "Treinar Prodígia";
     };
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = "Treinar ProdÃ­gia";
+    btn.textContent = "Treinar Prodígia";
     console.error("Erro ao iniciar treino:", e);
   }
 }
 
-// â”€â”€ Resultados â”€â”€
+// ── Resultados ──
 async function carregarResultados() {
   try {
     const r = await fetch("/api/resultados");
@@ -164,8 +141,7 @@ async function carregarResultados() {
     if (d.error) return;
 
     $("#results").style.display = "block";
-    
-    renderMetricas(d.metricas);
+    $("#results").classList.add("visible");
     
     const safeRender = (fn, data, name) => {
       try {
@@ -175,10 +151,15 @@ async function carregarResultados() {
       }
     };
 
-    safeRender(renderTabelaProjecao, d.projecao_cenarios, "Tabela de ProjeÃ§Ã£o");
-    safeRender(renderChartBarrasProjecao, d.projecao_cenarios, "GrÃ¡fico Barras ProjeÃ§Ã£o");
-    safeRender(renderChartCenarios, d.projecao_cenarios, "ProjeÃ§Ãµes de CenÃ¡rios");
-    safeRender(renderTabelaCorrelacao, d.tabela_correlacao, "Tabela CorrelaÃ§Ã£o");
+    safeRender(renderMetricas, d.metricas, "Métricas");
+    safeRender(renderTabelaHistorica, d.tabela_epidemiologica, "Tabela Histórica");
+    safeRender(renderChartSazonal, d.dist_sazonal, "Sazonalidade");
+    safeRender(renderChartHeatmap, d.dist_sazonal, "Heatmap");
+    
+    safeRender(renderTabelaProjecao, d.projecao_cenarios, "Tabela de Projeção");
+    safeRender(renderChartBarrasProjecao, d.projecao_cenarios, "Gráfico Barras Projeção");
+    safeRender(renderChartCenarios, d.projecao_cenarios, "Projeções de Cenários");
+    safeRender(renderTabelaCorrelacao, d.tabela_correlacao, "Tabela Correlação");
     
   } catch (e) {
     console.error("Erro geral em carregarResultados:", e);
@@ -186,459 +167,70 @@ async function carregarResultados() {
   }
 }
 
+// ── Gráficos e Tabelas ──
+
 function renderMetricas(m) {
-  try {
-      const erroEl = document.getElementById('erro-abs-val');
-      if (erroEl) erroEl.innerText = `Â±${m.erro_abs}`;
-      
-      const tendEl = document.getElementById('tendencia-val');
-      if (tendEl) {
-          tendEl.innerText = m.tendencia;
-          tendEl.className = m.tendencia.includes("Acertou") ? "metric-value highlight-green" : "metric-value highlight-red";
-      }
-
-      const riscoEl = document.getElementById('risco-val');
-      if (riscoEl) {
-          riscoEl.innerText = m.risco;
-          if (m.risco === "Baixo") {
-              riscoEl.className = "metric-value highlight-green";
-          } else if (m.risco === "MÃ©dio") {
-              riscoEl.className = "metric-value highlight-yellow";
-          } else {
-              riscoEl.className = "metric-value highlight-red";
-          }
-      }
-  } catch(e) {
-      console.error("Erro renderizando mÃ©tricas:", e);
-  }
+  if (!m) return;
+  const r2El = document.getElementById("r2-val");
+  const maeEl = document.getElementById("mae-val");
+  const rmseEl = document.getElementById("rmse-val");
+  
+  if (r2El) r2El.innerText = m.r2 !== undefined ? m.r2 : "-";
+  if (maeEl) maeEl.innerText = m.mae !== undefined ? m.mae : "-";
+  if (rmseEl) rmseEl.innerText = m.rmse !== undefined ? m.rmse : "-";
 }
 
-function renderChartBarras(data) {
-  const ctx = $("#chartBarras").getContext("2d");
-  if (chartBarras) chartBarras.destroy();
-
-  chartBarras = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: data.anos,
-      datasets: [
-        {
-          label: "Casos Reais",
-          data: data.real,
-          backgroundColor: "rgba(52, 211, 153, 0.7)",
-          borderColor: "rgba(52, 211, 153, 1)",
-          borderWidth: 1,
-          borderRadius: 4,
-        },
-        {
-          label: "PrevisÃ£o XGBoost",
-          data: data.previsto,
-          backgroundColor: "rgba(88, 166, 255, 0.7)",
-          borderColor: "rgba(88, 166, 255, 1)",
-          borderWidth: 1,
-          borderRadius: 4,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: getCSSVar('--text'), font: { family: "Inter" } } },
-      },
-      scales: {
-        x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-        y: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-      },
-    },
-  });
-}
-
-function renderChartFI(fiData) {
-  const ctx = $("#chartFI").getContext("2d");
-  if (chartFI) chartFI.destroy();
-
-  const labels_map = {
-    temp_media: "Temperatura MÃ©dia",
-    precipitacao: "PrecipitaÃ§Ã£o",
-    enso: "ENSO (El NiÃ±o)",
-    latitude: "Latitude",
-    month_sin: "Sazonalidade (sin)",
-    month_cos: "Sazonalidade (cos)",
-    dengue_lag1: "Dengue MÃªs Anterior",
-    dengue_lag2: "Dengue 2 Meses Antes",
-    dengue_lag3: "Dengue 3 Meses Antes",
-    temp_lag1: "Temp. MÃªs Anterior",
-    prec_lag1: "Precip. MÃªs Anterior",
-    enso_lag1: "ENSO MÃªs Anterior",
-  };
-
-  chartFI = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: fiData.map((f) => labels_map[f.feature] || f.feature),
-      datasets: [
-        {
-          label: "ImportÃ¢ncia",
-          data: fiData.map((f) => f.importance),
-          backgroundColor: "rgba(88, 166, 255, 0.6)",
-          borderColor: "rgba(88, 166, 255, 1)",
-          borderWidth: 1,
-          borderRadius: 4,
-        },
-      ],
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-        y: { ticks: { color: getCSSVar('--text'), font: { family: "Inter", size: 11 } }, grid: { display: false } },
-      },
-    },
-  });
-}
-
-function renderTabelaEpidem(data) {
-  const tbody = $("#tabelaEpidem tbody");
+function renderTabelaHistorica(data) {
+  const tbody = $("#tabelaHistorica tbody");
+  if (!tbody || !data) return;
   tbody.innerHTML = "";
-  data.forEach((row) => {
-    const tr = document.createElement("tr");
-    
-    // VariaÃ§Ã£o formatada
-    let varHtml = "<td>-</td>";
-    if (row.variacao !== null && row.variacao !== undefined) {
-      const isUp = row.variacao > 0;
-      const cls = isUp ? "var-up" : "var-down";
-      varHtml = `<td class="${cls} num">${Math.abs(row.variacao).toFixed(1)}%</td>`;
-    }
 
-    tr.innerHTML = `
-      <td>${row.ano}</td>
-      <td class="num">${row.casos.toLocaleString("pt-BR")}</td>
-      <td class="num">${row.incidencia !== null ? row.incidencia.toLocaleString("pt-BR") : "-"}</td>
-      <td class="num">${row.pico.toLocaleString("pt-BR")}</td>
-      <td>${row.mes_pico}</td>
-      ${varHtml}
-    `;
+  data.forEach((r) => {
+    if (r.ano < 2026) return;
+    const tr = document.createElement("tr");
+    tr.innerHTML = 
+      "<td><strong>" + r.ano + "</strong></td>" +
+      "<td>" + (r.casos !== null ? r.casos.toLocaleString('pt-BR') : "-") + "</td>" +
+      "<td>" + (r.incidencia !== null ? r.incidencia.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) : "-") + "</td>" +
+      "<td>" + (r.pico !== null ? r.pico.toLocaleString('pt-BR') : "-") + "</td>" +
+      "<td>" + (r.mes_pico || "-") + "</td>" +
+      "<td>" + (r.variacao !== null ? (r.variacao > 0 ? "+" : "") + r.variacao.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + "%" : "-") + "</td>";
     tbody.appendChild(tr);
   });
 }
 
 function renderTabelaCorrelacao(data) {
   const tbody = $("#tabelaCorrelacao tbody");
+  if (!tbody) return;
   tbody.innerHTML = "";
-  
-  // Update header to ensure it matches
-  const thead = $("#tabelaCorrelacao thead tr");
-  if (thead) {
-      thead.innerHTML = `<th>Preditor climÃ¡tico</th><th>Lag (meses)</th><th>r de Pearson</th><th>IC 95%</th><th>p-valor ajustado</th>`;
-  }
 
-  data.forEach((row) => {
+  data.forEach((r) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.preditor}</td>
-      <td class="num">${row.lag}</td>
-      <td class="num">${row.r_pearson}</td>
-      <td class="num">${row.ic_95 || "-"}</td>
-      <td class="num">${row.p_valor_ajustado || "-"}</td>
-    `;
+    tr.innerHTML = 
+      "<td>" + r.preditor + "</td>" +
+      "<td>" + r.lag + "</td>" +
+      "<td>" + r.r_pearson + "</td>" +
+      "<td>" + r.p_valor_ajustado + "</td>";
     tbody.appendChild(tr);
   });
 }
 
-function renderChartSerieTemporal(data) {
-  const ctx = $("#chartSerieTemporal").getContext("2d");
-  if (chartSerieTemporal) chartSerieTemporal.destroy();
-
-  // Create an array for the q95 line
-  const q95Data = data.labels.map(() => data.q95);
-
-  chartSerieTemporal = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: data.labels,
-      datasets: [
-        {
-          label: "Teto EpidÃªmico (P95)",
-          data: q95Data,
-          borderColor: "rgba(255, 99, 132, 0.8)",
-          borderWidth: 1.5,
-          borderDash: [5, 5],
-          pointRadius: 0,
-          fill: false,
-        },
-        {
-          label: "Real (Mensal)",
-          data: data.real,
-          borderColor: "rgba(52, 211, 153, 1)",
-          backgroundColor: "rgba(52, 211, 153, 0.1)",
-          borderWidth: 2,
-          pointRadius: 2,
-          fill: true,
-        },
-        {
-          label: "Previsto (XGBoost)",
-          data: data.previsto,
-          borderColor: "rgba(88, 166, 255, 1)",
-          borderWidth: 2,
-          borderDash: [3, 3],
-          pointRadius: 2,
-          fill: false,
-        }
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: getCSSVar('--text'), font: { family: "Inter" } } },
-      },
-      scales: {
-        x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-        y: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-      },
-    },
-  });
-}
-
-function renderChartClima(data) {
-  const ctx = $("#chartClima").getContext("2d");
-  if (chartClima) chartClima.destroy();
-
-  chartClima = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: data.labels,
-      datasets: [
-        {
-          label: "Temperatura MÃ©dia (Â°C)",
-          data: data.temp_media,
-          borderColor: "rgba(255, 159, 64, 1)",
-          borderWidth: 2,
-          pointRadius: 0,
-          yAxisID: "y-temp",
-        },
-        {
-          label: "PrecipitaÃ§Ã£o (mm)",
-          data: data.precipitacao,
-          borderColor: "rgba(54, 162, 235, 1)",
-          backgroundColor: "rgba(54, 162, 235, 0.2)",
-          borderWidth: 1,
-          pointRadius: 0,
-          fill: true,
-          yAxisID: "y-precip",
-        },
-        {
-          label: "Casos de Dengue",
-          data: data.dengue,
-          borderColor: "rgba(52, 211, 153, 1)",
-          borderWidth: 2,
-          borderDash: [2, 2],
-          pointRadius: 0,
-          yAxisID: "y-dengue",
-        }
-      ],
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: { labels: { color: getCSSVar('--text'), font: { family: "Inter" } } },
-      },
-      scales: {
-        x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-        "y-temp": { 
-          type: "linear", display: true, position: "left", 
-          title: { display: true, text: "Temp (Â°C)", color: "rgba(255, 159, 64, 1)" },
-          ticks: { color: "rgba(255, 159, 64, 1)" }, grid: { color: "rgba(128,128,128,0.1)" }
-        },
-        "y-precip": { 
-          type: "linear", display: true, position: "right", 
-          title: { display: true, text: "PrecipitaÃ§Ã£o (mm)", color: "rgba(54, 162, 235, 1)" },
-          ticks: { color: "rgba(54, 162, 235, 1)" }, grid: { drawOnChartArea: false }
-        },
-        "y-dengue": {
-          type: "linear", display: false, position: "right", // Oculto mas ajusta a escala
-        }
-      },
-    },
-  });
-}
-
-function renderChartSazonal(data) {
-  const ctx = $("#chartHeatmap").getContext("2d");
-  if (chartHeatmap) chartHeatmap.destroy();
-
-  const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  
-  const labels = data.map(d => MESES[d.mes - 1]);
-  const casos = data.map(d => d.casos);
-  const temps = data.map(d => d.temp);
-
-  // Achar o mÃªs de pico para destacar
-  const maxCasos = Math.max(...casos);
-  const peakIndex = casos.indexOf(maxCasos);
-  
-  const bgColors = casos.map((c, i) => i === peakIndex ? "#c0392b" : "#5fa8d3");
-
-  chartHeatmap = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          type: "bar",
-          label: "Casos (mÃ©dia 2015-2025)",
-          data: casos,
-          backgroundColor: bgColors,
-          yAxisID: "y",
-          order: 2
-        },
-        {
-          type: "line",
-          label: "Temperatura mÃ©dia (Â°C)",
-          data: temps,
-          borderColor: "#e74c3c",
-          backgroundColor: "#e74c3c",
-          borderWidth: 2,
-          pointRadius: 4,
-          yAxisID: "y-temp",
-          order: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: { labels: { color: getCSSVar('--text'), font: { family: "Inter" } } },
-      },
-      scales: {
-        x: { 
-          ticks: { color: getCSSVar('--text-dim') }, 
-          grid: { display: false } 
-        },
-        y: { 
-          type: "linear", 
-          display: true, 
-          position: "left",
-          title: { display: true, text: "Casos mÃ©dios mensais", color: "#5fa8d3" },
-          ticks: { color: "#5fa8d3" }, 
-          grid: { color: "rgba(128,128,128,0.1)", borderDash: [2, 2] }
-        },
-        "y-temp": { 
-          type: "linear", 
-          display: true, 
-          position: "right",
-          title: { display: true, text: "Temperatura mÃ©dia (Â°C)", color: "#e74c3c" },
-          ticks: { color: "#e74c3c" }, 
-          grid: { drawOnChartArea: false }
-        }
-      }
-    }
-  });
-}
-
-function renderChartCenarios(data) {
-  const ctx = $("#chartCenarios").getContext("2d");
-  if (chartCenarios) chartCenarios.destroy();
-
-  const scenarios = Object.keys(data);
-  if (scenarios.length === 0) return;
-
-  const rawLabels = data[scenarios[0]].anos;
-  const filterIdx = [];
-  rawLabels.forEach((a, idx) => { if (a >= 2026) filterIdx.push(idx); });
-  const labels = filterIdx.map(i => rawLabels[i]);
-
-  // Garantir a ordem dos datasets para o preenchimento (fill) funcionar bem
-  const datasetConfig = {
-    "ssp126": { 
-      label: "ReferÃªncia (linha de base)", 
-      color: "#27ae60", 
-      dash: [], 
-      pointStyle: 'circle',
-      fill: false
-    },
-    "ssp245": { 
-      label: "IntermediÃ¡rio (+0,6 Â°C / +3% precip.)", 
-      color: "#e67e22", 
-      dash: [5, 5], 
-      pointStyle: 'rect',
-      fill: false
-    },
-    "ssp585": { 
-      label: "Intensificado (+1,2 Â°C / +6% precip.)", 
-      color: "#c0392b", 
-      dash: [10, 5, 2, 5], 
-      pointStyle: 'rectRot',
-      // Preenche atÃ© o primeiro dataset (ssp126)
-      fill: {
-        target: 0,
-        above: 'rgba(52, 152, 219, 0.15)'
-      }
-    }
-  };
-
-  // Precisamos colocar ssp126 primeiro, depois ssp245, depois ssp585
-  const orderedScenarios = ["ssp126", "ssp245", "ssp585"].filter(sc => scenarios.includes(sc));
-  
-  const datasets = orderedScenarios.map(sc => {
-    const config = datasetConfig[sc];
-    return {
-      label: config.label,
-      data: filterIdx.map(i => data[sc].casos[i]),
-      borderColor: config.color,
-      backgroundColor: config.color,
-      borderWidth: 2,
-      pointRadius: 4,
-      pointStyle: config.pointStyle,
-      borderDash: config.dash,
-      fill: config.fill,
-    };
-  });
-
-  chartCenarios = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: datasets,
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: getCSSVar('--text'), font: { family: "Inter" } } },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: {
-        x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
-        y: { 
-          ticks: { color: getCSSVar('--text-dim') }, 
-          grid: { color: "rgba(128,128,128,0.1)", borderDash: [2, 2] },
-          min: 1000,
-          max: 2000
-        },
-      },
-    },
-  });
-}
 function renderTabelaProjecao(data) {
-  const tbody = document.querySelector("#tabelaProjecao tbody");
-  if(!tbody) return;
+  const tbody = $("#tabelaProjecao tbody");
+  if (!tbody || !data || !data.ssp126) return;
   tbody.innerHTML = "";
-  if(!data || !data.ssp126) return;
-  
+
   const anos = data.ssp126.anos;
-  for (let i = 0; i < anos.length; i++) {
-    if (anos[i] < 2026) continue;
+  const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
+
+  for (let i of filterIdx) {
+    const val1 = data.ssp126.casos[i];
+    const val2 = data.ssp245 ? data.ssp245.casos[i] : "-";
+    const val3 = data.ssp585 ? data.ssp585.casos[i] : "-";
+
     const tr = document.createElement("tr");
-    const val1 = data.ssp126 ? Math.round(data.ssp126.casos[i]) : "-";
-    const val2 = data.ssp245 ? Math.round(data.ssp245.casos[i]) : "-";
-    const val3 = data.ssp585 ? Math.round(data.ssp585.casos[i]) : "-";
-    tr.innerHTML = "<td><strong>" + anos[i] + "</strong></td>" +
+    tr.innerHTML = 
+      "<td><strong>" + anos[i] + "</strong></td>" +
       "<td class='num' style='color: #27ae60; font-weight: bold;'>" + val1 + "</td>" +
       "<td class='num' style='color: #e67e22; font-weight: bold;'>" + val2 + "</td>" +
       "<td class='num' style='color: #c0392b; font-weight: bold;'>" + val3 + "</td>";
@@ -646,35 +238,267 @@ function renderTabelaProjecao(data) {
   }
 }
 
-let cBarrasProjecao = null;
 function renderChartBarrasProjecao(data) {
+  if (!data || !data.ssp126) return;
   const ctx = document.getElementById("chartBarrasProjecao");
-  if(!ctx) return;
-  if(cBarrasProjecao) cBarrasProjecao.destroy();
-  if(!data || !data.ssp126) return;
+  if (!ctx) return;
 
-  const rawAnos = data.ssp126.anos;
-  const filterIdx = [];
-  rawAnos.forEach((a, idx) => { if(a >= 2026) filterIdx.push(idx); });
-  
-  const anos = filterIdx.map(i => rawAnos[i]);
+  if (chartBarrasProjecao) chartBarrasProjecao.destroy();
+
+  const textColor = getCSSVar("--text-color") || "#2c3e50";
+  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
+
+  const anos = data.ssp126.anos;
+  const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
+
+  const labels = filterIdx.map(i => anos[i]);
   const datasets = [
-    { label: "ReferÃªncia (SSP126)", data: filterIdx.map(i => data.ssp126.casos[i]), backgroundColor: "#27ae60" }
+    { label: "Referência (SSP126)", data: filterIdx.map(i => data.ssp126.casos[i]), backgroundColor: "#27ae60" }
   ];
-  if(data.ssp245) datasets.push({ label: "IntermediÃ¡rio (SSP245)", data: filterIdx.map(i => data.ssp245.casos[i]), backgroundColor: "#e67e22" });
+  if(data.ssp245) datasets.push({ label: "Intermediário (SSP245)", data: filterIdx.map(i => data.ssp245.casos[i]), backgroundColor: "#e67e22" });
   if(data.ssp585) datasets.push({ label: "Intensificado (SSP585)", data: filterIdx.map(i => data.ssp585.casos[i]), backgroundColor: "#c0392b" });
 
-  cBarrasProjecao = new Chart(ctx, {
+  chartBarrasProjecao = new Chart(ctx, {
     type: "bar",
-    data: { labels: anos, datasets: datasets },
+    data: { labels, datasets },
     options: {
       responsive: true,
       plugins: {
-        legend: { labels: { color: "#ecf0f1" } }
+        legend: { labels: { color: textColor } },
+        tooltip: { mode: 'index', intersect: false }
       },
       scales: {
-        x: { ticks: { color: "#bdc3c7" }, grid: { color: "#34495e" } },
-        y: { ticks: { color: "#bdc3c7" }, grid: { color: "#34495e" } }
+        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
+function renderChartCenarios(data) {
+  if (!data || !data.ssp126) return;
+  const ctx = document.getElementById("chartCenarios");
+  if (!ctx) return;
+  
+  if (chartCenarios) chartCenarios.destroy();
+
+  const textColor = getCSSVar("--text-color") || "#2c3e50";
+  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
+  
+  const anos = data.ssp126.anos;
+  const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
+  
+  const labels = filterIdx.map(i => anos[i]);
+
+  const datasets = [];
+
+  if (data.ssp585 && data.ssp126) {
+    datasets.push({
+      label: "Envelope de incerteza",
+      data: filterIdx.map(i => data.ssp585.casos[i]),
+      borderColor: "transparent",
+      backgroundColor: "rgba(52, 152, 219, 0.15)",
+      borderWidth: 0,
+      pointRadius: 0,
+      fill: 1
+    });
+  }
+
+  datasets.push({
+    label: "Referência (linha de base)",
+    data: filterIdx.map(i => data.ssp126.casos[i]),
+    borderColor: "#27ae60",
+    backgroundColor: "#27ae60",
+    borderWidth: 3,
+    pointRadius: 5,
+    tension: 0.1
+  });
+
+  if (data.ssp245) {
+    datasets.push({
+      label: "Intermediário (+0,6 °C / +3% precip.)",
+      data: filterIdx.map(i => data.ssp245.casos[i]),
+      borderColor: "#e67e22",
+      backgroundColor: "#e67e22",
+      borderWidth: 3,
+      borderDash: [5, 5],
+      pointRadius: 5,
+      pointStyle: 'rect',
+      tension: 0.1
+    });
+  }
+
+  if (data.ssp585) {
+    datasets.push({
+      label: "Intensificado (+1,2 °C / +6% precip.)",
+      data: filterIdx.map(i => data.ssp585.casos[i]),
+      borderColor: "#c0392b",
+      backgroundColor: "#c0392b",
+      borderWidth: 3,
+      borderDash: [2, 2],
+      pointRadius: 5,
+      pointStyle: 'rectRot',
+      tension: 0.1
+    });
+  }
+
+  chartCenarios = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: textColor } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+        y: { 
+            ticks: { color: textColor }, 
+            grid: { color: gridColor },
+            title: { display: true, text: "Casos anuais projetados", color: textColor }
+        }
+      }
+    }
+  });
+}
+
+function renderChartSazonal(data) {
+  const ctx = document.getElementById("chartSazonal");
+  if (!ctx || !data || !data.meses) return;
+  if (chartSazonal) chartSazonal.destroy();
+
+  const textColor = getCSSVar("--text-color") || "#2c3e50";
+  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
+  
+  // Nomes dos meses para o eixo X
+  const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  
+  chartSazonal = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mesNomes,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Casos Projetados (média 2026-2030)',
+          data: data.casos_mean,
+          backgroundColor: data.casos_mean.map((v, i) => i === data.casos_mean.indexOf(Math.max(...data.casos_mean)) ? '#c0392b' : '#3498db'),
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Temperatura média (°C)',
+          data: data.temp_mean,
+          borderColor: '#e74c3c',
+          backgroundColor: '#e74c3c',
+          borderWidth: 2,
+          pointRadius: 4,
+          tension: 0.3,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: textColor } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { ticks: { color: textColor }, grid: { display: false } },
+        y: { 
+          type: 'linear', display: true, position: 'left', 
+          ticks: { color: textColor }, grid: { color: gridColor },
+          title: { display: true, text: "Casos médios mensais", color: "#3498db" }
+        },
+        y1: { 
+          type: 'linear', display: true, position: 'right', 
+          ticks: { color: textColor }, grid: { drawOnChartArea: false },
+          title: { display: true, text: "Temperatura média (°C)", color: "#e74c3c" }
+        }
+      }
+    }
+  });
+}
+
+function renderChartHeatmap(data) {
+  const ctx = document.getElementById("chartHeatmap");
+  if (!ctx || !data || !data.heatmap) return;
+  if (chartHeatmap) chartHeatmap.destroy();
+
+  const textColor = getCSSVar("--text-color") || "#2c3e50";
+  
+  const matriz = data.heatmap;
+  let parsed = [];
+  let anosSet = new Set();
+  
+  matriz.forEach(item => {
+    if(item.ano >= 2026 && item.ano <= 2030) {
+      anosSet.add(item.ano);
+      parsed.push({
+        x: item.ano,
+        y: item.mes,
+        v: item.casos
+      });
+    }
+  });
+  
+  const anosArr = Array.from(anosSet).sort();
+  const mesNomes = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  
+  chartHeatmap = new Chart(ctx, {
+    type: 'matrix',
+    data: {
+      datasets: [{
+        label: 'Casos Mensais',
+        data: parsed,
+        backgroundColor: function(c) {
+          const val = c.dataset.data[c.dataIndex].v;
+          if (val === null || val === undefined) return 'rgba(0,0,0,0.1)';
+          if (val === 0) return '#27ae60';
+          if (val < 10) return '#2ecc71';
+          if (val < 50) return '#f1c40f';
+          if (val < 100) return '#e67e22';
+          return '#c0392b';
+        },
+        width: ({chart}) => (chart.chartArea || {}).width / anosArr.length - 1,
+        height: ({chart}) => (chart.chartArea || {}).height / 12 - 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: () => '',
+            label: (ctx) => {
+              const v = ctx.dataset.data[ctx.dataIndex];
+              return `${mesNomes[v.y]} ${v.x}: ${v.v} casos`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: Math.min(...anosArr) - 0.5,
+          max: Math.max(...anosArr) + 0.5,
+          ticks: { stepSize: 1, callback: (v) => v, color: textColor },
+          grid: { display: false }
+        },
+        y: {
+          type: 'linear',
+          min: 0.5,
+          max: 12.5,
+          ticks: { stepSize: 1, callback: (v) => mesNomes[v], color: textColor },
+          grid: { display: false }
+        }
       }
     }
   });

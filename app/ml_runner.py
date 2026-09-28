@@ -104,53 +104,23 @@ def treinar(
     emit("Construindo features (lags, sazonalidade)...", 30)
     feat = _build_ml_features(panel)
 
-    train_df = feat[feat["year"] <= 2021].copy()
-    val_df = feat[feat["year"] == 2022].copy()
-    test_df = feat[(feat["year"] >= 2023) & (feat["year"] <= 2024)].copy()
-
-    emit("Treinando XGBoost (HistGradientBoosting)...", 45)
-
-    model = HistGradientBoostingRegressor(
-        loss="squared_error", learning_rate=0.05, max_depth=6,
-        max_iter=500, min_samples_leaf=max(10, len(train_df) // 20),
-        l2_regularization=0.1, random_state=42,
-    )
-    y_train_log = np.log1p(train_df["dengue_cases"].to_numpy(dtype=float))
-    model.fit(train_df[FEATURE_COLS].to_numpy(dtype=float), y_train_log)
-
-    emit("Avaliando modelo (validação + teste)...", 65)
-
-    val_pred = np.expm1(model.predict(val_df[FEATURE_COLS].to_numpy(dtype=float))).clip(min=0)
-    test_pred = np.expm1(model.predict(test_df[FEATURE_COLS].to_numpy(dtype=float))).clip(min=0)
-
-    met_val = _evaluate_split(val_df["dengue_cases"].to_numpy(dtype=float), val_pred, "valid_2022")
-    met_test = _evaluate_split(test_df["dengue_cases"].to_numpy(dtype=float), test_pred, "test_2023_2024")
-
-    # Executa o pipeline completo do motor para gerar as projeções oficiais corretamente
-    emit("Rodando motor oficial para predições precisas (usando cenários climáticos)...", 75)
+    # Executa o pipeline completo do motor para gerar as projeções oficiais e métricas
+    emit("Treinando XGBoost e rodando motor oficial...", 45)
     from src.processamento.motor_lote_modelagem_v2_por_latitude import run_full_ml
-    run_full_ml(ROOT_DIR, panel)
-
-    # Re-treino apenas para calcular Feature Importance
-    emit("Calculando importância das variáveis...", 85)
-    full_model = HistGradientBoostingRegressor(
-        loss="squared_error", learning_rate=0.05, max_depth=6,
-        max_iter=300, min_samples_leaf=max(10, len(feat) // 20),
-        l2_regularization=0.1, random_state=42,
-    )
-    full_model.fit(feat[FEATURE_COLS].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)))
     
-    try:
-        from sklearn.inspection import permutation_importance
-        result = permutation_importance(
-            full_model, feat[FEATURE_COLS].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)),
-            n_repeats=3, random_state=42, n_jobs=-1
-        )
-        importances = result.importances_mean
-        fi = sorted(zip(FEATURE_COLS, importances.tolist()), key=lambda x: x[1], reverse=True)
-    except Exception as e:
-        print("Erro no permutation_importance:", e)
-        fi = [(f, 0.0) for f in FEATURE_COLS]
+    # Executa run_full_ml e extrai o dicionário de resultados
+    ml_results = run_full_ml(ROOT_DIR, panel)
+    
+    emit("Calculando métricas...", 85)
+    fi = ml_results.get("feature_importance", [(f, 0.0) for f in FEATURE_COLS])
+    
+    metrics_ml = ml_results.get("metricas", [])
+    m_test = metrics_ml[1] if len(metrics_ml) > 1 else {}
+    real_metrics = {
+        "mae": m_test.get("mae", 0),
+        "rmse": m_test.get("rmse", 0),
+        "r2": m_test.get("r2", 0)
+    }
 
     emit("Montando dados para gráficos...", 90)
     
@@ -223,32 +193,49 @@ def treinar(
 
     conn.close()
 
-    # --- Tabela epidemiológica ---
+    # --- Lê projeção mensal para tabelas e gráficos ---
+    try:
+        proj_mensal_file = ML_OUTPUT / "projecao_ml_completa_municipios_mensal.csv"
+        df_proj_m = pd.read_csv(proj_mensal_file)
+        df_proj_m = df_proj_m[(df_proj_m["scenario"] == "ssp245") & (df_proj_m["year"] >= 2026) & (df_proj_m["year"] <= 2030)]
+        
+        if codigo_ibge:
+            df_proj_m = df_proj_m[df_proj_m["code"] == int(codigo_ibge)]
+        elif modo == "rapido":
+            df_proj_m = df_proj_m[df_proj_m["code"] == 421600]
+            
+        proj_mensal = df_proj_m.groupby(["year", "month"])["pred_cases_ml"].sum().reset_index()
+        proj_mensal.rename(columns={"pred_cases_ml": "casos"}, inplace=True)
+    except Exception as e:
+        print(f"Erro ao carregar proj_mensal: {e}")
+        proj_mensal = pd.DataFrame()
+
+    # --- Tabela epidemiológica (Projetada) ---
     tabela_epidem = []
-    if not hist_mensal.empty:
-        for ano in sorted(hist_mensal["year"].unique()):
-            dados_ano = hist_mensal[hist_mensal["year"] == ano]
+    if not proj_mensal.empty:
+        # Última população disponível
+        pop_recente = pop_df["pop"].iloc[-1] if not pop_df.empty else 0
+        
+        for ano in sorted(proj_mensal["year"].unique()):
+            dados_ano = proj_mensal[proj_mensal["year"] == ano]
             casos_total = int(dados_ano["casos"].sum())
             pico_row = dados_ano.loc[dados_ano["casos"].idxmax()]
             pico_mensal = int(pico_row["casos"])
             mes_pico = MESES_PT.get(int(pico_row["month"]), "-")
 
-            # Incidência
-            pop_row = pop_df[pop_df["year"] == ano]
-            if not pop_row.empty and pop_row.iloc[0]["pop"] > 0:
-                incidencia = round((casos_total / pop_row.iloc[0]["pop"]) * 100_000, 1)
-            else:
-                incidencia = None
+            incidencia = round((casos_total / pop_recente) * 100_000, 1) if pop_recente > 0 else None
 
-            # Variação %
             if tabela_epidem:
                 prev = tabela_epidem[-1]["casos"]
-                if prev and prev > 0:
-                    variacao = round(((casos_total - prev) / prev) * 100, 1)
+                variacao = round(((casos_total - prev) / prev) * 100, 1) if prev and prev > 0 else None
+            else:
+                # Calcular variação em relação ao último ano histórico (2025 ou 2024)
+                if not hist_mensal.empty:
+                    ult_ano_hist = hist_mensal["year"].max()
+                    prev = hist_mensal[hist_mensal["year"] == ult_ano_hist]["casos"].sum()
+                    variacao = round(((casos_total - prev) / prev) * 100, 1) if prev > 0 else None
                 else:
                     variacao = None
-            else:
-                variacao = None
 
             tabela_epidem.append({
                 "ano": int(ano), "casos": casos_total, "incidencia": incidencia,
@@ -357,19 +344,31 @@ def treinar(
     # ═══════════════════════════════════════════════════════════
     # NOVOS DADOS: Distribuição Sazonal (Casos vs Temp Média)
     # ═══════════════════════════════════════════════════════════
-    dist_sazonal = []
-    if not hist_mensal.empty and not clima_mensal.empty:
-        df_saz = pd.merge(hist_mensal, clima_mensal, on=["year", "month"], how="inner")
-        agrupado = df_saz.groupby("month").agg(
-            media_casos=("casos", "mean"),
-            media_temp=("temp_media", "mean")
-        ).reset_index()
-        for _, row in agrupado.iterrows():
-            dist_sazonal.append({
+    dist_sazonal_dict = {"meses": [], "casos_mean": [], "temp_mean": []}
+    if not proj_mensal.empty and not clima_mensal.empty:
+        # Usa a temperatura média histórica mensal
+        clima_medio = clima_mensal.groupby("month")["temp_media"].mean().reset_index()
+        # Junta com a média projetada de casos mensais
+        proj_medio = proj_mensal.groupby("month")["casos"].mean().reset_index()
+        
+        df_saz = pd.merge(proj_medio, clima_medio, on="month", how="inner")
+        
+        for _, row in df_saz.iterrows():
+            dist_sazonal_dict["meses"].append(int(row["month"]))
+            dist_sazonal_dict["casos_mean"].append(round(float(row["casos"]), 1))
+            dist_sazonal_dict["temp_mean"].append(round(float(row["temp_media"]), 1))
+            
+    # Heatmap (Projetado)
+    heatmap_data = []
+    if not proj_mensal.empty:
+        for _, row in proj_mensal.iterrows():
+            heatmap_data.append({
+                "ano": int(row["year"]),
                 "mes": int(row["month"]),
-                "casos": float(row["media_casos"]),
-                "temp": float(row["media_temp"])
+                "casos": float(row["casos"]) if not pd.isna(row["casos"]) else 0
             })
+    
+    dist_sazonal_dict["heatmap"] = heatmap_data
 
     # Merge com dados reais (gráfico de barras existente)
     merged = pd.merge(hist, chart_data, on="year", how="outer").sort_values("year")
@@ -414,8 +413,8 @@ def treinar(
         )
     if dados_clima["labels"]:
         pd.DataFrame(dados_clima).to_csv(export_dir / "dados_clima_mensal.csv", index=False)
-    if dist_sazonal:
-        pd.DataFrame(dist_sazonal).to_csv(export_dir / "distribuicao_sazonal.csv", index=False)
+    if dist_sazonal_dict and dist_sazonal_dict["meses"]:
+        pd.DataFrame({"mes": dist_sazonal_dict["meses"], "casos": dist_sazonal_dict["casos_mean"], "temp": dist_sazonal_dict["temp_mean"]}).to_csv(export_dir / "distribuicao_sazonal.csv", index=False)
 
     # Lê projeções climáticas futuras se existirem para usar no matplotlib
     projecao_cenarios = {}
@@ -509,8 +508,8 @@ def treinar(
             plt.close()
 
         # 4. Distribuição Sazonal (Casos e Temp Média)
-        if dist_sazonal:
-            df_saz = pd.DataFrame(dist_sazonal)
+        if dist_sazonal_dict and dist_sazonal_dict["meses"]:
+            df_saz = pd.DataFrame({"mes": dist_sazonal_dict["meses"], "casos": dist_sazonal_dict["casos_mean"], "temp": dist_sazonal_dict["temp_mean"]})
             fig, ax1 = plt.subplots(figsize=(10, 5))
             
             x_labels = [MESES_PT.get(m, m) for m in df_saz["mes"]]
@@ -621,9 +620,9 @@ def treinar(
 
     return {
         "metricas": {
-            "erro_abs": int(erro_abs),
-            "tendencia": acertou_tendencia,
-            "risco": risco,
+            "mae": round(real_metrics["mae"], 2),
+            "rmse": round(real_metrics["rmse"], 2),
+            "r2": round(real_metrics["r2"], 4)
         },
         "feature_importance": [{"feature": f, "importance": round(v, 4)} for f, v in fi],
         "grafico_barras": {
@@ -635,7 +634,7 @@ def treinar(
         "tabela_correlacao": tabela_correlacao,
         "serie_temporal_mensal": serie_temporal,
         "dados_clima_mensal": dados_clima,
-        "dist_sazonal": dist_sazonal,
+        "dist_sazonal": dist_sazonal_dict,
         "projecao_cenarios": projecao_cenarios,
         "n_cidades": n_cidades,
         "n_registros": len(panel),

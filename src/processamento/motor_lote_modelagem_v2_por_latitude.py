@@ -898,7 +898,7 @@ def _evaluate_split(y_true: np.ndarray, y_pred: np.ndarray, split_name: str) -> 
     }
 
 
-def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> None:
+def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
     """Treina ML completo com split temporal e projeta 2025-2040.
 
     Parameters
@@ -931,12 +931,13 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> None:
     if train_df.empty or val_df.empty or test_df.empty:
         raise RuntimeError("Split temporal insuficiente para treino/validação/teste do ML completo")
 
+    min_samples = max(5, len(train_df) // 20)
     model = HistGradientBoostingRegressor(
         loss="squared_error",
         learning_rate=0.05,
         max_depth=6,
         max_iter=500,
-        min_samples_leaf=40,
+        min_samples_leaf=min_samples,
         l2_regularization=0.1,
         random_state=42,
     )
@@ -957,16 +958,30 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> None:
         json.dump(metrics_rows, f, ensure_ascii=False, indent=2)
 
     # Re-treino com todo histórico 2015-2024.
+    min_samples_full = max(5, len(feat) // 20)
     full_model = HistGradientBoostingRegressor(
         loss="squared_error",
         learning_rate=0.05,
         max_depth=6,
         max_iter=600,
-        min_samples_leaf=40,
+        min_samples_leaf=min_samples_full,
         l2_regularization=0.1,
         random_state=42,
     )
     full_model.fit(feat[feature_cols].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)))
+
+    # Feature Importance
+    try:
+        from sklearn.inspection import permutation_importance
+        result = permutation_importance(
+            full_model, feat[feature_cols].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)),
+            n_repeats=3, random_state=42, n_jobs=-1
+        )
+        importances = result.importances_mean
+        fi = sorted(zip(feature_cols, importances.tolist()), key=lambda x: x[1], reverse=True)
+    except Exception as e:
+        logger.error(f"Erro no permutation_importance: {e}")
+        fi = [(f, 0.0) for f in feature_cols]
 
     # Projeção recursiva mensal 2025-2040 por município e cenário.
     clim = panel_ml.groupby(["code", "month"], as_index=False).agg(
@@ -1080,6 +1095,11 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> None:
 
     logger.info("ML completo treinado com csvs_latitude (train/val/test temporal)")
     logger.info("Saídas ML: output/projecoes_regionais/ml_completo/")
+    
+    return {
+        "metricas": metrics_rows,
+        "feature_importance": fi
+    }
 
 
 def save_pdf_reports(

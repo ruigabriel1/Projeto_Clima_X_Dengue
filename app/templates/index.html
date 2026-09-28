@@ -67,6 +67,54 @@
     <section id="results" class="results-section">
       <div class="panel">
         <div class="panel-title">📊 Resultados do Treinamento</div>
+        
+        <!-- Métricas do Modelo -->
+        <div class="metrics-container" style="display:flex; justify-content:space-around; background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:20px;">
+          <div style="text-align:center;">
+            <div style="font-size:0.9rem; color:#7f8c8d;">R² (Treinamento)</div>
+            <div id="r2-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.9rem; color:#7f8c8d;">MAE (Erro Absoluto)</div>
+            <div id="mae-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.9rem; color:#7f8c8d;">RMSE (Raiz do Erro)</div>
+            <div id="rmse-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
+          </div>
+        </div>
+
+        <!-- Tabela Epidemiológica Projetada (2026-2030) -->
+        <div class="chart-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📊 Resumo Epidemiológico (2026-2030) - SSP245</h3>
+            <a href="/output/dashboard_exports/tabela_epidemiologica.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="tabelaHistorica">
+              <thead><tr><th>Ano</th><th>Casos totais</th><th>Incid./100 mil</th><th>Pico mensal (casos)</th><th>Mês do pico</th><th>Variação (%)</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Gráfico Sazonal Projetado (2026-2030) -->
+        <div class="chart-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📈 Distribuição Sazonal de Casos de Dengue (2026-2030, SSP245) e Temperatura Média Histórica</h3>
+          </div>
+          <canvas id="chartSazonal"></canvas>
+        </div>
+
+        <!-- Heatmap Projetado (2026-2030) -->
+        <div class="chart-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📅 Sazonalidade Projetada — Heatmap de Casos (Meses × Anos) - SSP245</h3>
+          </div>
+          <div style="width:100%; overflow-x:auto;">
+            <canvas id="chartHeatmap" style="min-width:600px; height:300px;"></canvas>
+          </div>
+        </div>
 
         <!-- Tabela Epidemiológica (PROJEÇÕES 2026-2030) -->
         <div class="chart-wrap">
@@ -123,6 +171,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2"></script>
-  <script src="/static/app_v2.js?v=8"></script>
+  <script src="/static/app_v2.js?v=9"></script>
 </body>
 </html>
