@@ -4,6 +4,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* LIGHT MODE (Default) */
+  --bg:        #f3f4f6;
+  --surface:   #ffffff;
+  --surface-2: #f8fafc;
+  --border:    #e2e8f0;
+  --text:      #1e293b;
+  --text-dim:  #64748b;
+  --accent:    #2563eb;
+  --accent-2:  #3b82f6;
+  --success:   #10b981;
+  --warning:   #f59e0b;
+  --danger:    #ef4444;
+  --radius:    10px;
+  --transition: 0.25s cubic-bezier(.4,0,.2,1);
+}
+
+body.dark-mode {
+  /* DARK MODE */
   --bg:        #0a0e14;
   --surface:   #131920;
   --surface-2: #1a2028;
@@ -15,8 +33,6 @@
   --success:   #34d399;
   --warning:   #fbbf24;
   --danger:    #ef4444;
-  --radius:    10px;
-  --transition: 0.25s cubic-bezier(.4,0,.2,1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,10 +65,35 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+.header h1::after {
+  content: " v2.1";
+  font-size: 1rem;
+  vertical-align: top;
+  color: var(--text-dim);
+  -webkit-text-fill-color: var(--text-dim);
+  opacity: 0.5;
+}
 .header p {
   color: var(--text-dim);
   font-size: 0.9rem;
   margin-top: 0.4rem;
+}
+
+/* ── Theme Button ── */
+.btn-theme {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-theme:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ── Status Cards Row ── */

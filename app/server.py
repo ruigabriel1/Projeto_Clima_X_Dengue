@@ -16,6 +16,12 @@ APP_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Prodígia", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+# Mount output directory for downloading exports
+output_dir = APP_DIR.parent / "output"
+output_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/output", StaticFiles(directory=output_dir), name="output")
+
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 # Estado global do treinamento (simplificado para single-user local)

@@ -261,23 +261,51 @@ def treinar(
     tabela_correlacao = []
     try:
         from scipy.stats import pearsonr
-        nomes_preditores = {"temp_media": "Temperatura Média (°C)", "precipitacao": "Precipitação (mm)"}
+        nomes_preditores = {"temp_media": "Temperatura média (°C)", "precipitacao": "Precipitação acum. (mm)"}
+        
+        # Coleta de todos os testes para ajuste de Bonferroni
+        testes = []
         for var in ["temp_media", "precipitacao"]:
             if var not in panel.columns:
                 continue
-            for lag in [0, 1, 2, 3]:
+            for lag in [0, 1, 2, 3, 4]:
+                if var == "precipitacao" and lag not in [2, 4]:
+                    continue
+                if var == "temp_media" and lag not in [0, 1, 2, 3]:
+                    continue
                 shifted = panel[var].shift(lag)
                 valid = panel[["dengue_cases"]].assign(clima=shifted).dropna()
                 if len(valid) > 5:
                     r, p = pearsonr(valid["clima"], valid["dengue_cases"])
-                    tabela_correlacao.append({
+                    
+                    # Calcula IC 95%
+                    z = np.arctanh(r)
+                    se = 1.0 / np.sqrt(len(valid) - 3)
+                    lo = np.tanh(z - 1.96 * se)
+                    hi = np.tanh(z + 1.96 * se)
+                    
+                    testes.append({
                         "preditor": nomes_preditores.get(var, var),
                         "lag": lag,
-                        "r_pearson": round(float(r), 3),
-                        "p_valor": round(float(p), 4),
+                        "r_pearson": float(r),
+                        "p_valor": float(p),
+                        "ic_lo": lo,
+                        "ic_hi": hi
                     })
-    except ImportError:
-        pass  # scipy não instalado
+        
+        # Ajuste de p-valor (Bonferroni simplificado)
+        n_testes = len(testes)
+        for t in testes:
+            p_adj = min(t["p_valor"] * n_testes, 1.0)
+            tabela_correlacao.append({
+                "preditor": t["preditor"],
+                "lag": t["lag"],
+                "r_pearson": f"{t['r_pearson']:.2f}".replace('.', ','),
+                "ic_95": f"{t['ic_lo']:.2f} – {t['ic_hi']:.2f}".replace('.', ','),
+                "p_valor_ajustado": f"< 0,001" if p_adj < 0.001 else f"{p_adj:.3f}".replace('.', ',')
+            })
+    except Exception as e:
+        print(f"Erro na tabela de correlação: {e}")
 
     # ═══════════════════════════════════════════════════════════
     # NOVOS DADOS: Série temporal mensal (labels + real + previsto)
@@ -296,10 +324,12 @@ def treinar(
 
         # Predições mensais do backtest (se disponíveis)
         try:
-            bt = pd.read_csv(ML_OUTPUT / "backtest_ml_completo.csv")
+            bt = pd.read_csv(ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "backtest_ml_completo.csv")
             bt["label"] = bt["year"].astype(str) + "-" + bt["month"].astype(str).str.zfill(2)
             bt_map = dict(zip(bt["label"], bt["pred_cases_ml"]))
-            serie_previsto = [round(bt_map.get(l, 0), 1) if l in bt_map else None for l in serie_labels]
+            serie_previsto = []
+            for l in serie_labels:
+                serie_previsto.append(round(bt_map.get(l, 0), 1) if l in bt_map else None)
         except Exception:
             serie_previsto = [None] * len(serie_labels)
 
@@ -325,21 +355,26 @@ def treinar(
             dados_clima["dengue"].append(float(row["casos"]) if not pd.isna(row["casos"]) else 0)
 
     # ═══════════════════════════════════════════════════════════
-    # NOVOS DADOS: Heatmap sazonal (meses × anos)
+    # NOVOS DADOS: Distribuição Sazonal (Casos vs Temp Média)
     # ═══════════════════════════════════════════════════════════
-    heatmap_data = []
-    if not hist_mensal.empty:
-        for _, row in hist_mensal.iterrows():
-            heatmap_data.append({
-                "x": int(row["year"]),
-                "y": int(row["month"]),
-                "v": float(row["casos"]) if not pd.isna(row["casos"]) else 0,
+    dist_sazonal = []
+    if not hist_mensal.empty and not clima_mensal.empty:
+        df_saz = pd.merge(hist_mensal, clima_mensal, on=["year", "month"], how="inner")
+        agrupado = df_saz.groupby("month").agg(
+            media_casos=("casos", "mean"),
+            media_temp=("temp_media", "mean")
+        ).reset_index()
+        for _, row in agrupado.iterrows():
+            dist_sazonal.append({
+                "mes": int(row["month"]),
+                "casos": float(row["media_casos"]),
+                "temp": float(row["media_temp"])
             })
 
     # Merge com dados reais (gráfico de barras existente)
     merged = pd.merge(hist, chart_data, on="year", how="outer").sort_values("year")
     
-    emit("Concluído!", 100)
+    emit("Gerando métricas e salvando gráficos...", 95)
 
     # Cálculo das métricas de negócio para 2025
     try:
@@ -379,8 +414,40 @@ def treinar(
         )
     if dados_clima["labels"]:
         pd.DataFrame(dados_clima).to_csv(export_dir / "dados_clima_mensal.csv", index=False)
-    if heatmap_data:
-        pd.DataFrame(heatmap_data).to_csv(export_dir / "heatmap_sazonal.csv", index=False)
+    if dist_sazonal:
+        pd.DataFrame(dist_sazonal).to_csv(export_dir / "distribuicao_sazonal.csv", index=False)
+
+    # Lê projeções climáticas futuras se existirem para usar no matplotlib
+    projecao_cenarios = {}
+    try:
+        fut_file = ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "projecao_ml_completa_regional_anual.csv"
+        if not fut_file.exists():
+            fut_file = ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "projecao_ml_completa_municipios_anual.csv"
+            
+        if fut_file.exists():
+            fut_df = pd.read_csv(fut_file)
+            for sc in fut_df["scenario"].unique():
+                sc_df = fut_df[(fut_df["scenario"] == sc) & (fut_df["year"] <= 2030)]
+                sc_df = sc_df.groupby("year")["pred_cases_ml"].sum().reset_index()
+                projecao_cenarios[sc] = {
+                    "anos": sc_df["year"].tolist(),
+                    "casos": sc_df["pred_cases_ml"].round().tolist()
+                }
+            
+            # Export CSV for the frontend
+            export_cenarios = []
+            if "ssp126" in projecao_cenarios:
+                for idx, ano in enumerate(projecao_cenarios["ssp126"]["anos"]):
+                    export_cenarios.append({
+                        "ano": ano,
+                        "ssp126": projecao_cenarios.get("ssp126", {}).get("casos", [])[idx] if "ssp126" in projecao_cenarios else None,
+                        "ssp245": projecao_cenarios.get("ssp245", {}).get("casos", [])[idx] if "ssp245" in projecao_cenarios else None,
+                        "ssp585": projecao_cenarios.get("ssp585", {}).get("casos", [])[idx] if "ssp585" in projecao_cenarios else None,
+                    })
+                pd.DataFrame(export_cenarios).to_csv(export_dir / "grafico_cenarios.csv", index=False)
+                
+    except Exception as e:
+        print(f"Erro ao carregar projeções futuras: {e}")
 
     # ═══════════════════════════════════════════════════════════
     # Exportação PNG (Matplotlib) para relatórios acadêmicos
@@ -441,18 +508,50 @@ def treinar(
             plt.savefig(export_dir / "grafico_clima_vs_dengue.png", dpi=150)
             plt.close()
 
-        # 4. Heatmap Sazonal
-        if heatmap_data:
-            df_heat = pd.DataFrame(heatmap_data)
-            df_heat_pivot = df_heat.pivot(index="y", columns="x", values="v")
-            df_heat_pivot.index = [MESES_PT.get(m, m) for m in df_heat_pivot.index]
-            plt.figure(figsize=(10, 6))
-            sns.heatmap(df_heat_pivot, cmap="YlOrRd", annot=True, fmt="g", cbar_kws={'label': 'Casos'})
-            plt.title("Sazonalidade — Heatmap de Casos (Meses × Anos)")
-            plt.xlabel("Ano")
-            plt.ylabel("Mês")
+        # 4. Distribuição Sazonal (Casos e Temp Média)
+        if dist_sazonal:
+            df_saz = pd.DataFrame(dist_sazonal)
+            fig, ax1 = plt.subplots(figsize=(10, 5))
+            
+            x_labels = [MESES_PT.get(m, m) for m in df_saz["mes"]]
+            
+            color_bar = "#5fa8d3"
+            color_peak = "#c0392b"
+            color_line = "#e74c3c"
+            
+            # Find peak
+            peak_idx = df_saz["casos"].idxmax()
+            
+            colors = [color_peak if i == peak_idx else color_bar for i in range(len(df_saz))]
+            
+            ax1.bar(x_labels, df_saz["casos"], color=colors, alpha=0.9, label="Casos (média 2015-2025)")
+            ax1.set_ylabel("Casos médios mensais", color="#1f4e79", fontweight='bold')
+            ax1.tick_params(axis='y', labelcolor="#1f4e79")
+            
+            # Add callout to peak
+            peak_val = df_saz.loc[peak_idx, "casos"]
+            ax1.annotate(f"Pico: {int(peak_val)} casos", 
+                        xy=(peak_idx, peak_val), 
+                        xytext=(peak_idx+0.5, peak_val + max(df_saz["casos"])*0.1),
+                        arrowprops=dict(facecolor='#2c3e50', shrink=0.05, width=1.5, headwidth=6),
+                        fontsize=10, fontweight='bold', color="#2c3e50")
+            
+            ax2 = ax1.twinx()
+            ax2.plot(x_labels, df_saz["temp"], color=color_line, marker="o", linewidth=2.5, label="Temperatura média (°C)")
+            ax2.set_ylabel("Temperatura média (°C)", color=color_line, fontweight='bold')
+            ax2.tick_params(axis='y', labelcolor=color_line)
+            
+            plt.title("Distribuição Sazonal de Casos de Dengue e Temperatura Média\nSão Carlos (SC), 2015–2025", fontweight='bold')
+            ax1.set_xlabel("Mês", fontweight='bold')
+            
+            # Custom legend
+            lines1, labels1 = ax1.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+            
+            plt.grid(True, linestyle="--", alpha=0.3)
             plt.tight_layout()
-            plt.savefig(export_dir / "heatmap_sazonal.png", dpi=150)
+            plt.savefig(export_dir / "distribuicao_sazonal.png", dpi=150)
             plt.close()
 
         # 5. Feature Importance
@@ -467,9 +566,58 @@ def treinar(
             plt.savefig(export_dir / "grafico_feature_importance.png", dpi=150)
             plt.close()
 
+        # 6. Gráfico Projeção Cenários Climáticos (2026-2030)
+        if projecao_cenarios and "ssp126" in projecao_cenarios:
+            anos_cenario = projecao_cenarios["ssp126"]["anos"]
+            
+            plt.figure(figsize=(10, 5))
+            
+            # Envelope de incerteza (ssp126 to ssp585 se existirem)
+            if "ssp585" in projecao_cenarios:
+                plt.fill_between(
+                    anos_cenario, 
+                    projecao_cenarios["ssp126"]["casos"], 
+                    projecao_cenarios["ssp585"]["casos"], 
+                    color="#3498db", alpha=0.15, label="Envelope de incerteza"
+                )
+            
+            # ssp126
+            plt.plot(anos_cenario, projecao_cenarios["ssp126"]["casos"], 
+                     color="#27ae60", marker="o", linewidth=2.5, 
+                     label="Referência (linha de base)")
+                     
+            # ssp245
+            if "ssp245" in projecao_cenarios:
+                plt.plot(anos_cenario, projecao_cenarios["ssp245"]["casos"], 
+                         color="#e67e22", marker="s", linestyle="--", linewidth=2.5, 
+                         label="Intermediário (+0,6 °C / +3% precip.)")
+                         
+            # ssp585
+            if "ssp585" in projecao_cenarios:
+                plt.plot(anos_cenario, projecao_cenarios["ssp585"]["casos"], 
+                         color="#c0392b", marker="D", linestyle="-.", linewidth=2.5, 
+                         label="Intensificado (+1,2 °C / +6% precip.)")
+            
+            plt.title("Projeção de Casos de Dengue por Cenário Climático\nSão Carlos (SC), 2026–2030", fontweight='bold')
+            plt.xlabel("Ano", fontweight='bold')
+            plt.ylabel("Casos anuais projetados", fontweight='bold')
+            plt.xticks(anos_cenario)
+            plt.ylim(1000, 2000)
+            
+            # Annotations values
+            for sc_key, color in [("ssp126", "#27ae60"), ("ssp245", "#e67e22"), ("ssp585", "#c0392b")]:
+                if sc_key in projecao_cenarios:
+                    for x, y in zip(anos_cenario, projecao_cenarios[sc_key]["casos"]):
+                        plt.annotate(f"{int(y)}", (x, y), textcoords="offset points", xytext=(0, 10), ha='center', color=color, fontsize=8, fontweight='bold')
+            
+            plt.legend(loc="upper left")
+            plt.grid(True, linestyle="--", alpha=0.3)
+            plt.tight_layout()
+            plt.savefig(export_dir / "grafico_cenarios.png", dpi=150)
+            plt.close()
+
     except Exception as e:
         print(f"Erro ao exportar gráficos PNG: {e}")
-
 
     return {
         "metricas": {
@@ -487,7 +635,8 @@ def treinar(
         "tabela_correlacao": tabela_correlacao,
         "serie_temporal_mensal": serie_temporal,
         "dados_clima_mensal": dados_clima,
-        "heatmap_sazonal": heatmap_data,
+        "dist_sazonal": dist_sazonal,
+        "projecao_cenarios": projecao_cenarios,
         "n_cidades": n_cidades,
         "n_registros": len(panel),
     }

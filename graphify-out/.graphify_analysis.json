@@ -1,59 +1,124 @@
 {
   "communities": {
     "0": [
-      "src_processamento_build_data_warehouse",
-      "src_processamento_build_data_warehouse_build_dw",
-      "src_processamento_build_data_warehouse_rationale_1",
+      "path",
       "src_processamento_motor_lote_modelagem_v2_por_latitude",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_base_panel",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_build_code_lookup_from_latitude_files",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_discover_files",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_csvs_latitude",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_load_ml_panel_from_csvs_latitude",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_normalize_code",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_north_weight",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_py_path",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_288",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_783",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_796",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_837",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_read_enso_series",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_read_wide_monthly",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_should_shade_scenario",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_to_float",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_to_int"
-    ],
-    "1": [
-      "src_config",
-      "src_consolidar_dados",
-      "src_consolidar_dados_carregar_dados_wide_temperatura_dengue",
-      "src_consolidar_dados_carregar_elnino",
-      "src_consolidar_dados_carregar_precipitacao",
-      "src_consolidar_dados_main",
-      "src_consolidar_dados_rationale_21",
-      "src_consolidar_dados_rationale_52",
-      "src_consolidar_dados_rationale_83",
-      "src_processamento_processar_dengue_latitude_mapas",
-      "src_processamento_processar_dengue_latitude_mapas_classificar_incidencia",
-      "src_processamento_processar_dengue_latitude_mapas_obter_faixa_latitude",
-      "src_processamento_processar_dengue_latitude_mapas_rationale_1",
-      "src_processamento_processar_dengue_latitude_mapas_rationale_37"
-    ],
-    "2": [
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_monthly_climatology",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_yearly_templates",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_calibrate_region",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_calibrationbundle",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_coverageinfo",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_discover_files",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_incidentes_formatter",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_sqlite",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_main",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_1154",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_normalize_code",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_north_weight",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_predict_annual_cases_2025_no_increment",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_predict_annual_cases_2025_with_increment",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_project_city",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_py_dataframe",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_1092",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_252",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_627",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_403",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_455",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_642",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_710",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_803",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_816",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_read_enso_series",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_read_wide_monthly",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_save_ml_2025_forecasts",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_save_outputs_by_latitude",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_save_pdf_reports",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_should_shade_scenario",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_to_float",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_to_int",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_train_local_intercept",
       "src_processamento_motor_lote_modelagem_v2_por_latitude_validate_data_sources"
     ],
+    "1": [
+      "app_static_app_v2",
+      "app_static_app_v2_carregarresultados",
+      "app_static_app_v2_getcssvar",
+      "app_static_app_v2_iniciartreino",
+      "app_static_app_v2_loadcidades",
+      "app_static_app_v2_loadstatus",
+      "app_static_app_v2_renderchartbarras",
+      "app_static_app_v2_renderchartbarrasprojecao",
+      "app_static_app_v2_renderchartcenarios",
+      "app_static_app_v2_renderchartclima",
+      "app_static_app_v2_renderchartfi",
+      "app_static_app_v2_renderchartsazonal",
+      "app_static_app_v2_renderchartserietemporal",
+      "app_static_app_v2_rendermetricas",
+      "app_static_app_v2_rendertabelacorrelacao",
+      "app_static_app_v2_rendertabelaepidem",
+      "app_static_app_v2_rendertabelaprojecao"
+    ],
+    "2": [
+      "app_ml_runner_get_cidades",
+      "app_ml_runner_get_db_status",
+      "app_ml_runner_rationale_23",
+      "app_ml_runner_rationale_47",
+      "app_server",
+      "app_server_api_cidades",
+      "app_server_api_progresso",
+      "app_server_api_resultados",
+      "app_server_api_status",
+      "app_server_api_treinar",
+      "app_server_index",
+      "app_server_rationale_1",
+      "get",
+      "post",
+      "request"
+    ],
     "3": [
+      "app_ml_runner",
+      "app_ml_runner_rationale_1",
+      "app_ml_runner_rationale_64",
+      "app_ml_runner_treinar",
+      "ndarray",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_base_panel",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_ml_features",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_evaluate_split",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_771",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_902",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_run_full_ml",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_safe_mape",
+      "src_processamento_motor_lote_modelagem_v2_por_latitude_uncertainty_bounds"
+    ],
+    "4": [
+      "app_static_app",
+      "app_static_app_carregarresultados",
+      "app_static_app_iniciartreino",
+      "app_static_app_loadcidades",
+      "app_static_app_loadstatus",
+      "app_static_app_renderchartbarras",
+      "app_static_app_renderchartclima",
+      "app_static_app_renderchartfi",
+      "app_static_app_renderchartheatmap",
+      "app_static_app_renderchartserietemporal",
+      "app_static_app_rendermetricas",
+      "app_static_app_rendertabelacorrelacao",
+      "app_static_app_rendertabelaepidem"
+    ],
+    "5": [
+      "src_config",
+      "src_processamento_coletar_sao_carlos",
+      "src_processamento_coletar_sao_carlos_fetch_disease",
+      "src_processamento_coletar_sao_carlos_rationale_1",
+      "src_processamento_ingestor_ibge_populacao",
+      "src_processamento_ingestor_ibge_populacao_fetch_populacao_ibge",
+      "src_processamento_ingestor_ibge_populacao_get_ibge_7",
+      "src_processamento_ingestor_ibge_populacao_main",
+      "src_processamento_ingestor_ibge_populacao_py_dataframe",
+      "src_processamento_ingestor_ibge_populacao_rationale_1",
+      "src_processamento_ingestor_ibge_populacao_rationale_27",
+      "src_processamento_ingestor_ibge_populacao_rationale_60"
+    ],
+    "6": [
       "geodataframe",
       "src_data_loaders",
       "src_data_loaders_carregar_dados_brutos",
@@ -66,41 +131,20 @@
       "src_data_loaders_rationale_6",
       "src_data_loaders_salvar_dados_processados"
     ],
-    "4": [
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_monthly_climatology",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_yearly_templates",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_predict_annual_cases_2025_no_increment",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_predict_annual_cases_2025_with_increment",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_project_city",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_py_dataframe",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_388",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_440",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_690",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_save_ml_2025_forecasts"
-    ],
-    "5": [
-      "src_processamento_processar_clima_por_latitude",
-      "src_processamento_processar_clima_por_latitude_carregar_mapeamento_latitudes",
-      "src_processamento_processar_clima_por_latitude_main",
-      "src_processamento_processar_clima_por_latitude_processar_variavel_clima",
-      "src_processamento_processar_clima_por_latitude_rationale_1",
-      "src_processamento_processar_clima_por_latitude_rationale_162",
-      "src_processamento_processar_clima_por_latitude_rationale_251",
-      "src_processamento_processar_clima_por_latitude_rationale_53",
-      "src_processamento_processar_clima_por_latitude_rationale_85",
-      "src_processamento_processar_clima_por_latitude_transformar_formato_wide_para_long"
-    ],
-    "6": [
-      "ndarray",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_build_ml_features",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_evaluate_split",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_751",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_rationale_961",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_run_full_ml_from_csvs_latitude",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_safe_mape",
-      "src_processamento_motor_lote_modelagem_v2_por_latitude_uncertainty_bounds"
-    ],
     "7": [
+      "src_processamento_ingestor_api_sul",
+      "src_processamento_ingestor_api_sul_fetch_clima",
+      "src_processamento_ingestor_api_sul_fetch_infodengue",
+      "src_processamento_ingestor_api_sul_get_ibge_7",
+      "src_processamento_ingestor_api_sul_ingest_noaa_enso",
+      "src_processamento_ingestor_api_sul_main",
+      "src_processamento_ingestor_api_sul_obter_faixa_latitude",
+      "src_processamento_ingestor_api_sul_process_clima",
+      "src_processamento_ingestor_api_sul_process_saude",
+      "src_processamento_ingestor_api_sul_rationale_144",
+      "src_processamento_ingestor_api_sul_sleep_until_next_hour"
+    ],
+    "8": [
       "concept_medallion_architecture",
       "concept_xgboost_global_model",
       "docs_arquitetura_de_dados",
@@ -108,56 +152,67 @@
       "docs_legado_historico_diario_projeto",
       "readme_main"
     ],
-    "8": [
+    "9": [
       "main",
-      "main_command_generate_reports",
-      "main_command_process_data",
       "main_command_run_model",
       "main_main"
     ],
-    "9": [
+    "10": [
       "data_raw_r_transparent",
       "docs_legado_instrucoes_mapas_latitude"
     ],
-    "10": [
-      "1527966_modelagem_dengue_com_id_dengue_modeling"
-    ],
     "11": [
-      "data_readme"
+      "scratch_analyze_docx",
+      "scratch_analyze_docx_analyze_docx"
     ],
     "12": [
-      "docs_legado_guia_execucao"
+      "app_init"
     ],
     "13": [
-      "docs_legado_guia_interpretacao"
+      "data_readme"
     ],
     "14": [
+      "docs_comandos_uteis"
+    ],
+    "15": [
+      "docs_legado_guia_execucao"
+    ],
+    "16": [
+      "docs_legado_guia_interpretacao"
+    ],
+    "17": [
       "requirements_txt"
+    ],
+    "18": [
+      "scratch_audit_db"
+    ],
+    "19": [
+      "scratch_plot_sc"
     ]
   },
   "cohesion": {
-    "0": 0.2,
-    "1": 0.17582417582417584,
-    "2": 0.21212121212121213,
-    "3": 0.21818181818181817,
-    "4": 0.3111111111111111,
-    "5": 0.26666666666666666,
-    "6": 0.2857142857142857,
-    "7": 0.3333333333333333,
-    "8": 0.7,
+    "0": 0.13333333333333333,
+    "1": 0.20588235294117646,
+    "2": 0.20952380952380953,
+    "3": 0.2564102564102564,
+    "4": 0.2692307692307692,
+    "5": 0.19696969696969696,
+    "6": 0.21818181818181817,
+    "7": 0.2909090909090909,
+    "8": 0.3333333333333333,
     "9": 1.0,
     "10": 1.0,
     "11": 1.0,
     "12": 1.0,
     "13": 1.0,
-    "14": 1.0
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0
   },
   "gods": [
-    {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_build_base_panel",
-      "label": "build_base_panel()",
-      "degree": 11
-    },
     {
       "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_main",
       "label": "main()",
@@ -169,13 +224,18 @@
       "degree": 10
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_load_ml_panel_from_csvs_latitude",
-      "label": "load_ml_panel_from_csvs_latitude()",
+      "id": "app_static_app_carregarresultados",
+      "label": "carregarResultados()",
+      "degree": 10
+    },
+    {
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_run_full_ml",
+      "label": "run_full_ml()",
       "degree": 9
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_csvs_latitude",
-      "label": "load_historical_incidents_from_csvs_latitude()",
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_sqlite",
+      "label": "load_historical_incidents_from_sqlite()",
       "degree": 8
     },
     {
@@ -184,59 +244,113 @@
       "degree": 8
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_run_full_ml_from_csvs_latitude",
-      "label": "run_full_ml_from_csvs_latitude()",
-      "degree": 8
-    },
-    {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_read_enso_series",
-      "label": "read_enso_series()",
+      "id": "app_static_app_v2_carregarresultados",
+      "label": "carregarResultados()",
       "degree": 7
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_read_wide_monthly",
-      "label": "read_wide_monthly()",
+      "id": "app_static_app_v2_getcssvar",
+      "label": "getCSSVar()",
       "degree": 7
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_to_float",
-      "label": "to_float()",
+      "id": "app_ml_runner_treinar",
+      "label": "treinar()",
+      "degree": 7
+    },
+    {
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_project_city",
+      "label": "project_city()",
       "degree": 6
     }
   ],
   "surprises": [
     {
-      "source": "build_dw()",
+      "source": "treinar()",
       "target": "build_base_panel()",
       "source_files": [
-        "src/processamento/build_data_warehouse.py",
+        "app/ml_runner.py",
         "src/processamento/motor_lote_modelagem_v2_por_latitude.py"
       ],
       "confidence": "EXTRACTED",
       "relation": "calls",
-      "why": "peripheral node `build_dw()` unexpectedly reaches hub `build_base_panel()`"
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "treinar()",
+      "target": "_build_ml_features()",
+      "source_files": [
+        "app/ml_runner.py",
+        "src/processamento/motor_lote_modelagem_v2_por_latitude.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "treinar()",
+      "target": "_evaluate_split()",
+      "source_files": [
+        "app/ml_runner.py",
+        "src/processamento/motor_lote_modelagem_v2_por_latitude.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "treinar()",
+      "target": "run_full_ml()",
+      "source_files": [
+        "app/ml_runner.py",
+        "src/processamento/motor_lote_modelagem_v2_por_latitude.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "api_cidades()",
+      "target": "get_cidades()",
+      "source_files": [
+        "app/server.py",
+        "app/ml_runner.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
     }
   ],
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `build_base_panel()` connect `motor_lote_modelagem_v2_por_latitude.py` to `main`, `DataFrame`?",
-      "why": "High betweenness centrality (0.056) - this node is a cross-community bridge."
+      "question": "Why does `treinar()` connect `ml_runner.py` to `server.py`?",
+      "why": "High betweenness centrality (0.068) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `load_historical_incidents_from_csvs_latitude()` connect `motor_lote_modelagem_v2_por_latitude.py` to `main`, `DataFrame`, `run_full_ml_from_csvs_latitude`?",
-      "why": "High betweenness centrality (0.020) - this node is a cross-community bridge."
+      "question": "Why does `run_full_ml()` connect `ml_runner.py` to `motor_lote_modelagem_v2_por_latitude.py`?",
+      "why": "High betweenness centrality (0.038) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `save_pdf_reports()` connect `main` to `motor_lote_modelagem_v2_por_latitude.py`, `DataFrame`, `run_full_ml_from_csvs_latitude`?",
-      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
+      "question": "Why does `build_base_panel()` connect `ml_runner.py` to `motor_lote_modelagem_v2_por_latitude.py`?",
+      "why": "High betweenness centrality (0.030) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 7 inferred relationships involving `carregarResultados()` (e.g. with `renderChartBarras()` and `renderChartClima()`) actually correct?",
+      "why": "`carregarResultados()` has 7 INFERRED edges - model-reasoned connections that need verification."
     },
     {
       "type": "isolated_nodes",
-      "question": "What connects `XGBoost Global Model`, `Compass Rose`, `Dengue Modeling with ID` to the rest of the system?",
-      "why": "3 weakly-connected nodes found - possible documentation gaps or missing edges."
+      "question": "What connects `Compass Rose`, `XGBoost Global Model` to the rest of the system?",
+      "why": "2 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `motor_lote_modelagem_v2_por_latitude.py` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected."
     }
   ]
 }

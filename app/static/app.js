@@ -142,7 +142,7 @@ async function carregarResultados() {
     const d = await r.json();
     if (d.error) return;
 
-    $("#results").classList.add("visible");
+    $("#results").style.display = "block";
     
     renderMetricas(d.metricas);
     
@@ -164,6 +164,7 @@ async function carregarResultados() {
     
   } catch (e) {
     console.error("Erro geral em carregarResultados:", e);
+    alert("Houve um erro ao renderizar os resultados: " + e.message);
   }
 }
 

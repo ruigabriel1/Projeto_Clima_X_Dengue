@@ -12,8 +12,13 @@
 
     <!-- Header -->
     <header class="header">
-      <h1>Prodígia</h1>
-      <p>Motor de Previsão Epidêmica · XGBoost · Clima × Dengue</p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>Prodígia <span style="font-size: 1rem; color: #3498db;">v2.1</span></h1>
+          <p>Motor de Previsão Epidêmica · XGBoost · Clima × Dengue</p>
+        </div>
+        <button id="themeToggle" class="btn-theme">🌙 Tema Escuro</button>
+      </div>
     </header>
 
     <!-- Status do Banco -->
@@ -59,85 +64,65 @@
     </section>
 
     <!-- Dashboard de Resultados -->
-    <section id="results">
+    <section id="results" class="results-section">
       <div class="panel">
         <div class="panel-title">📊 Resultados do Treinamento</div>
 
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-value"><span id="erro-abs-val">--</span> <span style="font-size: 0.8rem; color: #7f8c8d;">Casos</span></div>
-                <div class="metric-label">MARGEM DE ERRO (2025)</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value status-good" id="tendencia-val">--</div>
-                <div class="metric-label">PREVISÃO DE TENDÊNCIA</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value status-good" id="risco-val">--</div>
-                <div class="metric-label">ALERTA EPIDEMIOLÓGICO 2025</div>
-            </div>
-        </div>
-
-        <!-- Tabela Epidemiológica -->
+        <!-- Tabela Epidemiológica (PROJEÇÕES 2026-2030) -->
         <div class="chart-wrap">
-          <h3>📋 Resumo Epidemiológico Anual</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📊 Resumo de Projeções Anuais (2026-2030)</h3>
+            <a href="/output/dashboard_exports/grafico_cenarios.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
+          </div>
           <div class="table-responsive">
-            <table class="data-table" id="tabelaEpidem">
-              <thead><tr><th>Ano</th><th>Casos Totais</th><th>Incid./100 mil</th><th>Pico Mensal</th><th>Mês do Pico</th><th>Variação (%)</th></tr></thead>
+            <table class="data-table" id="tabelaProjecao">
+              <thead><tr><th>Ano</th><th>Referência (SSP126)</th><th>Intermediário (SSP245)</th><th>Intensificado (SSP585)</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Gráfico de Barras Anuais (existente) -->
+        <!-- Gráfico de Barras (PROJEÇÕES 2026-2030) -->
         <div class="chart-wrap">
-          <h3>📊 Casos Reais vs Previsão XGBoost (Anual)</h3>
-          <canvas id="chartBarras"></canvas>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📊 Comparativo de Projeções por Cenário (Anual)</h3>
+          </div>
+          <canvas id="chartBarrasProjecao"></canvas>
         </div>
 
-        <!-- NOVO: Série Temporal Mensal -->
+        <!-- Projeções Futuras (Cenários Climáticos) - LINHA -->
         <div class="chart-wrap">
-          <h3>📈 Série Temporal Mensal — Real vs Previsto</h3>
-          <canvas id="chartSerieTemporal"></canvas>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📈 Projeção de Casos de Dengue por Cenário Climático (2026-2030)</h3>
+            <div>
+              <a href="/output/dashboard_exports/grafico_cenarios.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem; margin-right:5px;">📥 Baixar CSV</a>
+              <a href="/output/dashboard_exports/grafico_cenarios.png" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar PNG (Oficial)</a>
+            </div>
+          </div>
+          <canvas id="chartCenarios"></canvas>
         </div>
 
-        <!-- NOVO: Clima vs Dengue -->
+        <!-- Tabela Correlação Climática -->
         <div class="chart-wrap">
-          <h3>🌡️ Anomalias Climáticas vs Incidência de Dengue</h3>
-          <canvas id="chartClima"></canvas>
-        </div>
-
-        <!-- NOVO: Heatmap Sazonal -->
-        <div class="chart-wrap">
-          <h3>🗓️ Sazonalidade — Heatmap de Casos (Meses × Anos)</h3>
-          <canvas id="chartHeatmap"></canvas>
-        </div>
-
-        <!-- NOVO: Tabela Correlação Climática -->
-        <div class="chart-wrap">
-          <h3>🔬 Correlação Climática (Pearson)</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>🔗 Correlação Climática (Pearson)</h3>
+            <a href="/output/dashboard_exports/tabela_correlacao.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
+          </div>
           <div class="table-responsive">
             <table class="data-table" id="tabelaCorrelacao">
-              <thead><tr><th>Preditor Climático</th><th>Lag (meses)</th><th>r de Pearson</th><th>p-valor</th></tr></thead>
+              <thead><tr><th>Preditor Climático</th><th>Lag (meses)</th><th>r de Pearson</th><th>p-valor ajustado</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
-        </div>
-
-        <!-- Feature Importance (existente) -->
-        <div class="chart-wrap">
-          <h3>🧬 Importância das Variáveis (Feature Importance)</h3>
-          <canvas id="chartFI"></canvas>
         </div>
       </div>
     </section>
 
-    <footer class="footer">Prodígia v2.0 · Projeto Clima × Dengue · SQLite Medallion Architecture</footer>
+    <footer class="footer">Prodígia v2.1 | Projeto Clima × Dengue | SQLite Medallion Architecture</footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2"></script>
-  <script src="/static/app.js?v=2"></script>
+  <script src="/static/app_v2.js?v=8"></script>
 </body>
 </html>
-
