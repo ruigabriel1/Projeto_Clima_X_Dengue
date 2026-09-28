@@ -420,9 +420,9 @@ def treinar(
     # Lê projeções climáticas futuras se existirem para usar no matplotlib
     projecao_cenarios = {}
     try:
-        fut_file = ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "projecao_ml_completa_regional_anual.csv"
+        fut_file = ML_OUTPUT / "projecao_ml_completa_regional_anual.csv"
         if not fut_file.exists():
-            fut_file = ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "projecao_ml_completa_municipios_anual.csv"
+            fut_file = ML_OUTPUT / "projecao_ml_completa_municipios_anual.csv"
             
         if fut_file.exists():
             fut_df = pd.read_csv(fut_file)

@@ -1,6 +1,6 @@
-/* ═══════════════════════════════════════════
-   Prodígia — Frontend Logic (SSE + Chart.js)
-   ═══════════════════════════════════════════ */
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ProdÃ­gia â€” Frontend Logic (SSE + Chart.js)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 const $ = (s) => document.querySelector(s);
 
@@ -20,20 +20,20 @@ if (window["chartjs-chart-matrix"]) {
   Chart.register(window["chartjs-chart-matrix"].MatrixController, window["chartjs-chart-matrix"].MatrixElement);
 }
 
-// ── Inicialização ──
+// â”€â”€ InicializaÃ§Ã£o â”€â”€
 document.addEventListener("DOMContentLoaded", () => {
   // Inicializar Tema
   const isDark = localStorage.getItem("theme") === "dark";
   if (isDark) document.body.classList.add("dark-mode");
   const themeBtn = $("#themeToggle");
   if (themeBtn) {
-    themeBtn.textContent = isDark ? "☀️ Tema Claro" : "🌙 Tema Escuro";
+    themeBtn.textContent = isDark ? "â˜€ï¸ Tema Claro" : "ðŸŒ™ Tema Escuro";
     themeBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark-mode");
       const dark = document.body.classList.contains("dark-mode");
       localStorage.setItem("theme", dark ? "dark" : "light");
-      themeBtn.textContent = dark ? "☀️ Tema Claro" : "🌙 Tema Escuro";
-      // Opcional: recarregar página para re-renderizar gráficos com novas cores
+      themeBtn.textContent = dark ? "â˜€ï¸ Tema Claro" : "ðŸŒ™ Tema Escuro";
+      // Opcional: recarregar pÃ¡gina para re-renderizar grÃ¡ficos com novas cores
       window.location.reload(); 
     });
   }
@@ -45,12 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const body = $("#advBody");
     body.classList.toggle("open");
     $("#advToggle").textContent = body.classList.contains("open")
-      ? "▾ Filtro avançado (cidade específica)"
-      : "▸ Filtro avançado (cidade específica)";
+      ? "â–¾ Filtro avanÃ§ado (cidade especÃ­fica)"
+      : "â–¸ Filtro avanÃ§ado (cidade especÃ­fica)";
   });
 });
 
-// ── Status do Banco ──
+// â”€â”€ Status do Banco â”€â”€
 async function loadStatus() {
   try {
     const r = await fetch("/api/status");
@@ -64,7 +64,7 @@ async function loadStatus() {
   }
 }
 
-// ── Lista de Cidades ──
+// â”€â”€ Lista de Cidades â”€â”€
 async function loadCidades() {
   try {
     const r = await fetch("/api/cidades");
@@ -81,7 +81,7 @@ async function loadCidades() {
   }
 }
 
-// ── Treinamento ──
+// â”€â”€ Treinamento â”€â”€
 async function iniciarTreino() {
   const btn = $("#btnTreinar");
   btn.disabled = true;
@@ -111,7 +111,7 @@ async function iniciarTreino() {
     es.onmessage = (ev) => {
       const data = JSON.parse(ev.data);
       if (data.metricas) {
-        document.getElementById('erro-abs-val').innerText = `±${data.metricas.erro_abs}`;
+        document.getElementById('erro-abs-val').innerText = `Â±${data.metricas.erro_abs}`;
         
         const tendEl = document.getElementById('tendencia-val');
         tendEl.innerText = data.metricas.tendencia;
@@ -121,7 +121,7 @@ async function iniciarTreino() {
         riscoEl.innerText = data.metricas.risco;
         if (data.metricas.risco === "Baixo") {
             riscoEl.className = "metric-value highlight-green";
-        } else if (data.metricas.risco === "Médio") {
+        } else if (data.metricas.risco === "MÃ©dio") {
             riscoEl.className = "metric-value highlight-yellow";
         } else {
             riscoEl.className = "metric-value highlight-red";
@@ -134,29 +134,29 @@ async function iniciarTreino() {
       if (data.pct >= 100) {
         es.close();
         btn.disabled = false;
-        btn.textContent = "Treinar Prodígia";
+        btn.textContent = "Treinar ProdÃ­gia";
         carregarResultados();
       }
       if (data.pct === -1) {
         es.close();
         btn.disabled = false;
-        btn.textContent = "Treinar Prodígia";
+        btn.textContent = "Treinar ProdÃ­gia";
         $("#progressLabel").textContent = data.msg;
       }
     };
     es.onerror = () => {
       es.close();
       btn.disabled = false;
-      btn.textContent = "Treinar Prodígia";
+      btn.textContent = "Treinar ProdÃ­gia";
     };
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = "Treinar Prodígia";
+    btn.textContent = "Treinar ProdÃ­gia";
     console.error("Erro ao iniciar treino:", e);
   }
 }
 
-// ── Resultados ──
+// â”€â”€ Resultados â”€â”€
 async function carregarResultados() {
   try {
     const r = await fetch("/api/resultados");
@@ -175,10 +175,10 @@ async function carregarResultados() {
       }
     };
 
-    safeRender(renderTabelaProjecao, d.projecao_cenarios, "Tabela de Projeção");
-    safeRender(renderChartBarrasProjecao, d.projecao_cenarios, "Gráfico Barras Projeção");
-    safeRender(renderChartCenarios, d.projecao_cenarios, "Projeções de Cenários");
-    safeRender(renderTabelaCorrelacao, d.tabela_correlacao, "Tabela Correlação");
+    safeRender(renderTabelaProjecao, d.projecao_cenarios, "Tabela de ProjeÃ§Ã£o");
+    safeRender(renderChartBarrasProjecao, d.projecao_cenarios, "GrÃ¡fico Barras ProjeÃ§Ã£o");
+    safeRender(renderChartCenarios, d.projecao_cenarios, "ProjeÃ§Ãµes de CenÃ¡rios");
+    safeRender(renderTabelaCorrelacao, d.tabela_correlacao, "Tabela CorrelaÃ§Ã£o");
     
   } catch (e) {
     console.error("Erro geral em carregarResultados:", e);
@@ -189,7 +189,7 @@ async function carregarResultados() {
 function renderMetricas(m) {
   try {
       const erroEl = document.getElementById('erro-abs-val');
-      if (erroEl) erroEl.innerText = `±${m.erro_abs}`;
+      if (erroEl) erroEl.innerText = `Â±${m.erro_abs}`;
       
       const tendEl = document.getElementById('tendencia-val');
       if (tendEl) {
@@ -202,14 +202,14 @@ function renderMetricas(m) {
           riscoEl.innerText = m.risco;
           if (m.risco === "Baixo") {
               riscoEl.className = "metric-value highlight-green";
-          } else if (m.risco === "Médio") {
+          } else if (m.risco === "MÃ©dio") {
               riscoEl.className = "metric-value highlight-yellow";
           } else {
               riscoEl.className = "metric-value highlight-red";
           }
       }
   } catch(e) {
-      console.error("Erro renderizando métricas:", e);
+      console.error("Erro renderizando mÃ©tricas:", e);
   }
 }
 
@@ -231,7 +231,7 @@ function renderChartBarras(data) {
           borderRadius: 4,
         },
         {
-          label: "Previsão XGBoost",
+          label: "PrevisÃ£o XGBoost",
           data: data.previsto,
           backgroundColor: "rgba(88, 166, 255, 0.7)",
           borderColor: "rgba(88, 166, 255, 1)",
@@ -258,18 +258,18 @@ function renderChartFI(fiData) {
   if (chartFI) chartFI.destroy();
 
   const labels_map = {
-    temp_media: "Temperatura Média",
-    precipitacao: "Precipitação",
-    enso: "ENSO (El Niño)",
+    temp_media: "Temperatura MÃ©dia",
+    precipitacao: "PrecipitaÃ§Ã£o",
+    enso: "ENSO (El NiÃ±o)",
     latitude: "Latitude",
     month_sin: "Sazonalidade (sin)",
     month_cos: "Sazonalidade (cos)",
-    dengue_lag1: "Dengue Mês Anterior",
+    dengue_lag1: "Dengue MÃªs Anterior",
     dengue_lag2: "Dengue 2 Meses Antes",
     dengue_lag3: "Dengue 3 Meses Antes",
-    temp_lag1: "Temp. Mês Anterior",
-    prec_lag1: "Precip. Mês Anterior",
-    enso_lag1: "ENSO Mês Anterior",
+    temp_lag1: "Temp. MÃªs Anterior",
+    prec_lag1: "Precip. MÃªs Anterior",
+    enso_lag1: "ENSO MÃªs Anterior",
   };
 
   chartFI = new Chart(ctx, {
@@ -278,7 +278,7 @@ function renderChartFI(fiData) {
       labels: fiData.map((f) => labels_map[f.feature] || f.feature),
       datasets: [
         {
-          label: "Importância",
+          label: "ImportÃ¢ncia",
           data: fiData.map((f) => f.importance),
           backgroundColor: "rgba(88, 166, 255, 0.6)",
           borderColor: "rgba(88, 166, 255, 1)",
@@ -307,7 +307,7 @@ function renderTabelaEpidem(data) {
   data.forEach((row) => {
     const tr = document.createElement("tr");
     
-    // Variação formatada
+    // VariaÃ§Ã£o formatada
     let varHtml = "<td>-</td>";
     if (row.variacao !== null && row.variacao !== undefined) {
       const isUp = row.variacao > 0;
@@ -334,7 +334,7 @@ function renderTabelaCorrelacao(data) {
   // Update header to ensure it matches
   const thead = $("#tabelaCorrelacao thead tr");
   if (thead) {
-      thead.innerHTML = `<th>Preditor climático</th><th>Lag (meses)</th><th>r de Pearson</th><th>IC 95%</th><th>p-valor ajustado</th>`;
+      thead.innerHTML = `<th>Preditor climÃ¡tico</th><th>Lag (meses)</th><th>r de Pearson</th><th>IC 95%</th><th>p-valor ajustado</th>`;
   }
 
   data.forEach((row) => {
@@ -363,7 +363,7 @@ function renderChartSerieTemporal(data) {
       labels: data.labels,
       datasets: [
         {
-          label: "Teto Epidêmico (P95)",
+          label: "Teto EpidÃªmico (P95)",
           data: q95Data,
           borderColor: "rgba(255, 99, 132, 0.8)",
           borderWidth: 1.5,
@@ -414,7 +414,7 @@ function renderChartClima(data) {
       labels: data.labels,
       datasets: [
         {
-          label: "Temperatura Média (°C)",
+          label: "Temperatura MÃ©dia (Â°C)",
           data: data.temp_media,
           borderColor: "rgba(255, 159, 64, 1)",
           borderWidth: 2,
@@ -422,7 +422,7 @@ function renderChartClima(data) {
           yAxisID: "y-temp",
         },
         {
-          label: "Precipitação (mm)",
+          label: "PrecipitaÃ§Ã£o (mm)",
           data: data.precipitacao,
           borderColor: "rgba(54, 162, 235, 1)",
           backgroundColor: "rgba(54, 162, 235, 0.2)",
@@ -452,12 +452,12 @@ function renderChartClima(data) {
         x: { ticks: { color: getCSSVar('--text-dim') }, grid: { color: "rgba(128,128,128,0.1)" } },
         "y-temp": { 
           type: "linear", display: true, position: "left", 
-          title: { display: true, text: "Temp (°C)", color: "rgba(255, 159, 64, 1)" },
+          title: { display: true, text: "Temp (Â°C)", color: "rgba(255, 159, 64, 1)" },
           ticks: { color: "rgba(255, 159, 64, 1)" }, grid: { color: "rgba(128,128,128,0.1)" }
         },
         "y-precip": { 
           type: "linear", display: true, position: "right", 
-          title: { display: true, text: "Precipitação (mm)", color: "rgba(54, 162, 235, 1)" },
+          title: { display: true, text: "PrecipitaÃ§Ã£o (mm)", color: "rgba(54, 162, 235, 1)" },
           ticks: { color: "rgba(54, 162, 235, 1)" }, grid: { drawOnChartArea: false }
         },
         "y-dengue": {
@@ -478,7 +478,7 @@ function renderChartSazonal(data) {
   const casos = data.map(d => d.casos);
   const temps = data.map(d => d.temp);
 
-  // Achar o mês de pico para destacar
+  // Achar o mÃªs de pico para destacar
   const maxCasos = Math.max(...casos);
   const peakIndex = casos.indexOf(maxCasos);
   
@@ -491,7 +491,7 @@ function renderChartSazonal(data) {
       datasets: [
         {
           type: "bar",
-          label: "Casos (média 2015-2025)",
+          label: "Casos (mÃ©dia 2015-2025)",
           data: casos,
           backgroundColor: bgColors,
           yAxisID: "y",
@@ -499,7 +499,7 @@ function renderChartSazonal(data) {
         },
         {
           type: "line",
-          label: "Temperatura média (°C)",
+          label: "Temperatura mÃ©dia (Â°C)",
           data: temps,
           borderColor: "#e74c3c",
           backgroundColor: "#e74c3c",
@@ -525,7 +525,7 @@ function renderChartSazonal(data) {
           type: "linear", 
           display: true, 
           position: "left",
-          title: { display: true, text: "Casos médios mensais", color: "#5fa8d3" },
+          title: { display: true, text: "Casos mÃ©dios mensais", color: "#5fa8d3" },
           ticks: { color: "#5fa8d3" }, 
           grid: { color: "rgba(128,128,128,0.1)", borderDash: [2, 2] }
         },
@@ -533,7 +533,7 @@ function renderChartSazonal(data) {
           type: "linear", 
           display: true, 
           position: "right",
-          title: { display: true, text: "Temperatura média (°C)", color: "#e74c3c" },
+          title: { display: true, text: "Temperatura mÃ©dia (Â°C)", color: "#e74c3c" },
           ticks: { color: "#e74c3c" }, 
           grid: { drawOnChartArea: false }
         }
@@ -549,30 +549,33 @@ function renderChartCenarios(data) {
   const scenarios = Object.keys(data);
   if (scenarios.length === 0) return;
 
-  const labels = data[scenarios[0]].anos;
+  const rawLabels = data[scenarios[0]].anos;
+  const filterIdx = [];
+  rawLabels.forEach((a, idx) => { if (a >= 2026) filterIdx.push(idx); });
+  const labels = filterIdx.map(i => rawLabels[i]);
 
   // Garantir a ordem dos datasets para o preenchimento (fill) funcionar bem
   const datasetConfig = {
     "ssp126": { 
-      label: "Referência (linha de base)", 
+      label: "ReferÃªncia (linha de base)", 
       color: "#27ae60", 
       dash: [], 
       pointStyle: 'circle',
       fill: false
     },
     "ssp245": { 
-      label: "Intermediário (+0,6 °C / +3% precip.)", 
+      label: "IntermediÃ¡rio (+0,6 Â°C / +3% precip.)", 
       color: "#e67e22", 
       dash: [5, 5], 
       pointStyle: 'rect',
       fill: false
     },
     "ssp585": { 
-      label: "Intensificado (+1,2 °C / +6% precip.)", 
+      label: "Intensificado (+1,2 Â°C / +6% precip.)", 
       color: "#c0392b", 
       dash: [10, 5, 2, 5], 
       pointStyle: 'rectRot',
-      // Preenche até o primeiro dataset (ssp126)
+      // Preenche atÃ© o primeiro dataset (ssp126)
       fill: {
         target: 0,
         above: 'rgba(52, 152, 219, 0.15)'
@@ -587,7 +590,7 @@ function renderChartCenarios(data) {
     const config = datasetConfig[sc];
     return {
       label: config.label,
-      data: data[sc].casos,
+      data: filterIdx.map(i => data[sc].casos[i]),
       borderColor: config.color,
       backgroundColor: config.color,
       borderWidth: 2,
@@ -630,6 +633,7 @@ function renderTabelaProjecao(data) {
   
   const anos = data.ssp126.anos;
   for (let i = 0; i < anos.length; i++) {
+    if (anos[i] < 2026) continue;
     const tr = document.createElement("tr");
     const val1 = data.ssp126 ? Math.round(data.ssp126.casos[i]) : "-";
     const val2 = data.ssp245 ? Math.round(data.ssp245.casos[i]) : "-";
@@ -649,12 +653,16 @@ function renderChartBarrasProjecao(data) {
   if(cBarrasProjecao) cBarrasProjecao.destroy();
   if(!data || !data.ssp126) return;
 
-  const anos = data.ssp126.anos;
+  const rawAnos = data.ssp126.anos;
+  const filterIdx = [];
+  rawAnos.forEach((a, idx) => { if(a >= 2026) filterIdx.push(idx); });
+  
+  const anos = filterIdx.map(i => rawAnos[i]);
   const datasets = [
-    { label: "Referência (SSP126)", data: data.ssp126.casos, backgroundColor: "#27ae60" }
+    { label: "ReferÃªncia (SSP126)", data: filterIdx.map(i => data.ssp126.casos[i]), backgroundColor: "#27ae60" }
   ];
-  if(data.ssp245) datasets.push({ label: "Intermediário (SSP245)", data: data.ssp245.casos, backgroundColor: "#e67e22" });
-  if(data.ssp585) datasets.push({ label: "Intensificado (SSP585)", data: data.ssp585.casos, backgroundColor: "#c0392b" });
+  if(data.ssp245) datasets.push({ label: "IntermediÃ¡rio (SSP245)", data: filterIdx.map(i => data.ssp245.casos[i]), backgroundColor: "#e67e22" });
+  if(data.ssp585) datasets.push({ label: "Intensificado (SSP585)", data: filterIdx.map(i => data.ssp585.casos[i]), backgroundColor: "#c0392b" });
 
   cBarrasProjecao = new Chart(ctx, {
     type: "bar",
