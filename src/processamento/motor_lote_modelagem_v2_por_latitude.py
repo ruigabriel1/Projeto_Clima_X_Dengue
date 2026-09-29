@@ -877,9 +877,8 @@ def _build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
     d["month_sin"] = np.sin(2.0 * np.pi * d["month"] / 12.0)
     d["month_cos"] = np.cos(2.0 * np.pi * d["month"] / 12.0)
 
+    # Apenas o primeiro lag, os demais (lag2, lag3) introduzem overfitting
     d["dengue_lag1"] = d.groupby("code")["dengue_cases"].shift(1)
-    d["dengue_lag2"] = d.groupby("code")["dengue_cases"].shift(2)
-    d["dengue_lag3"] = d.groupby("code")["dengue_cases"].shift(3)
 
     d["temp_lag1"] = d.groupby("code")["temp_media"].shift(1)
     d["prec_lag1"] = d.groupby("code")["precipitacao"].shift(1)
@@ -890,8 +889,11 @@ def _build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
         lambda x: x.rolling(12, min_periods=3).mean()
     )
     d["dengue_rolling_12"] = d["dengue_rolling_12"].fillna(0.0)
+    
+    # Feature eng: Sazonalidade de Surto
+    d["is_outbreak_season"] = d["month"].isin([1, 2, 3, 4, 5]).astype(float)
 
-    d = d.dropna(subset=["dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1"]).copy()
+    d = d.dropna(subset=["dengue_lag1", "temp_lag1", "prec_lag1", "enso_lag1"]).copy()
     return d
 
 
@@ -932,8 +934,8 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
 
     feature_cols = [
         "temp_media", "precipitacao", "enso", "latitude", "month_sin", "month_cos",
-        "dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1",
-        "dengue_rolling_12",
+        "dengue_lag1", "temp_lag1", "prec_lag1", "enso_lag1",
+        "dengue_rolling_12", "is_outbreak_season"
     ]
 
     if feat.empty:
@@ -955,11 +957,12 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
         y_tr, y_te = y_all[train_idx], y_all[test_idx]
         year_te = int(groups[test_idx[0]])
 
-        fold_model = RandomForestRegressor(
-            n_estimators=50,
-            max_depth=5,
-            min_samples_leaf=2,
-            max_features="sqrt",
+        import xgboost as xgb
+        fold_model = xgb.XGBRegressor(
+            objective="count:poisson",
+            n_estimators=100,
+            max_depth=3,
+            learning_rate=0.1,
             random_state=42,
             n_jobs=-1,
         )
@@ -1004,11 +1007,12 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
     # ETAPA 2: Treinar modelo FINAL com TODOS os dados (2015-2025)
     # ═══════════════════════════════════════════════════════════
     logger.info("Treinando modelo final com TODOS os %d registros...", len(feat))
-    full_model = RandomForestRegressor(
-        n_estimators=50,
-        max_depth=5,
-        min_samples_leaf=2,
-        max_features="sqrt",
+    import xgboost as xgb
+    full_model = xgb.XGBRegressor(
+        objective="count:poisson",
+        n_estimators=100,
+        max_depth=3,
+        learning_rate=0.1,
         random_state=42,
         n_jobs=-1,
     )
@@ -1090,8 +1094,8 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
 
                     x = np.array([
                         temp, prec, enso, lat, month_sin, month_cos,
-                        lag1, lag2, lag3, t_lag1, p_lag1, e_lag1,
-                        rolling_12_val,
+                        lag1, t_lag1, p_lag1, e_lag1,
+                        rolling_12_val, float(month in [1, 2, 3, 4, 5])
                     ], dtype=float).reshape(1, -1)
 
                     pred_cases = float(full_model.predict(x)[0])

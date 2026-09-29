@@ -312,7 +312,7 @@ def treinar(
 
         # Predições mensais do backtest (se disponíveis)
         try:
-            bt = pd.read_csv(ML_OUTPUT / "projecoes_regionais" / "ml_completo" / "backtest_ml_completo.csv")
+            bt = pd.read_csv(ML_OUTPUT / "backtest_ml_completo.csv")
             bt["label"] = bt["year"].astype(str) + "-" + bt["month"].astype(str).str.zfill(2)
             bt_map = dict(zip(bt["label"], bt["pred_cases_ml"]))
             serie_previsto = []
@@ -448,14 +448,18 @@ def treinar(
         from plotly.subplots import make_subplots
 
         def export_fig(fig, filename):
-            fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(15, 23, 42, 1)', plot_bgcolor='rgba(15, 23, 42, 1)', font=dict(family="Inter, sans-serif"))
+            fig.update_layout(template="plotly_white", paper_bgcolor='white', plot_bgcolor='white', font=dict(family="Inter, sans-serif"))
             fig.write_image(export_dir / filename, scale=2)
 
         # 1. Gráfico de Barras Anuais
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=merged["year"], y=merged["real"], name="Casos Reais", marker_color="#10b981"))
-        fig.add_trace(go.Bar(x=merged["year"], y=merged["pred"], name="Previsão XGBoost", marker_color="#3b82f6"))
-        fig.update_layout(title="Casos Reais vs Previsão XGBoost (Anual)", barmode="group")
+        
+        # Filtrar o df merged para mostrar apenas a janela de interesse (ex: 2020 a 2030)
+        merged_filtered = merged[(merged["year"] >= 2020) & (merged["year"] <= 2030)]
+        
+        fig.add_trace(go.Bar(x=merged_filtered["year"], y=merged_filtered["real"], name="Casos Reais", marker_color="#10b981"))
+        fig.add_trace(go.Bar(x=merged_filtered["year"], y=merged_filtered["pred"], name="Previsão do Modelo", marker_color="#3b82f6"))
+        fig.update_layout(title="Casos Reais vs Previsão do Modelo (Anual) — São Carlos, SC", barmode="group")
         export_fig(fig, "grafico_barras_anuais.png")
 
         # 2. Gráfico de Série Temporal Mensal
@@ -494,8 +498,23 @@ def treinar(
 
         # 5. Feature Importance
         if fi:
+            LABEL_MAP = {
+                "dengue_lag1": "Dengue mês anterior",
+                "dengue_rolling_12": "Média móvel 12 meses",
+                "precipitacao": "Precipitação (mm)",
+                "temp_media": "Temperatura média (°C)",
+                "enso": "Índice ENSO",
+                "is_outbreak_season": "Estação de Surto",
+                "temp_lag1": "Temp. mês anterior",
+                "prec_lag1": "Precip. mês anterior",
+                "enso_lag1": "ENSO mês anterior",
+                "month_sin": "Sazonalidade (Seno)",
+                "month_cos": "Sazonalidade (Cosseno)",
+                "latitude": "Latitude"
+            }
+            
             fi_sorted = sorted(fi, key=lambda x: x[1], reverse=False)
-            labels = [x[0] for x in fi_sorted]
+            labels = [LABEL_MAP.get(x[0], x[0]) for x in fi_sorted]
             vals = [x[1] for x in fi_sorted]
             fig = go.Figure(go.Bar(x=vals, y=labels, orientation='h', marker_color="#3b82f6"))
             fig.update_layout(title="Importância das Variáveis")
