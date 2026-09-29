@@ -32,8 +32,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from matplotlib.backends.backend_pdf import PdfPages
-from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import LeaveOneGroupOut
 
 # ========================= LOGGING =========================
 logging.basicConfig(
@@ -884,6 +885,12 @@ def _build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
     d["prec_lag1"] = d.groupby("code")["precipitacao"].shift(1)
     d["enso_lag1"] = d.groupby("code")["enso"].shift(1)
 
+    # Memória epidêmica: média móvel de 12 meses (captura ciclos multi-anuais)
+    d["dengue_rolling_12"] = d.groupby("code")["dengue_cases"].transform(
+        lambda x: x.rolling(12, min_periods=3).mean()
+    )
+    d["dengue_rolling_12"] = d["dengue_rolling_12"].fillna(0.0)
+
     d = d.dropna(subset=["dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1"]).copy()
     return d
 
@@ -899,7 +906,10 @@ def _evaluate_split(y_true: np.ndarray, y_pred: np.ndarray, split_name: str) -> 
 
 
 def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
-    """Treina ML completo com split temporal e projeta 2025-2040.
+    """Treina ML completo com Leave-One-Year-Out e projeta 2026-2030.
+
+    Usa RandomForest (robusto com poucas amostras) e projeção baseada
+    em climatologia mensal observada (evita colapso recursivo para zero).
 
     Parameters
     ----------
@@ -913,130 +923,150 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
 
     if panel is None or panel.empty:
         raise ValueError("Painel de dados não pode ser vazio para executar ML completo.")
-        
+
     logger.info("run_full_ml: inicializando com painel fornecido (%d registros)", len(panel))
     panel_ml = panel.copy()
 
     feat = _build_ml_features(panel_ml)
+    logger.info("Features construídas: %d amostras (após lags)", len(feat))
 
     feature_cols = [
         "temp_media", "precipitacao", "enso", "latitude", "month_sin", "month_cos",
         "dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1",
+        "dengue_rolling_12",
     ]
 
-    train_df = feat[feat["year"] <= 2021].copy()
-    val_df = feat[feat["year"] == 2022].copy()
-    test_df = feat[(feat["year"] >= 2023) & (feat["year"] <= 2024)].copy()
+    if feat.empty:
+        raise RuntimeError("Nenhuma amostra disponível após construção de features")
 
-    if train_df.empty or val_df.empty or test_df.empty:
-        raise RuntimeError("Split temporal insuficiente para treino/validação/teste do ML completo")
+    X_all = feat[feature_cols].to_numpy(dtype=float)
+    y_all = feat["dengue_cases"].to_numpy(dtype=float)
+    groups = feat["year"].to_numpy()
 
-    min_samples = max(5, len(train_df) // 20)
-    model = HistGradientBoostingRegressor(
-        loss="squared_error",
-        learning_rate=0.05,
-        max_depth=6,
-        max_iter=500,
-        min_samples_leaf=min_samples,
-        l2_regularization=0.1,
-        random_state=42,
-    )
+    # ═══════════════════════════════════════════════════════════
+    # ETAPA 1: Validação Leave-One-Year-Out (LOYO)
+    # ═══════════════════════════════════════════════════════════
+    logo = LeaveOneGroupOut()
+    loyo_metrics = []
+    all_backtest_rows = []
 
-    y_train_log = np.log1p(train_df["dengue_cases"].to_numpy(dtype=float))
-    model.fit(train_df[feature_cols].to_numpy(dtype=float), y_train_log)
+    for train_idx, test_idx in logo.split(X_all, y_all, groups):
+        X_tr, X_te = X_all[train_idx], X_all[test_idx]
+        y_tr, y_te = y_all[train_idx], y_all[test_idx]
+        year_te = int(groups[test_idx[0]])
 
-    val_pred = np.expm1(model.predict(val_df[feature_cols].to_numpy(dtype=float))).clip(min=0.0)
-    test_pred = np.expm1(model.predict(test_df[feature_cols].to_numpy(dtype=float))).clip(min=0.0)
+        fold_model = RandomForestRegressor(
+            n_estimators=500,
+            max_depth=8,
+            min_samples_leaf=3,
+            max_features="sqrt",
+            random_state=42,
+            n_jobs=-1,
+        )
+        fold_model.fit(X_tr, y_tr)
+        y_pred = fold_model.predict(X_te).clip(min=0.0)
 
-    metrics_rows = [
-        _evaluate_split(val_df["dengue_cases"].to_numpy(dtype=float), val_pred, "valid_2022"),
-        _evaluate_split(test_df["dengue_cases"].to_numpy(dtype=float), test_pred, "test_2023_2024"),
-    ]
-    metrics_df = pd.DataFrame(metrics_rows)
-    metrics_df.to_csv(out_dir / "metricas_ml_completo.csv", index=False, encoding="utf-8")
+        fold_metric = _evaluate_split(y_te, y_pred, f"loyo_{year_te}")
+        loyo_metrics.append(fold_metric)
+
+        # Salvar backtest detalhado
+        bt_df = feat.iloc[test_idx][["code", "year", "month", "dengue_cases"]].copy()
+        bt_df["pred_cases_ml"] = y_pred
+        bt_df["split"] = f"loyo_{year_te}"
+        all_backtest_rows.append(bt_df)
+
+        logger.info("  LOYO %d: R²=%.3f  MAE=%.1f  (n=%d)", year_te, fold_metric["r2"], fold_metric["mae"], len(y_te))
+
+    # Métricas agregadas LOYO
+    r2_values = [m["r2"] for m in loyo_metrics]
+    mae_values = [m["mae"] for m in loyo_metrics]
+    summary_metric = {
+        "split": "loyo_mean",
+        "mae": float(np.mean(mae_values)),
+        "rmse": float(np.mean([m["rmse"] for m in loyo_metrics])),
+        "mape_pct": float(np.mean([m["mape_pct"] for m in loyo_metrics if not np.isnan(m["mape_pct"])])) if any(not np.isnan(m["mape_pct"]) for m in loyo_metrics) else float("nan"),
+        "r2": float(np.mean(r2_values)),
+    }
+    metrics_rows = loyo_metrics + [summary_metric]
+
+    logger.info("LOYO Cross-Validation concluída: R² médio=%.3f, MAE médio=%.1f", summary_metric["r2"], summary_metric["mae"])
+
+    # Salvar métricas
+    pd.DataFrame(metrics_rows).to_csv(out_dir / "metricas_ml_completo.csv", index=False, encoding="utf-8")
     with open(out_dir / "metricas_ml_completo.json", "w", encoding="utf-8") as f:
         json.dump(metrics_rows, f, ensure_ascii=False, indent=2)
 
-    # Re-treino com todo histórico 2015-2024.
-    min_samples_full = max(5, len(feat) // 20)
-    full_model = HistGradientBoostingRegressor(
-        loss="squared_error",
-        learning_rate=0.05,
-        max_depth=6,
-        max_iter=600,
-        min_samples_leaf=min_samples_full,
-        l2_regularization=0.1,
+    # Salvar backtest completo
+    bt_full = pd.concat(all_backtest_rows, ignore_index=True)
+    bt_full.to_csv(out_dir / "backtest_ml_completo.csv", index=False, encoding="utf-8")
+
+    # ═══════════════════════════════════════════════════════════
+    # ETAPA 2: Treinar modelo FINAL com TODOS os dados (2015-2025)
+    # ═══════════════════════════════════════════════════════════
+    logger.info("Treinando modelo final com TODOS os %d registros...", len(feat))
+    full_model = RandomForestRegressor(
+        n_estimators=500,
+        max_depth=8,
+        min_samples_leaf=3,
+        max_features="sqrt",
         random_state=42,
+        n_jobs=-1,
     )
-    full_model.fit(feat[feature_cols].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)))
+    full_model.fit(X_all, y_all)
 
-    # Feature Importance
-    try:
-        from sklearn.inspection import permutation_importance
-        result = permutation_importance(
-            full_model, feat[feature_cols].to_numpy(dtype=float), np.log1p(feat["dengue_cases"].to_numpy(dtype=float)),
-            n_repeats=3, random_state=42, n_jobs=-1
-        )
-        importances = result.importances_mean
-        fi = sorted(zip(feature_cols, importances.tolist()), key=lambda x: x[1], reverse=True)
-    except Exception as e:
-        logger.error(f"Erro no permutation_importance: {e}")
-        fi = [(f, 0.0) for f in feature_cols]
+    # Feature Importance (direto do RandomForest, mais rápido que permutation)
+    importances = full_model.feature_importances_
+    fi = sorted(zip(feature_cols, importances.tolist()), key=lambda x: x[1], reverse=True)
+    logger.info("Top-3 features: %s", ", ".join([f"{n}={v:.3f}" for n, v in fi[:3]]))
 
-    # Projeção recursiva mensal 2025-2040 por município e cenário.
-    clim = panel_ml.groupby(["code", "month"], as_index=False).agg(
+    # ═══════════════════════════════════════════════════════════
+    # ETAPA 3: Projeção 2026-2030 com Climatologia Mensal
+    # ═══════════════════════════════════════════════════════════
+    # Em vez de projeção recursiva (que trava no zero), usamos a
+    # MEDIANA HISTÓRICA observada de cada mês como base para os lags.
+    # O modelo então ajusta com base nas variáveis climáticas futuras.
+    logger.info("Gerando projeções 2026-2030 por cenário SSP (climatologia mensal)...")
+
+    # Climatologia mensal por cidade: mediana dos casos por mês
+    climatology = panel_ml.groupby(["code", "month"], as_index=False).agg(
         base_temp=("temp_media", "mean"),
         base_prec=("precipitacao", "mean"),
         base_enso=("enso", "mean"),
+        dengue_median=("dengue_cases", "median"),
+        dengue_mean=("dengue_cases", "mean"),
         latitude=("latitude", "median"),
         city_name=("city_name", "last"),
         lat_faixa_id=("lat_faixa_id", "last"),
     )
 
-    hist_tail = panel_ml.sort_values(["code", "year", "month"]).groupby("code").tail(3)
-    tail_map: Dict[str, List[float]] = {}
-    for code, g in hist_tail.groupby("code"):
-        vals = g.sort_values(["year", "month"])["dengue_cases"].astype(float).tolist()
-        if len(vals) < 3:
-            vals = ([0.0] * (3 - len(vals))) + vals
-        tail_map[code] = vals[-3:]
-
-    climate_tail = panel_ml.sort_values(["code", "year", "month"]).groupby("code").tail(1)
-    ctail_map = {
-        str(r["code"]): (float(r["temp_media"]), float(r["precipitacao"]), float(r["enso"]))
-        for _, r in climate_tail.iterrows()
-    }
+    # Média móvel 12 meses mais recente por cidade
+    recent_rolling = panel_ml.sort_values(["code", "year", "month"]).groupby("code").tail(12)
+    rolling_map = recent_rolling.groupby("code")["dengue_cases"].mean().to_dict()
 
     future_rows = []
-    for code, g_code in clim.groupby("code"):
+    for code, g_code in climatology.groupby("code"):
         code = str(code)
         lat = float(g_code["latitude"].iloc[0])
         city_name = str(g_code["city_name"].iloc[0])
         faixa = g_code["lat_faixa_id"].iloc[0]
 
-        if code not in tail_map:
-            continue
-        dengue_lags = tail_map[code].copy()
-        temp_last, prec_last, enso_last = ctail_map.get(code, (float(g_code["base_temp"].mean()), float(g_code["base_prec"].mean()), float(g_code["base_enso"].mean())))
+        # Climatologia mensal como dicionário {month: (temp, prec, enso, dengue_median)}
+        month_clim = {}
+        for _, r in g_code.iterrows():
+            month_clim[int(r["month"])] = (
+                float(r["base_temp"]), float(r["base_prec"]),
+                float(r["base_enso"]), float(r["dengue_median"]), float(r["dengue_mean"])
+            )
 
-        month_base = {int(r["month"]): (float(r["base_temp"]), float(r["base_prec"]), float(r["base_enso"])) for _, r in g_code.iterrows()}
+        rolling_12_val = rolling_map.get(int(code) if code.isdigit() else code, 0.0)
 
         for sc, cfg in SCENARIOS.items():
-            # Reinicia lags por cenário para manter independência das trajetórias.
-            d_lags = dengue_lags.copy()
-            t_lag1, p_lag1, e_lag1 = temp_last, prec_last, enso_last
-
             for year in range(PROJECTION_START, PROJECTION_END + 1):
                 years_from_2024 = year - (CALIBRATION_YEAR - 1)
                 for month in range(1, 13):
-                    bt, bp, be = month_base.get(month, (np.nan, np.nan, np.nan))
-                    if pd.isna(bt):
-                        bt = float(g_code["base_temp"].mean())
-                    if pd.isna(bp):
-                        bp = float(g_code["base_prec"].mean())
-                    if pd.isna(be):
-                        be = float(g_code["base_enso"].mean())
+                    bt, bp, be, d_median, d_mean = month_clim.get(month, (20.0, 100.0, 0.0, 0.0, 0.0))
 
+                    # Aplicar deltas climáticos do cenário
                     temp = bt + float(cfg["temp_delta_per_year"]) * years_from_2024
                     prec = bp * (1.0 + float(cfg["precip_delta_pct_per_year"]) * years_from_2024)
                     enso = be + float(cfg["enso_delta_per_year"]) * years_from_2024
@@ -1044,30 +1074,39 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
                     month_sin = float(np.sin(2.0 * np.pi * month / 12.0))
                     month_cos = float(np.cos(2.0 * np.pi * month / 12.0))
 
+                    # Lags baseados na climatologia (não na previsão anterior)
+                    lag1_month = ((month - 2) % 12) + 1
+                    lag2_month = ((month - 3) % 12) + 1
+                    lag3_month = ((month - 4) % 12) + 1
+                    lag1 = month_clim.get(lag1_month, (0, 0, 0, 0, 0))[4]  # usa mean
+                    lag2 = month_clim.get(lag2_month, (0, 0, 0, 0, 0))[4]
+                    lag3 = month_clim.get(lag3_month, (0, 0, 0, 0, 0))[4]
+
+                    # temp/prec/enso lags do mês anterior (climatologia + delta)
+                    bt_prev = month_clim.get(lag1_month, (bt, bp, be, 0, 0))
+                    t_lag1 = bt_prev[0] + float(cfg["temp_delta_per_year"]) * years_from_2024
+                    p_lag1 = bt_prev[1] * (1.0 + float(cfg["precip_delta_pct_per_year"]) * years_from_2024)
+                    e_lag1 = bt_prev[2] + float(cfg["enso_delta_per_year"]) * years_from_2024
+
                     x = np.array([
                         temp, prec, enso, lat, month_sin, month_cos,
-                        d_lags[-1], d_lags[-2], d_lags[-3], t_lag1, p_lag1, e_lag1,
+                        lag1, lag2, lag3, t_lag1, p_lag1, e_lag1,
+                        rolling_12_val,
                     ], dtype=float).reshape(1, -1)
 
-                    pred_cases = float(np.expm1(full_model.predict(x)[0]))
+                    pred_cases = float(full_model.predict(x)[0])
                     pred_cases = max(pred_cases, 0.0)
 
-                    future_rows.append(
-                        {
-                            "code": code,
-                            "city_name": city_name,
-                            "latitude": lat,
-                            "lat_faixa_id": faixa,
-                            "scenario": sc,
-                            "year": year,
-                            "month": month,
-                            "pred_cases_ml": pred_cases,
-                        }
-                    )
-
-                    d_lags.append(pred_cases)
-                    d_lags = d_lags[-3:]
-                    t_lag1, p_lag1, e_lag1 = temp, prec, enso
+                    future_rows.append({
+                        "code": code,
+                        "city_name": city_name,
+                        "latitude": lat,
+                        "lat_faixa_id": faixa,
+                        "scenario": sc,
+                        "year": year,
+                        "month": month,
+                        "pred_cases_ml": pred_cases,
+                    })
 
     fut = pd.DataFrame(future_rows)
     if fut.empty:
@@ -1082,20 +1121,9 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
     fut_reg["regiao"] = "SUL"
     fut_reg.to_csv(out_dir / "projecao_ml_completa_regional_anual.csv", index=False, encoding="utf-8")
 
-    # Exporta previsões e observados para inspeção rápida.
-    val_out = val_df[["code", "year", "month", "dengue_cases"]].copy()
-    val_out["pred_cases_ml"] = val_pred
-    val_out["split"] = "valid_2022"
-
-    test_out = test_df[["code", "year", "month", "dengue_cases"]].copy()
-    test_out["pred_cases_ml"] = test_pred
-    test_out["split"] = "test_2023_2024"
-
-    pd.concat([val_out, test_out], ignore_index=True).to_csv(out_dir / "backtest_ml_completo.csv", index=False, encoding="utf-8")
-
-    logger.info("ML completo treinado com csvs_latitude (train/val/test temporal)")
+    logger.info("ML completo treinado com RandomForest + LOYO (todos os dados 2015-2025)")
     logger.info("Saídas ML: output/projecoes_regionais/ml_completo/")
-    
+
     return {
         "metricas": metrics_rows,
         "feature_importance": fi
