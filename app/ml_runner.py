@@ -417,7 +417,7 @@ def treinar(
     if dist_sazonal_dict and dist_sazonal_dict["meses"]:
         pd.DataFrame({"mes": dist_sazonal_dict["meses"], "casos": dist_sazonal_dict["casos_mean"], "temp": dist_sazonal_dict["temp_mean"]}).to_csv(export_dir / "distribuicao_sazonal.csv", index=False)
 
-    # Lê projeções climáticas futuras se existirem para usar no matplotlib
+    # Lê projeções climáticas futuras se existirem
     projecao_cenarios = {}
     try:
         fut_file = ML_OUTPUT / "projecao_ml_completa_regional_anual.csv"
@@ -433,191 +433,103 @@ def treinar(
                     "anos": sc_df["year"].tolist(),
                     "casos": sc_df["pred_cases_ml"].round().tolist()
                 }
-            
-            # Export CSV for the frontend
-            export_cenarios = []
-            if "ssp126" in projecao_cenarios:
-                for idx, ano in enumerate(projecao_cenarios["ssp126"]["anos"]):
-                    export_cenarios.append({
-                        "ano": ano,
-                        "ssp126": projecao_cenarios.get("ssp126", {}).get("casos", [])[idx] if "ssp126" in projecao_cenarios else None,
-                        "ssp245": projecao_cenarios.get("ssp245", {}).get("casos", [])[idx] if "ssp245" in projecao_cenarios else None,
-                        "ssp585": projecao_cenarios.get("ssp585", {}).get("casos", [])[idx] if "ssp585" in projecao_cenarios else None,
-                    })
-                pd.DataFrame(export_cenarios).to_csv(export_dir / "grafico_cenarios.csv", index=False)
                 
     except Exception as e:
         print(f"Erro ao carregar projeções futuras: {e}")
 
     # ═══════════════════════════════════════════════════════════
-    # Exportação PNG (Matplotlib) para relatórios acadêmicos
+    # Exportação estática (Plotly + Kaleido) para relatórios acadêmicos
     # ═══════════════════════════════════════════════════════════
+    export_dir = ROOT_DIR / "graficos_artigo"
+    export_dir.mkdir(parents=True, exist_ok=True)
+
     try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        
-        sns.set_theme(style="whitegrid")
+        import plotly.graph_objects as go
+        from plotly.subplots import make_subplots
+
+        def export_fig(fig, filename):
+            fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(15, 23, 42, 1)', plot_bgcolor='rgba(15, 23, 42, 1)', font=dict(family="Inter, sans-serif"))
+            fig.write_image(export_dir / filename, scale=2)
 
         # 1. Gráfico de Barras Anuais
-        plt.figure(figsize=(10, 5))
-        plt.bar(merged["year"], merged["real"], label="Casos Reais", color="mediumseagreen", alpha=0.7)
-        plt.bar(merged["year"], merged["pred"], label="Previsão XGBoost", color="dodgerblue", alpha=0.7)
-        plt.title("Casos Reais vs Previsão XGBoost (Anual)")
-        plt.xlabel("Ano")
-        plt.ylabel("Casos")
-        plt.legend()
-        plt.savefig(export_dir / "grafico_barras_anuais.png", dpi=150, bbox_inches="tight")
-        plt.close()
+        fig = go.Figure()
+        fig.add_trace(go.Bar(x=merged["year"], y=merged["real"], name="Casos Reais", marker_color="#10b981"))
+        fig.add_trace(go.Bar(x=merged["year"], y=merged["pred"], name="Previsão XGBoost", marker_color="#3b82f6"))
+        fig.update_layout(title="Casos Reais vs Previsão XGBoost (Anual)", barmode="group")
+        export_fig(fig, "grafico_barras_anuais.png")
 
         # 2. Gráfico de Série Temporal Mensal
         if serie_labels:
-            plt.figure(figsize=(12, 5))
-            x_labels = range(len(serie_labels))
-            plt.plot(x_labels, serie_real, label="Real (Mensal)", color="mediumseagreen", linewidth=2)
-            plt.plot(x_labels, serie_previsto, label="Previsto (XGBoost)", color="dodgerblue", linestyle="--", linewidth=2)
-            plt.axhline(y=q95_threshold, color="crimson", linestyle=":", label="Teto Epidêmico (P95)")
-            plt.title("Série Temporal Mensal — Real vs Previsto")
-            plt.xticks(x_labels[::3], [serie_labels[i] for i in range(0, len(serie_labels), 3)], rotation=45)
-            plt.legend()
-            plt.tight_layout()
-            plt.savefig(export_dir / "grafico_serie_temporal.png", dpi=150)
-            plt.close()
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=serie_labels, y=serie_real, name="Real (Mensal)", line=dict(color="#10b981", width=2)))
+            fig.add_trace(go.Scatter(x=serie_labels, y=serie_previsto, name="Previsto", line=dict(color="#3b82f6", width=2, dash="dash")))
+            fig.add_trace(go.Scatter(x=[serie_labels[0], serie_labels[-1]], y=[q95_threshold, q95_threshold], mode="lines", name="Teto Epidêmico", line=dict(color="#ef4444", width=2, dash="dot")))
+            fig.update_layout(title="Série Temporal Mensal — Real vs Previsto")
+            export_fig(fig, "grafico_serie_temporal.png")
             
         # 3. Gráfico Clima vs Dengue
         if dados_clima["labels"]:
-            fig, ax1 = plt.subplots(figsize=(12, 5))
-            ax2 = ax1.twinx()
-            ax3 = ax1.twinx()
-            ax3.spines['right'].set_position(('outward', 60))
-
-            x_labels = range(len(dados_clima["labels"]))
-            p1 = ax1.plot(x_labels, dados_clima["temp_media"], color="darkorange", label="Temperatura (°C)")
-            p2 = ax2.fill_between(x_labels, dados_clima["precipitacao"], color="skyblue", alpha=0.3, label="Precipitação (mm)")
-            p3 = ax3.plot(x_labels, dados_clima["dengue"], color="mediumseagreen", linestyle="--", label="Dengue")
-            
-            ax1.set_xlabel("Mês")
-            ax1.set_ylabel("Temp (°C)", color="darkorange")
-            ax2.set_ylabel("Precipitação (mm)", color="skyblue")
-            ax3.set_ylabel("Dengue (casos)", color="mediumseagreen")
-            plt.title("Anomalias Climáticas vs Incidência de Dengue")
-            ax1.set_xticks(x_labels[::3])
-            ax1.set_xticklabels([dados_clima["labels"][i] for i in range(0, len(dados_clima["labels"]), 3)], rotation=45)
-            plt.tight_layout()
-            plt.savefig(export_dir / "grafico_clima_vs_dengue.png", dpi=150)
-            plt.close()
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            fig.add_trace(go.Scatter(x=dados_clima["labels"], y=dados_clima["temp_media"], name="Temp (°C)", line=dict(color="#f59e0b")), secondary_y=False)
+            fig.add_trace(go.Bar(x=dados_clima["labels"], y=dados_clima["precipitacao"], name="Precip (mm)", marker_color="rgba(59, 130, 246, 0.3)"), secondary_y=False)
+            fig.add_trace(go.Scatter(x=dados_clima["labels"], y=dados_clima["dengue"], name="Dengue", line=dict(color="#10b981", dash="dash")), secondary_y=True)
+            fig.update_layout(title="Anomalias Climáticas vs Incidência de Dengue")
+            export_fig(fig, "grafico_clima_vs_dengue.png")
 
         # 4. Distribuição Sazonal (Casos e Temp Média)
         if dist_sazonal_dict and dist_sazonal_dict["meses"]:
-            df_saz = pd.DataFrame({"mes": dist_sazonal_dict["meses"], "casos": dist_sazonal_dict["casos_mean"], "temp": dist_sazonal_dict["temp_mean"]})
-            fig, ax1 = plt.subplots(figsize=(10, 5))
-            
-            x_labels = [MESES_PT.get(m, m) for m in df_saz["mes"]]
-            
-            color_bar = "#5fa8d3"
-            color_peak = "#c0392b"
-            color_line = "#e74c3c"
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            x_labels = [MESES_PT.get(m, m) for m in dist_sazonal_dict["meses"]]
+            colors = ["#1e293b" for _ in x_labels]
             
             # Find peak
-            peak_idx = df_saz["casos"].idxmax()
-            
-            colors = [color_peak if i == peak_idx else color_bar for i in range(len(df_saz))]
-            
-            ax1.bar(x_labels, df_saz["casos"], color=colors, alpha=0.9, label="Casos (média 2015-2025)")
-            ax1.set_ylabel("Casos médios mensais", color="#1f4e79", fontweight='bold')
-            ax1.tick_params(axis='y', labelcolor="#1f4e79")
-            
-            # Add callout to peak
-            peak_val = df_saz.loc[peak_idx, "casos"]
-            ax1.annotate(f"Pico: {int(peak_val)} casos", 
-                        xy=(peak_idx, peak_val), 
-                        xytext=(peak_idx+0.5, peak_val + max(df_saz["casos"])*0.1),
-                        arrowprops=dict(facecolor='#2c3e50', shrink=0.05, width=1.5, headwidth=6),
-                        fontsize=10, fontweight='bold', color="#2c3e50")
-            
-            ax2 = ax1.twinx()
-            ax2.plot(x_labels, df_saz["temp"], color=color_line, marker="o", linewidth=2.5, label="Temperatura média (°C)")
-            ax2.set_ylabel("Temperatura média (°C)", color=color_line, fontweight='bold')
-            ax2.tick_params(axis='y', labelcolor=color_line)
-            
-            plt.title("Distribuição Sazonal de Casos de Dengue e Temperatura Média\nSão Carlos (SC), 2015–2025", fontweight='bold')
-            ax1.set_xlabel("Mês", fontweight='bold')
-            
-            # Custom legend
-            lines1, labels1 = ax1.get_legend_handles_labels()
-            lines2, labels2 = ax2.get_legend_handles_labels()
-            ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
-            
-            plt.grid(True, linestyle="--", alpha=0.3)
-            plt.tight_layout()
-            plt.savefig(export_dir / "distribuicao_sazonal.png", dpi=150)
-            plt.close()
+            if dist_sazonal_dict["casos_mean"]:
+                peak_idx = dist_sazonal_dict["casos_mean"].index(max(dist_sazonal_dict["casos_mean"]))
+                colors[peak_idx] = "#ef4444"
+                
+            fig.add_trace(go.Bar(x=x_labels, y=dist_sazonal_dict["casos_mean"], name="Casos", marker_color=colors), secondary_y=False)
+            fig.add_trace(go.Scatter(x=x_labels, y=dist_sazonal_dict["temp_mean"], name="Temp", line=dict(color="#f59e0b", width=3)), secondary_y=True)
+            fig.update_layout(title="Distribuição Sazonal de Casos e Temperatura Média")
+            export_fig(fig, "distribuicao_sazonal.png")
 
         # 5. Feature Importance
         if fi:
-            plt.figure(figsize=(8, 6))
             fi_sorted = sorted(fi, key=lambda x: x[1], reverse=False)
             labels = [x[0] for x in fi_sorted]
             vals = [x[1] for x in fi_sorted]
-            plt.barh(labels, vals, color="dodgerblue")
-            plt.title("Importância das Variáveis (Feature Importance)")
-            plt.tight_layout()
-            plt.savefig(export_dir / "grafico_feature_importance.png", dpi=150)
-            plt.close()
+            fig = go.Figure(go.Bar(x=vals, y=labels, orientation='h', marker_color="#3b82f6"))
+            fig.update_layout(title="Importância das Variáveis")
+            export_fig(fig, "grafico_feature_importance.png")
 
         # 6. Gráfico Projeção Cenários Climáticos (2026-2030)
         if projecao_cenarios and "ssp126" in projecao_cenarios:
             anos_cenario = projecao_cenarios["ssp126"]["anos"]
+            fig = go.Figure()
             
-            plt.figure(figsize=(10, 5))
-            
-            # Envelope de incerteza (ssp126 to ssp585 se existirem)
             if "ssp585" in projecao_cenarios:
-                plt.fill_between(
-                    anos_cenario, 
-                    projecao_cenarios["ssp126"]["casos"], 
-                    projecao_cenarios["ssp585"]["casos"], 
-                    color="#3498db", alpha=0.15, label="Envelope de incerteza"
-                )
+                # Envelope
+                fig.add_trace(go.Scatter(
+                    x=anos_cenario + anos_cenario[::-1],
+                    y=projecao_cenarios["ssp585"]["casos"] + projecao_cenarios["ssp126"]["casos"][::-1],
+                    fill='toself',
+                    fillcolor='rgba(59, 130, 246, 0.1)',
+                    line=dict(color='rgba(255,255,255,0)'),
+                    name="Incerteza"
+                ))
+
+            fig.add_trace(go.Scatter(x=anos_cenario, y=projecao_cenarios["ssp126"]["casos"], name="SSP1-2.6 (Otimista)", line=dict(color="#10b981", width=3)))
             
-            # ssp126
-            plt.plot(anos_cenario, projecao_cenarios["ssp126"]["casos"], 
-                     color="#27ae60", marker="o", linewidth=2.5, 
-                     label="Referência (linha de base)")
-                     
-            # ssp245
             if "ssp245" in projecao_cenarios:
-                plt.plot(anos_cenario, projecao_cenarios["ssp245"]["casos"], 
-                         color="#e67e22", marker="s", linestyle="--", linewidth=2.5, 
-                         label="Intermediário (+0,6 °C / +3% precip.)")
-                         
-            # ssp585
+                fig.add_trace(go.Scatter(x=anos_cenario, y=projecao_cenarios["ssp245"]["casos"], name="SSP2-4.5 (Moderado)", line=dict(color="#f59e0b", width=3, dash="dash")))
+                
             if "ssp585" in projecao_cenarios:
-                plt.plot(anos_cenario, projecao_cenarios["ssp585"]["casos"], 
-                         color="#c0392b", marker="D", linestyle="-.", linewidth=2.5, 
-                         label="Intensificado (+1,2 °C / +6% precip.)")
-            
-            plt.title("Projeção de Casos de Dengue por Cenário Climático\nSão Carlos (SC), 2026–2030", fontweight='bold')
-            plt.xlabel("Ano", fontweight='bold')
-            plt.ylabel("Casos anuais projetados", fontweight='bold')
-            plt.xticks(anos_cenario)
-            plt.ylim(1000, 2000)
-            
-            # Annotations values
-            for sc_key, color in [("ssp126", "#27ae60"), ("ssp245", "#e67e22"), ("ssp585", "#c0392b")]:
-                if sc_key in projecao_cenarios:
-                    for x, y in zip(anos_cenario, projecao_cenarios[sc_key]["casos"]):
-                        plt.annotate(f"{int(y)}", (x, y), textcoords="offset points", xytext=(0, 10), ha='center', color=color, fontsize=8, fontweight='bold')
-            
-            plt.legend(loc="upper left")
-            plt.grid(True, linestyle="--", alpha=0.3)
-            plt.tight_layout()
-            plt.savefig(export_dir / "grafico_cenarios.png", dpi=150)
-            plt.close()
+                fig.add_trace(go.Scatter(x=anos_cenario, y=projecao_cenarios["ssp585"]["casos"], name="SSP5-8.5 (Pessimista)", line=dict(color="#ef4444", width=3, dash="dot")))
+                
+            fig.update_layout(title="Projeção de Casos de Dengue (2026-2030)")
+            export_fig(fig, "grafico_cenarios.png")
 
     except Exception as e:
-        print(f"Erro ao exportar gráficos PNG: {e}")
+        print(f"Erro ao exportar gráficos Plotly estáticos: {e}")
 
     resultado_final = {
         "metricas": {
