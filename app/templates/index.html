@@ -3,173 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prodígia — Previsão Epidêmica Inteligente</title>
-  <meta name="description" content="Interface de treinamento e visualização do modelo preditivo de Dengue baseado em XGBoost.">
-  <link rel="stylesheet" href="/static/style.css">
+  <title>Prodígia | Dashboard Climático</title>
+  
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="/static/css/modern.css">
+  
+  <!-- Plotly (Apenas a biblioteca gráfica) -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
-<body>
-  <div class="container">
+<body class="dark-mode">
 
-    <!-- Header -->
-    <header class="header">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h1>Prodígia <span style="font-size: 1rem; color: #3498db;">v2.1</span></h1>
-          <p>Motor de Previsão Epidêmica · XGBoost · Clima × Dengue</p>
-        </div>
-        <button id="themeToggle" class="btn-theme">🌙 Tema Escuro</button>
-      </div>
-    </header>
-
-    <!-- Status do Banco -->
-    <div class="status-row" id="statusRow">
-      <div class="stat-card"><span class="value" id="stCidades">–</span><span class="label">Cidades</span></div>
-      <div class="stat-card"><span class="value" id="stRegistros">–</span><span class="label">Registros Saúde</span></div>
-      <div class="stat-card"><span class="value" id="stClima">–</span><span class="label">Registros Clima</span></div>
-      <div class="stat-card"><span class="value" id="stPeriodo">–</span><span class="label">Período</span></div>
-    </div>
-
-    <!-- Painel de Treinamento -->
-    <section class="panel">
-      <div class="panel-title">⚡ Painel de Treinamento</div>
-
-      <div class="scope-options">
-        <div class="scope-option">
-          <input type="radio" name="modo" id="mRapido" value="rapido" checked>
-          <label for="mRapido">🚀 Rápido<br><small>São Carlos</small></label>
-        </div>
-        <div class="scope-option">
-          <input type="radio" name="modo" id="mRegional" value="regional">
-          <label for="mRegional">⚙️ Regional<br><small>Faixa Latitude</small></label>
-        </div>
-        <div class="scope-option">
-          <input type="radio" name="modo" id="mCompleto" value="completo">
-          <label for="mCompleto">🌎 Completo<br><small>1.191 Cidades</small></label>
-        </div>
+  <div class="app-container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Prodígia</h1>
+        <p>Previsão Climática & Saúde</p>
       </div>
 
-      <span class="advanced-toggle" id="advToggle">▸ Filtro avançado (cidade específica)</span>
-      <div class="advanced-body" id="advBody">
-        <select id="cidadeSelect">
-          <option value="">— Selecionar cidade —</option>
-        </select>
-      </div>
-
-      <button class="btn-train" id="btnTreinar">Treinar Prodígia</button>
-
-      <div class="progress-wrap" id="progressWrap">
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-        <div class="progress-label" id="progressLabel">Aguardando...</div>
-      </div>
-    </section>
-
-    <!-- Dashboard de Resultados -->
-    <section id="results" class="results-section">
-      <div class="panel">
-        <div class="panel-title">📊 Resultados do Treinamento</div>
+      <div class="control-panel">
+        <h3>Painel de Controle</h3>
         
-        <!-- Métricas do Modelo -->
-        <div class="metrics-container" style="display:flex; justify-content:space-around; background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:20px;">
-          <div style="text-align:center;">
-            <div style="font-size:0.9rem; color:#7f8c8d;">R² (Treinamento)</div>
-            <div id="r2-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:0.9rem; color:#7f8c8d;">MAE (Erro Absoluto)</div>
-            <div id="mae-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:0.9rem; color:#7f8c8d;">RMSE (Raiz do Erro)</div>
-            <div id="rmse-val" style="font-size:1.5rem; font-weight:bold; color:#2c3e50;">-</div>
-          </div>
-        </div>
+        <button id="btnTreinar" class="btn-primary">
+          ▶ Reprocessar ML (Otimizado)
+        </button>
 
-        <!-- Tabela Epidemiológica Projetada (2026-2030) -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📊 Resumo Epidemiológico (2026-2030) - SSP245</h3>
-            <a href="/output/dashboard_exports/tabela_epidemiologica.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
+        <div id="progressContainer" class="progress-container">
+          <div class="progress-bar-bg">
+            <div id="progressFill" class="progress-bar-fill"></div>
           </div>
-          <div class="table-responsive">
-            <table class="data-table" id="tabelaHistorica">
-              <thead><tr><th>Ano</th><th>Casos totais</th><th>Incid./100 mil</th><th>Pico mensal (casos)</th><th>Mês do pico</th><th>Variação (%)</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Gráfico Sazonal Projetado (2026-2030) -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📈 Distribuição Sazonal de Casos de Dengue (2026-2030, SSP245) e Temperatura Média Histórica</h3>
-          </div>
-          <div id="chartSazonal" style="width: 100%; height: 400px;"></div>
-        </div>
-
-        <!-- Heatmap Projetado (2026-2030) -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📅 Sazonalidade Projetada — Heatmap de Casos (Meses × Anos) - SSP245</h3>
-          </div>
-          <div style="width:100%; overflow-x:auto;">
-            <div id="chartHeatmap" style="min-width:600px; height:350px;"></div>
-          </div>
-        </div>
-
-        <!-- Tabela Epidemiológica (PROJEÇÕES 2026-2030) -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📊 Resumo de Projeções Anuais (2026-2030)</h3>
-            <a href="/output/dashboard_exports/grafico_cenarios.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table" id="tabelaProjecao">
-              <thead><tr><th>Ano</th><th>Referência (SSP126)</th><th>Intermediário (SSP245)</th><th>Intensificado (SSP585)</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Gráfico de Barras (PROJEÇÕES 2026-2030) -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📊 Comparativo de Projeções por Cenário (Anual)</h3>
-          </div>
-          <div id="chartBarrasProjecao" style="width: 100%; height: 400px;"></div>
-        </div>
-
-        <!-- Projeções Futuras (Cenários Climáticos) - LINHA -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📈 Projeção de Casos de Dengue por Cenário Climático (2026-2030)</h3>
-            <div>
-              <a href="/output/dashboard_exports/grafico_cenarios.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem; margin-right:5px;">📥 Baixar CSV</a>
-              <a href="/output/dashboard_exports/grafico_cenarios.png" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar PNG (Oficial)</a>
-            </div>
-          </div>
-          <div id="chartCenarios" style="width: 100%; height: 500px;"></div>
-        </div>
-
-        <!-- Tabela Correlação Climática -->
-        <div class="chart-wrap">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>🔗 Correlação Climática (Pearson)</h3>
-            <a href="/output/dashboard_exports/tabela_correlacao.csv" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar CSV</a>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table" id="tabelaCorrelacao">
-              <thead><tr><th>Preditor Climático</th><th>Lag (meses)</th><th>r de Pearson</th><th>p-valor ajustado</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+          <span id="progressLabel" class="progress-label">0%</span>
         </div>
       </div>
-    </section>
 
-    <footer class="footer">Prodígia v2.1 | Projeto Clima × Dengue | SQLite Medallion Architecture</footer>
+      <div class="control-panel">
+        <h3>Aparência</h3>
+        <button id="themeToggle" class="btn-outline">☀️ Tema Claro</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- Loading Overlay -->
+      <div id="loader" class="loader-overlay active">
+        <div class="spinner"></div>
+      </div>
+
+      <div class="top-bar">
+        <h2>Dashboard Analítico - São Carlos (SC)</h2>
+      </div>
+
+      <!-- STATUS CARDS -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Municípios</span>
+          <span class="stat-value" id="totalMunicipios">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Período Histórico</span>
+          <span class="stat-value" id="periodoDados">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Projeção Até</span>
+          <span class="stat-value" id="projecaoAte">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Casos Totais Previstos (SSP2-4.5)</span>
+          <span class="stat-value text-ssp245" id="totalCasosProjetados">-</span>
+        </div>
+      </section>
+
+      <!-- CHARTS -->
+      <section id="chartsGrid" class="charts-grid">
+        <!-- Linha 1 -->
+        <div class="chart-card">
+          <div id="chartCenarios" style="width:100%; height:400px;"></div>
+        </div>
+        
+        <!-- Linha 2: Lado a Lado -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div class="chart-card">
+            <div id="chartSazonal" style="width:100%; height:350px;"></div>
+          </div>
+          <div class="chart-card">
+            <div id="chartHeatmap" style="width:100%; height:350px;"></div>
+          </div>
+        </div>
+
+        <!-- Linha 3 -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Tabela de Projeções Analíticas</h3>
+          </div>
+          <div class="table-responsive">
+            <table id="resumoTable" class="data-table">
+              <thead>
+                <tr>
+                  <th>Ano Base</th>
+                  <th>SSP1-2.6 (Otimista)</th>
+                  <th>SSP2-4.5 (Moderado)</th>
+                  <th>SSP5-8.5 (Pessimista)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-  <script src="/static/app_v2.js?v=10"></script>
+  <!-- App Modules -->
+  <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>

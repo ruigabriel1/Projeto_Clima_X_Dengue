@@ -956,9 +956,9 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
         year_te = int(groups[test_idx[0]])
 
         fold_model = RandomForestRegressor(
-            n_estimators=500,
-            max_depth=8,
-            min_samples_leaf=3,
+            n_estimators=50,
+            max_depth=5,
+            min_samples_leaf=2,
             max_features="sqrt",
             random_state=42,
             n_jobs=-1,
@@ -1005,9 +1005,9 @@ def run_full_ml(root_dir: Path, panel: pd.DataFrame) -> dict:
     # ═══════════════════════════════════════════════════════════
     logger.info("Treinando modelo final com TODOS os %d registros...", len(feat))
     full_model = RandomForestRegressor(
-        n_estimators=500,
-        max_depth=8,
-        min_samples_leaf=3,
+        n_estimators=50,
+        max_depth=5,
+        min_samples_leaf=2,
         max_features="sqrt",
         random_state=42,
         n_jobs=-1,
