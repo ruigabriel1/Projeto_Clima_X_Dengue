@@ -16,6 +16,7 @@ ML_OUTPUT = ROOT_DIR / "output" / "projecoes_regionais" / "ml_completo"
 FEATURE_COLS = [
     "temp_media", "precipitacao", "enso", "latitude", "month_sin", "month_cos",
     "dengue_lag1", "dengue_lag2", "dengue_lag3", "temp_lag1", "prec_lag1", "enso_lag1",
+    "dengue_rolling_12",
 ]
 
 
@@ -618,7 +619,7 @@ def treinar(
     except Exception as e:
         print(f"Erro ao exportar gráficos PNG: {e}")
 
-    return {
+    resultado_final = {
         "metricas": {
             "mae": round(real_metrics["mae"], 2),
             "rmse": round(real_metrics["rmse"], 2),
@@ -639,4 +640,12 @@ def treinar(
         "n_cidades": n_cidades,
         "n_registros": len(panel),
     }
+
+    try:
+        with open(ROOT_DIR / "output" / "prodigia_resultados_v2.json", "w", encoding="utf-8") as f:
+            json.dump(resultado_final, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erro ao salvar JSON de resultados finais: {e}")
+
+    return resultado_final
 

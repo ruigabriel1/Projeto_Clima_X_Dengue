@@ -40,6 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ? "▾ Filtro avançado (cidade específica)"
       : "▸ Filtro avançado (cidade específica)";
   });
+  
+  // Tenta carregar resultados pré-computados ao abrir a tela
+  carregarResultados(true);
 });
 
 // ── Status do Banco ──
@@ -134,11 +137,14 @@ async function iniciarTreino() {
 }
 
 // ── Resultados ──
-async function carregarResultados() {
+async function carregarResultados(silent = false) {
   try {
     const r = await fetch("/api/resultados");
     const d = await r.json();
-    if (d.error) return;
+    if (d.error) {
+      if (!silent) alert(d.error);
+      return;
+    }
 
     $("#results").style.display = "block";
     $("#results").classList.add("visible");
@@ -238,268 +244,153 @@ function renderTabelaProjecao(data) {
   }
 }
 
+function getPlotlyConfig() {
+  return { responsive: true, displayModeBar: false };
+}
+
+function getPlotlyLayout(title, yTitle, isDark) {
+  const fontColor = isDark ? "#e0e0e0" : "#2c3e50";
+  const paperBg = isDark ? "#1e293b" : "#ffffff";
+  const plotBg = isDark ? "#1e293b" : "#ffffff";
+  const gridColor = isDark ? "#334155" : "#e0e0e0";
+
+  return {
+    title: { text: title, font: { color: fontColor } },
+    paper_bgcolor: paperBg,
+    plot_bgcolor: plotBg,
+    font: { color: fontColor, family: "Inter, sans-serif" },
+    xaxis: { gridcolor: gridColor, tickfont: { color: fontColor } },
+    yaxis: { title: yTitle, gridcolor: gridColor, tickfont: { color: fontColor } },
+    margin: { t: 50, b: 40, l: 50, r: 20 },
+    legend: { font: { color: fontColor } }
+  };
+}
+
 function renderChartBarrasProjecao(data) {
   if (!data || !data.ssp126) return;
-  const ctx = document.getElementById("chartBarrasProjecao");
-  if (!ctx) return;
-
-  if (chartBarrasProjecao) chartBarrasProjecao.destroy();
-
-  const textColor = getCSSVar("--text-color") || "#2c3e50";
-  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
-
+  const isDark = document.body.classList.contains("dark-mode");
+  
   const anos = data.ssp126.anos;
   const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
+  const xLabels = filterIdx.map(i => anos[i]);
 
-  const labels = filterIdx.map(i => anos[i]);
-  const datasets = [
-    { label: "Referência (SSP126)", data: filterIdx.map(i => data.ssp126.casos[i]), backgroundColor: "#27ae60" }
+  const traces = [
+    { x: xLabels, y: filterIdx.map(i => data.ssp126.casos[i]), type: "bar", name: "SSP1-2.6", marker: { color: "#27ae60" } }
   ];
-  if(data.ssp245) datasets.push({ label: "Intermediário (SSP245)", data: filterIdx.map(i => data.ssp245.casos[i]), backgroundColor: "#e67e22" });
-  if(data.ssp585) datasets.push({ label: "Intensificado (SSP585)", data: filterIdx.map(i => data.ssp585.casos[i]), backgroundColor: "#c0392b" });
+  if(data.ssp245) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp245.casos[i]), type: "bar", name: "SSP2-4.5", marker: { color: "#e67e22" } });
+  if(data.ssp585) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "bar", name: "SSP5-8.5", marker: { color: "#c0392b" } });
 
-  chartBarrasProjecao = new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: textColor } },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: {
-        x: { ticks: { color: textColor }, grid: { color: gridColor } },
-        y: { ticks: { color: textColor }, grid: { color: gridColor } }
-      }
-    }
-  });
+  const layout = getPlotlyLayout("Comparativo de Casos Projetados", "Casos Anuais", isDark);
+  layout.barmode = "group";
+  
+  Plotly.newPlot("chartBarrasProjecao", traces, layout, getPlotlyConfig());
 }
 
 function renderChartCenarios(data) {
   if (!data || !data.ssp126) return;
-  const ctx = document.getElementById("chartCenarios");
-  if (!ctx) return;
-  
-  if (chartCenarios) chartCenarios.destroy();
-
-  const textColor = getCSSVar("--text-color") || "#2c3e50";
-  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
+  const isDark = document.body.classList.contains("dark-mode");
   
   const anos = data.ssp126.anos;
   const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
+  const xLabels = filterIdx.map(i => anos[i]);
+
+  const traces = [
+    { x: xLabels, y: filterIdx.map(i => data.ssp126.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP1-2.6", line: { color: "#27ae60", width: 3 } }
+  ];
+  if(data.ssp245) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp245.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP2-4.5", line: { color: "#e67e22", width: 3, dash: "dash" } });
+  if(data.ssp585) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP5-8.5", line: { color: "#c0392b", width: 3, dash: "dot" } });
+
+  const layout = getPlotlyLayout("Evolução dos Cenários Climáticos (2026-2030)", "Casos Anuais Projetados", isDark);
+  layout.legend = { orientation: "h", y: -0.2 };
   
-  const labels = filterIdx.map(i => anos[i]);
-
-  const datasets = [];
-
-  if (data.ssp585 && data.ssp126) {
-    datasets.push({
-      label: "Envelope de incerteza",
-      data: filterIdx.map(i => data.ssp585.casos[i]),
-      borderColor: "transparent",
-      backgroundColor: "rgba(52, 152, 219, 0.15)",
-      borderWidth: 0,
-      pointRadius: 0,
-      fill: 1
-    });
-  }
-
-  datasets.push({
-    label: "Referência (linha de base)",
-    data: filterIdx.map(i => data.ssp126.casos[i]),
-    borderColor: "#27ae60",
-    backgroundColor: "#27ae60",
-    borderWidth: 3,
-    pointRadius: 5,
-    tension: 0.1
-  });
-
-  if (data.ssp245) {
-    datasets.push({
-      label: "Intermediário (+0,6 °C / +3% precip.)",
-      data: filterIdx.map(i => data.ssp245.casos[i]),
-      borderColor: "#e67e22",
-      backgroundColor: "#e67e22",
-      borderWidth: 3,
-      borderDash: [5, 5],
-      pointRadius: 5,
-      pointStyle: 'rect',
-      tension: 0.1
-    });
-  }
-
-  if (data.ssp585) {
-    datasets.push({
-      label: "Intensificado (+1,2 °C / +6% precip.)",
-      data: filterIdx.map(i => data.ssp585.casos[i]),
-      borderColor: "#c0392b",
-      backgroundColor: "#c0392b",
-      borderWidth: 3,
-      borderDash: [2, 2],
-      pointRadius: 5,
-      pointStyle: 'rectRot',
-      tension: 0.1
-    });
-  }
-
-  chartCenarios = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: datasets
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: textColor } },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: {
-        x: { ticks: { color: textColor }, grid: { color: gridColor } },
-        y: { 
-            ticks: { color: textColor }, 
-            grid: { color: gridColor },
-            title: { display: true, text: "Casos anuais projetados", color: textColor }
-        }
-      }
-    }
-  });
+  Plotly.newPlot("chartCenarios", traces, layout, getPlotlyConfig());
 }
 
 function renderChartSazonal(data) {
-  const ctx = document.getElementById("chartSazonal");
-  if (!ctx || !data || !data.meses) return;
-  if (chartSazonal) chartSazonal.destroy();
-
-  const textColor = getCSSVar("--text-color") || "#2c3e50";
-  const gridColor = getCSSVar("--border-color") || "#e0e0e0";
+  if (!data || !data.meses) return;
+  const isDark = document.body.classList.contains("dark-mode");
   
-  // Nomes dos meses para o eixo X
   const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   
-  chartSazonal = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: mesNomes,
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Casos Projetados (média 2026-2030)',
-          data: data.casos_mean,
-          backgroundColor: data.casos_mean.map((v, i) => i === data.casos_mean.indexOf(Math.max(...data.casos_mean)) ? '#c0392b' : '#3498db'),
-          yAxisID: 'y'
-        },
-        {
-          type: 'line',
-          label: 'Temperatura média (°C)',
-          data: data.temp_mean,
-          borderColor: '#e74c3c',
-          backgroundColor: '#e74c3c',
-          borderWidth: 2,
-          pointRadius: 4,
-          tension: 0.3,
-          yAxisID: 'y1'
-        }
-      ]
+  // Highlight peak
+  const maxCasos = Math.max(...data.casos_mean);
+  const colors = data.casos_mean.map(v => v === maxCasos ? "#c0392b" : "#3498db");
+
+  const traces = [
+    { 
+      x: mesNomes, 
+      y: data.casos_mean, 
+      type: "bar", 
+      name: "Casos Projetados", 
+      marker: { color: colors },
+      yaxis: "y"
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: textColor } },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: {
-        x: { ticks: { color: textColor }, grid: { display: false } },
-        y: { 
-          type: 'linear', display: true, position: 'left', 
-          ticks: { color: textColor }, grid: { color: gridColor },
-          title: { display: true, text: "Casos médios mensais", color: "#3498db" }
-        },
-        y1: { 
-          type: 'linear', display: true, position: 'right', 
-          ticks: { color: textColor }, grid: { drawOnChartArea: false },
-          title: { display: true, text: "Temperatura média (°C)", color: "#e74c3c" }
-        }
-      }
+    { 
+      x: mesNomes, 
+      y: data.temp_mean, 
+      type: "scatter", 
+      mode: "lines+markers", 
+      name: "Temperatura Média", 
+      line: { color: "#e74c3c", width: 3 },
+      yaxis: "y2"
     }
-  });
+  ];
+
+  const layout = getPlotlyLayout("", "Casos Médios Mensais", isDark);
+  const gridColor = isDark ? "#334155" : "#e0e0e0";
+  
+  layout.yaxis2 = {
+    title: "Temperatura Média (°C)",
+    overlaying: "y",
+    side: "right",
+    gridcolor: gridColor,
+    tickfont: { color: isDark ? "#e0e0e0" : "#2c3e50" }
+  };
+  layout.legend = { orientation: "h", y: -0.2 };
+
+  Plotly.newPlot("chartSazonal", traces, layout, getPlotlyConfig());
 }
 
 function renderChartHeatmap(data) {
-  const ctx = document.getElementById("chartHeatmap");
-  if (!ctx || !data || !data.heatmap) return;
-  if (chartHeatmap) chartHeatmap.destroy();
-
-  const textColor = getCSSVar("--text-color") || "#2c3e50";
+  if (!data || !data.heatmap) return;
+  const isDark = document.body.classList.contains("dark-mode");
   
   const matriz = data.heatmap;
-  let parsed = [];
   let anosSet = new Set();
   
   matriz.forEach(item => {
     if(item.ano >= 2026 && item.ano <= 2030) {
       anosSet.add(item.ano);
-      parsed.push({
-        x: item.ano,
-        y: item.mes,
-        v: item.casos
-      });
     }
   });
   
   const anosArr = Array.from(anosSet).sort();
-  const mesNomes = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   
-  chartHeatmap = new Chart(ctx, {
-    type: 'matrix',
-    data: {
-      datasets: [{
-        label: 'Casos Mensais',
-        data: parsed,
-        backgroundColor: function(c) {
-          const val = c.dataset.data[c.dataIndex].v;
-          if (val === null || val === undefined) return 'rgba(0,0,0,0.1)';
-          if (val === 0) return '#27ae60';
-          if (val < 10) return '#2ecc71';
-          if (val < 50) return '#f1c40f';
-          if (val < 100) return '#e67e22';
-          return '#c0392b';
-        },
-        width: ({chart}) => (chart.chartArea || {}).width / anosArr.length - 1,
-        height: ({chart}) => (chart.chartArea || {}).height / 12 - 1,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: () => '',
-            label: (ctx) => {
-              const v = ctx.dataset.data[ctx.dataIndex];
-              return `${mesNomes[v.y]} ${v.x}: ${v.v} casos`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'linear',
-          min: Math.min(...anosArr) - 0.5,
-          max: Math.max(...anosArr) + 0.5,
-          ticks: { stepSize: 1, callback: (v) => v, color: textColor },
-          grid: { display: false }
-        },
-        y: {
-          type: 'linear',
-          min: 0.5,
-          max: 12.5,
-          ticks: { stepSize: 1, callback: (v) => mesNomes[v], color: textColor },
-          grid: { display: false }
-        }
-      }
+  // Plotly heatmap expects 2D array [y][x] where y is mes, x is ano
+  let zData = [];
+  for (let m = 1; m <= 12; m++) {
+    let row = [];
+    for (let ano of anosArr) {
+      const match = matriz.find(i => i.ano === ano && i.mes === m);
+      row.push(match ? match.casos : null);
     }
-  });
+    zData.push(row);
+  }
+
+  const traces = [{
+    x: anosArr,
+    y: mesNomes,
+    z: zData,
+    type: "heatmap",
+    colorscale: "YlOrRd",
+    hoverongaps: false
+  }];
+
+  const layout = getPlotlyLayout("", "Mês", isDark);
+  layout.xaxis.tickmode = "array";
+  layout.xaxis.tickvals = anosArr;
+  
+  Plotly.newPlot("chartHeatmap", traces, layout, getPlotlyConfig());
 }
+

@@ -107,4 +107,15 @@ async def api_progresso(request: Request):
 async def api_resultados():
     if _train_state["result"]:
         return _train_state["result"]
+    
+    # Tenta carregar do disco (resultados pré-computados)
+    json_path = APP_DIR.parent / "output" / "prodigia_resultados_v2.json"
+    if json_path.exists():
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                _train_state["result"] = json.load(f)
+                return _train_state["result"]
+        except Exception as e:
+            return {"error": f"Erro ao ler resultados pré-computados: {e}"}
+            
     return {"error": "Nenhum resultado disponível. Execute o treinamento primeiro."}

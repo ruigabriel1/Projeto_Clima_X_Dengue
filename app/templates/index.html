@@ -103,7 +103,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3>📈 Distribuição Sazonal de Casos de Dengue (2026-2030, SSP245) e Temperatura Média Histórica</h3>
           </div>
-          <canvas id="chartSazonal"></canvas>
+          <div id="chartSazonal" style="width: 100%; height: 400px;"></div>
         </div>
 
         <!-- Heatmap Projetado (2026-2030) -->
@@ -112,7 +112,7 @@
             <h3>📅 Sazonalidade Projetada — Heatmap de Casos (Meses × Anos) - SSP245</h3>
           </div>
           <div style="width:100%; overflow-x:auto;">
-            <canvas id="chartHeatmap" style="min-width:600px; height:300px;"></canvas>
+            <div id="chartHeatmap" style="min-width:600px; height:350px;"></div>
           </div>
         </div>
 
@@ -135,7 +135,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3>📊 Comparativo de Projeções por Cenário (Anual)</h3>
           </div>
-          <canvas id="chartBarrasProjecao"></canvas>
+          <div id="chartBarrasProjecao" style="width: 100%; height: 400px;"></div>
         </div>
 
         <!-- Projeções Futuras (Cenários Climáticos) - LINHA -->
@@ -147,7 +147,7 @@
               <a href="/output/dashboard_exports/grafico_cenarios.png" download class="btn-theme" style="text-decoration:none; font-size:0.8rem;">📥 Baixar PNG (Oficial)</a>
             </div>
           </div>
-          <canvas id="chartCenarios"></canvas>
+          <div id="chartCenarios" style="width: 100%; height: 500px;"></div>
         </div>
 
         <!-- Tabela Correlação Climática -->
@@ -169,8 +169,7 @@
     <footer class="footer">Prodígia v2.1 | Projeto Clima × Dengue | SQLite Medallion Architecture</footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2"></script>
-  <script src="/static/app_v2.js?v=9"></script>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script src="/static/app_v2.js?v=10"></script>
 </body>
 </html>
