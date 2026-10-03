@@ -16,7 +16,7 @@
   <!-- Plotly (Apenas a biblioteca gráfica) -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
-<body class="dark-mode">
+<body>
 
   <div class="app-container">
     
@@ -28,23 +28,11 @@
       </div>
 
       <div class="control-panel">
-        <h3>Painel de Controle</h3>
-        
-        <button id="btnTreinar" class="btn-primary">
-          ▶ Reprocessar ML (Otimizado)
-        </button>
-
-        <div id="progressContainer" class="progress-container">
-          <div class="progress-bar-bg">
-            <div id="progressFill" class="progress-bar-fill"></div>
-          </div>
-          <span id="progressLabel" class="progress-label">0%</span>
-        </div>
-      </div>
-
-      <div class="control-panel">
-        <h3>Aparência</h3>
-        <button id="themeToggle" class="btn-outline">☀️ Tema Claro</button>
+        <h3>Informações</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+          Este painel exibe resultados consolidados do modelo preditivo MLOps (XGBoost Poisson).
+          Os gráficos abaixo representam projeções baseadas nos cenários climáticos globais (SSP) do IPCC para a região selecionada.
+        </p>
       </div>
     </aside>
 
@@ -82,9 +70,32 @@
 
       <!-- CHARTS -->
       <section id="chartsGrid" class="charts-grid">
+        
+        <!-- Métricas Principais LOYO -->
+        <div class="chart-card highlight-card" style="margin-bottom: 2rem; background: var(--surface-2); border-left: 4px solid var(--primary);">
+          <div style="display: flex; gap: 2rem; align-items: center; padding: 1rem;">
+            <div>
+              <h3 style="margin: 0; color: var(--text-color); font-size: 1.2rem;">Precisão do Modelo (LOYO)</h3>
+              <p style="margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Métricas de validação cruzada do pipeline MLOps</p>
+            </div>
+            <div style="display: flex; gap: 1.5rem;">
+              <div class="metric-badge">
+                <span style="font-weight: 600; color: var(--primary);">R² Médio:</span> <span id="metricR2" style="font-weight: bold;">-</span>
+              </div>
+              <div class="metric-badge">
+                <span style="font-weight: 600; color: var(--primary);">MAE Médio:</span> <span id="metricMAE" style="font-weight: bold;">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Linha 1 -->
-        <div class="chart-card">
-          <div id="chartCenarios" style="width:100%; height:400px;"></div>
+        <div class="chart-card hero-chart">
+          <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0;"></h3>
+            <button class="btn-outline btn-sm" onclick="downloadChart('chartCenarios', 'projecao_cenarios')">⬇ Baixar PNG</button>
+          </div>
+          <div id="chartCenarios" style="width:100%; height:500px;"></div>
         </div>
         
         <!-- Linha 2: Lado a Lado -->

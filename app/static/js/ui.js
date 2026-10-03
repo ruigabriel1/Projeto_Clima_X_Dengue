@@ -1,53 +1,11 @@
 // Módulo de manipulação da UI
 
-export function initThemeToggle() {
-  const btn = document.getElementById("themeToggle");
-  if (!btn) return;
-
-  const currentTheme = localStorage.getItem("theme");
-  if (currentTheme === "dark") {
-    document.body.classList.add("dark-mode");
-    btn.innerHTML = "☀️ Tema Claro";
-  }
-
-  btn.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    let theme = "light";
-    if (document.body.classList.contains("dark-mode")) {
-      theme = "dark";
-      btn.innerHTML = "☀️ Tema Claro";
-    } else {
-      btn.innerHTML = "🌙 Tema Escuro";
-    }
-    localStorage.setItem("theme", theme);
-    // Dispatch um evento para re-renderizar os gráficos com a nova paleta
-    window.dispatchEvent(new Event("themeChanged"));
-  });
-}
-
+// Funções de loader e formatação de UI
 export function showLoader(show) {
   const loader = document.getElementById("loader");
   if (loader) {
     if (show) loader.classList.add("active");
     else loader.classList.remove("active");
-  }
-}
-
-export function updateProgress(pct) {
-  const container = document.getElementById("progressContainer");
-  const fill = document.getElementById("progressFill");
-  const label = document.getElementById("progressLabel");
-
-  if (!container) return;
-
-  if (pct > 0 && pct < 100) {
-    container.classList.add("active");
-    if (fill) fill.style.width = pct + "%";
-    if (label) label.textContent = pct + "% processado";
-  } else {
-    container.classList.remove("active");
-    if (fill) fill.style.width = "0%";
-    if (label) label.textContent = "Aguardando...";
   }
 }
 
@@ -60,7 +18,13 @@ export function updateStats(data) {
   setEl("periodoDados", "2015 a 2025");
   setEl("projecaoAte", "2030");
   
-  // Calcular totais de casos projetados
+  // Métricas LOYO
+  if (data.metricas) {
+    setEl("metricR2", data.metricas.r2 ? data.metricas.r2.toFixed(3) : "-");
+    setEl("metricMAE", data.metricas.mae ? data.metricas.mae.toFixed(1) : "-");
+  }
+
+  // Calcular totais de casos projetados (SSP245)
   let totalSSP245 = 0;
   if (data.projecao_cenarios && data.projecao_cenarios.ssp245) {
     const d = data.projecao_cenarios.ssp245;

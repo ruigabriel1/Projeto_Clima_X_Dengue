@@ -1,6 +1,6 @@
-import { fetchStatus, fetchResultados, startTraining } from './api.js';
-import { renderChartBarrasProjecao, renderChartCenarios, renderChartSazonal, renderChartHeatmap } from './charts.js';
-import { initThemeToggle, showLoader, updateProgress, updateStats, populateTable } from './ui.js';
+import { fetchStatus, fetchResultados } from './api.js';
+import { renderChartCenarios, renderChartSazonal, renderChartHeatmap } from './charts.js';
+import { showLoader, updateStats, populateTable } from './ui.js';
 
 let cachedData = null;
 
@@ -26,50 +26,16 @@ function renderAll(data) {
   document.getElementById("chartsGrid").classList.add("visible");
   updateStats(data);
   populateTable(data);
-  renderChartBarrasProjecao(data.projecao_cenarios);
   renderChartCenarios(data.projecao_cenarios);
   renderChartSazonal(data.dist_sazonal);
   renderChartHeatmap(data.dist_sazonal);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initThemeToggle();
   loadAndRender();
-
-  // Re-render quando o tema mudar
-  window.addEventListener("themeChanged", () => {
-    if (cachedData) renderAll(cachedData);
-  });
-
-  const btnTreinar = document.getElementById("btnTreinar");
-  if (btnTreinar) {
-    btnTreinar.addEventListener("click", () => {
-      if (!confirm("Isso iniciará o treinamento com os últimos parâmetros da base. Deseja continuar?")) return;
-      
-      btnTreinar.disabled = true;
-      btnTreinar.innerHTML = "⏳ Processando...";
-      updateProgress(5);
-
-      startTraining("rapido", "421600", 
-        (prog) => { // onProgress
-          updateProgress(prog.pct);
-        },
-        () => { // onComplete
-          updateProgress(100);
-          setTimeout(() => {
-            updateProgress(0);
-            btnTreinar.disabled = false;
-            btnTreinar.innerHTML = "▶ Reprocessar ML (Otimizado)";
-            loadAndRender(); // Recarrega os gráficos!
-          }, 1000);
-        },
-        (errMsg) => { // onError
-          alert("Erro: " + errMsg);
-          btnTreinar.disabled = false;
-          btnTreinar.innerHTML = "▶ Reprocessar ML";
-          updateProgress(0);
-        }
-      );
-    });
-  }
 });
+
+// Tornar a função de download global para uso no onclick do HTML
+window.downloadChart = function(divId, filename) {
+  Plotly.downloadImage(divId, {format: 'png', width: 1200, height: 800, filename: filename});
+};

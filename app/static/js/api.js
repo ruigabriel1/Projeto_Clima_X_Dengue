@@ -20,33 +20,3 @@ export async function fetchResultados() {
   }
 }
 
-export function startTraining(modo, codigoIbge, onProgress, onComplete, onError) {
-  const body = { modo };
-  if (codigoIbge) body.codigo_ibge = codigoIbge;
-
-  fetch("/api/treinar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(() => {
-    const es = new EventSource("/api/treinar/progresso");
-    es.onmessage = (ev) => {
-      const data = JSON.parse(ev.data);
-      if (data.pct >= 0) onProgress(data);
-      if (data.pct >= 100) {
-        es.close();
-        onComplete();
-      }
-      if (data.pct === -1) {
-        es.close();
-        onError(data.msg);
-      }
-    };
-    es.onerror = () => {
-      es.close();
-      onError("Conexão perdida com o servidor.");
-    };
-  }).catch((e) => {
-    onError(e.message);
-  });
-}

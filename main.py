@@ -42,6 +42,21 @@ def main():
     parser_dw = subparsers.add_parser("build-dw", help="Constrói o Data Warehouse SQLite (Analytics).")
     parser_dw.set_defaults(func=command_build_dw)
 
+    # Comando export-dashboard
+    def command_export_dashboard(args):
+        print("Exportando dados e gráficos para o Dashboard...")
+        try:
+            from src.ml_pipeline.export_dashboard import exportar_dados_dashboard
+            exportar_dados_dashboard(modo=args.modo, codigo_ibge=args.codigo_ibge)
+            print("Exportação concluída! JSON salvo em output/prodigia_resultados_v2.json")
+        except Exception as e:
+            print(f"Erro na exportação: {e}")
+
+    parser_export = subparsers.add_parser("export-dashboard", help="Exporta o JSON e PNGs para o Dashboard.")
+    parser_export.add_argument("--modo", type=str, choices=["rapido", "regional", "completo"], default="rapido")
+    parser_export.add_argument("--codigo_ibge", type=str, default=None)
+    parser_export.set_defaults(func=command_export_dashboard)
+
     args = parser.parse_args()
 
     if args.command:

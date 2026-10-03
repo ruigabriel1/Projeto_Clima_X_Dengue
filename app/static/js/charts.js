@@ -1,67 +1,61 @@
 // Módulo responsável pela renderização com Plotly.js
 
-function isDarkMode() {
-  return document.body.classList.contains("dark-mode");
-}
-
-function getCSSVar(name) {
-  return getComputedStyle(document.body).getPropertyValue(name).trim();
-}
+// Módulo responsável pela renderização com Plotly.js usando paleta clara e clean (Plotly White)
 
 function getPlotlyConfig() {
   return { responsive: true, displayModeBar: false };
 }
 
 function getPlotlyLayout(title, yTitle) {
-  const dark = isDarkMode();
-  const fontColor = dark ? "#f8fafc" : "#1e293b";
+  const fontColor = "#1e293b";
   const paperBg = "transparent";
   const plotBg = "transparent";
-  const gridColor = dark ? "#334155" : "#e2e8f0";
+  const gridColor = "#e2e8f0";
 
   return {
-    title: { text: title, font: { color: fontColor, size: 16, family: "Inter" } },
+    title: { text: title, font: { color: fontColor, size: 16, family: "Inter, sans-serif" } },
     paper_bgcolor: paperBg,
     plot_bgcolor: plotBg,
     font: { color: fontColor, family: "Inter, sans-serif" },
-    xaxis: { gridcolor: gridColor, tickfont: { color: fontColor } },
-    yaxis: { title: yTitle, gridcolor: gridColor, tickfont: { color: fontColor } },
-    margin: { t: 50, b: 40, l: 50, r: 20 },
-    legend: { font: { color: fontColor } }
+    xaxis: { gridcolor: gridColor, tickfont: { color: fontColor }, showline: true, linecolor: gridColor },
+    yaxis: { title: yTitle, gridcolor: gridColor, tickfont: { color: fontColor }, showline: true, linecolor: gridColor },
+    margin: { t: 50, b: 40, l: 60, r: 20 },
+    legend: { font: { color: fontColor }, orientation: "h", y: -0.2 }
   };
 }
 
-export function renderChartBarrasProjecao(data) {
-  if (!data || !data.ssp126) return;
-  const anos = data.ssp126.anos;
-  const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
-  const xLabels = filterIdx.map(i => anos[i]);
-
-  const traces = [
-    { x: xLabels, y: filterIdx.map(i => data.ssp126.casos[i]), type: "bar", name: "SSP1-2.6", marker: { color: "#10b981" } }
-  ];
-  if (data.ssp245) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp245.casos[i]), type: "bar", name: "SSP2-4.5", marker: { color: "#f59e0b" } });
-  if (data.ssp585) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "bar", name: "SSP5-8.5", marker: { color: "#ef4444" } });
-
-  const layout = getPlotlyLayout("Comparativo de Casos Projetados", "Casos Anuais");
-  layout.barmode = "group";
-  layout.legend = { orientation: "h", y: -0.2 };
-  
-  Plotly.react("chartBarrasProjecao", traces, layout, getPlotlyConfig());
-}
-
 export function renderChartCenarios(data) {
-  if (!data || !data.ssp126) return;
+  if (!data || Object.keys(data).length === 0) return;
   
-  const anos = data.ssp126.anos;
+  // Encontra a chave principal para extrair os anos
+  const cenarioBase = data.ssp126 || data.ssp245 || Object.values(data)[0];
+  if (!cenarioBase) return;
+  
+  const anos = cenarioBase.anos;
   const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
   const xLabels = filterIdx.map(i => anos[i]);
 
-  const traces = [
-    { x: xLabels, y: filterIdx.map(i => data.ssp126.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP1-2.6", line: { color: "#10b981", width: 3 } }
-  ];
-  if(data.ssp245) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp245.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP2-4.5", line: { color: "#f59e0b", width: 3, dash: "dash" } });
-  if(data.ssp585) traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP5-8.5", line: { color: "#ef4444", width: 3, dash: "dot" } });
+  const traces = [];
+  
+  // SSP1-2.6 (Otimista)
+  if (data.ssp126) {
+    traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp126.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP1-2.6 (Otimista)", line: { color: "#10b981", width: 2 } });
+  }
+  
+  // SSP2-4.5 (Intermediário - mais grosso)
+  if (data.ssp245) {
+    traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp245.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP2-4.5 (Moderado)", line: { color: "#f59e0b", width: 4, dash: "dash" } });
+  }
+
+  // SSP3-7.0 (Intermediário/Pessimista)
+  if (data.ssp370) {
+    traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp370.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP3-7.0", line: { color: "#f97316", width: 2, dash: "dot" } });
+  }
+
+  // SSP5-8.5 (Pessimista - mais grosso)
+  if (data.ssp585) {
+    traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP5-8.5 (Pessimista)", line: { color: "#ef4444", width: 4, dash: "dashdot" } });
+  }
 
   const layout = getPlotlyLayout("Evolução dos Cenários Climáticos (2026-2030)", "Casos Anuais Projetados");
   layout.legend = { orientation: "h", y: -0.2 };
@@ -101,8 +95,8 @@ export function renderChartSazonal(data) {
     title: "Temperatura Média (°C)",
     overlaying: "y",
     side: "right",
-    gridcolor: isDarkMode() ? "#334155" : "#e2e8f0",
-    tickfont: { color: isDarkMode() ? "#f8fafc" : "#1e293b" }
+    gridcolor: "#e2e8f0",
+    tickfont: { color: "#1e293b" }
   };
   layout.legend = { orientation: "h", y: -0.2 };
 
@@ -134,7 +128,7 @@ export function renderChartHeatmap(data) {
     y: mesNomes,
     z: zData,
     type: "heatmap",
-    colorscale: isDarkMode() ? "YlOrRd" : "OrRd",
+    colorscale: "OrRd",
     hoverongaps: false
   }];
 

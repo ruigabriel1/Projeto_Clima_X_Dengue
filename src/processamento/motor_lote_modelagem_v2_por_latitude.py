@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Motor de processamento em lote - VERSÃO 2: Organização por Latitude
-Gera projeções regionais consolidadas e agrupadas por faixas de latitude
+[LEGADO] Motor de processamento em lote - VERSÃO 2: Organização por Latitude
+Atenção: Este script monolítico está em fase de depreciação.
+A lógica de ingestão, feature engineering e treino já foi migrada para `src/ml_pipeline/`.
+Este arquivo é mantido temporariamente apenas porque `prediction.py` ainda não gera as projeções SSP (Cenários IPCC).
+Gera projeções regionais consolidadas e agrupadas por faixas de latitude.
 
 Outputs:
   - CSVs por faixa de latitude
