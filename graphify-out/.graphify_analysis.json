@@ -212,13 +212,13 @@
       "degree": 8
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_save_ml_2025_forecasts",
-      "label": "save_ml_2025_forecasts()",
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_sqlite",
+      "label": "load_historical_incidents_from_sqlite()",
       "degree": 8
     },
     {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_load_historical_incidents_from_sqlite",
-      "label": "load_historical_incidents_from_sqlite()",
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_save_ml_2025_forecasts",
+      "label": "save_ml_2025_forecasts()",
       "degree": 8
     },
     {
@@ -227,18 +227,18 @@
       "degree": 7
     },
     {
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_build_ml_features",
+      "label": "_build_ml_features()",
+      "degree": 6
+    },
+    {
+      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_evaluate_split",
+      "label": "_evaluate_split()",
+      "degree": 6
+    },
+    {
       "id": "src_ml_pipeline_model_training_train_model",
       "label": "train_model()",
-      "degree": 6
-    },
-    {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_read_wide_monthly",
-      "label": "read_wide_monthly()",
-      "degree": 6
-    },
-    {
-      "id": "src_processamento_motor_lote_modelagem_v2_por_latitude_project_city",
-      "label": "project_city()",
       "degree": 6
     }
   ],
@@ -288,19 +288,42 @@
       "why": "connects across different repos/directories"
     },
     {
-      "source": "api_status()",
-      "target": "get_db_status()",
+      "source": "exportar_dados_dashboard()",
+      "target": "build_base_panel()",
       "source_files": [
-        "app/server.py",
-        "app/ml_runner.py"
+        "src/ml_pipeline/export_dashboard.py",
+        "src/processamento/motor_lote_modelagem_v2_por_latitude.py"
       ],
       "confidence": "EXTRACTED",
       "relation": "calls",
       "why": "cross-file semantic connection"
     }
   ],
-  "tokens": {
-    "input": 0,
-    "output": 0
-  }
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `build_base_panel()` connect `Path` to `motor_lote_modelagem_v2_por_latitude.py`, `DataFrame`, `main`?",
+      "why": "High betweenness centrality (0.082) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `get_cidades()` connect `server.py` to `Path`?",
+      "why": "High betweenness centrality (0.043) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `get_db_status()` connect `server.py` to `Path`?",
+      "why": "High betweenness centrality (0.043) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Path` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.13405797101449277 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `ml_orchestrator.py` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12987012987012986 - nodes in this community are weakly interconnected."
+    }
+  ]
 }
