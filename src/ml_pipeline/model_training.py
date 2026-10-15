@@ -61,7 +61,7 @@ def train_model(
     target_col: str = "dengue_cases",
     tune_hyperparams: bool = False,
     save_path: Path | None = None,
-    clip_percentile: float | None = 99.0,
+    clip_percentile: float | None = None,
 ):
     """
     Treina o modelo XGBoost Poisson com Expanding Window CV.
@@ -155,18 +155,27 @@ def train_model(
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         mape = _safe_mape(y_test, preds)
 
+        # Baseline de persistência: prever que o mês seguinte repete o anterior
+        r2_persist = mae_persist = None
+        if "dengue_lag1" in df.columns:
+            base = df.loc[test_mask, "dengue_lag1"].values
+            r2_persist = round(r2_score(y_test, base), 4)
+            mae_persist = round(mean_absolute_error(y_test, base), 2)
+
         metrics.append({
             "year": int(test_year),
             "r2": round(r2, 4),
             "mae": round(mae, 2),
             "rmse": round(rmse, 2),
             "mape": round(mape, 2) if not np.isnan(mape) else None,
+            "r2_persistencia": r2_persist,
+            "mae_persistencia": mae_persist,
             "n_train": int(train_mask.sum()),
             "n_test": int(test_mask.sum()),
         })
         logger.info(
             f"  EW {test_year}: R²={r2:.3f} | MAE={mae:.1f} | RMSE={rmse:.1f} | MAPE={mape:.1f}% "
-            f"(treino={train_mask.sum()}, teste={test_mask.sum()})"
+            f"| persistência R²={r2_persist} MAE={mae_persist}"
         )
 
     if metrics:

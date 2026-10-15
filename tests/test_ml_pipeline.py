@@ -99,6 +99,16 @@ class TestFeatureEngineering:
         for col in meta:
             assert col not in feat_cols, f"Coluna meta {col} apareceu nas features!"
 
+    def test_forecast_mode_excludes_current_month(self, mini_panel):
+        """No modo forecast, nenhuma variável do mês-alvo pode ser feature."""
+        df = build_ml_features(mini_panel)
+        feat_fc = get_feature_columns(df, forecast=True)
+        feat_all = get_feature_columns(df, forecast=False)
+        for col in ["temp_media", "precipitacao", "umidmed", "enso", "receptivo_num"]:
+            assert col not in feat_fc, f"{col} (mês corrente) vazou no modo forecast"
+            assert col in feat_all
+        assert "temp_lag1" in feat_fc and "enso_lag1" in feat_fc
+
 
 # =============================================
 # Testes de Model Training

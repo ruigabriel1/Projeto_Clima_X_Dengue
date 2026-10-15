@@ -125,10 +125,22 @@ def build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def get_feature_columns(df: pd.DataFrame) -> list[str]:
+# Variáveis observadas NO PRÓPRIO mês-alvo: desconhecidas no momento da previsão.
+_VARS_MES_CORRENTE = {
+    "umidmed", "umidmax", "umidmin", "temp_media", "temp_maxima", "temp_minima",
+    "precipitacao", "vel_vento_max", "rajada_vento_max", "temp_solo", "enso",
+    "amplitude_termica", "receptivo_num",
+}
+
+
+def get_feature_columns(df: pd.DataFrame, forecast: bool = True) -> list[str]:
     """
     Retorna a lista de colunas que devem ser usadas como features (X) pelo modelo.
     Exclui colunas de identificação, alvo, e variáveis não-numéricas.
+
+    forecast=True (padrão) remove também as variáveis do mês corrente,
+    deixando só informação disponível ANTES do mês previsto (previsão real t+1).
+    Experimento v3: forecast puro deu R² médio 0.476 vs 0.456 com elas.
     """
     excluir = {
         "code", "city_name", "year", "month",
@@ -136,6 +148,8 @@ def get_feature_columns(df: pd.DataFrame) -> list[str]:
         "populacao", "latitude", "longitude", "lat_faixa_id",
         "receptivo",  # versão texto; já convertida para receptivo_num
     }
+    if forecast:
+        excluir |= _VARS_MES_CORRENTE
     # Só incluir colunas numéricas
     candidatas = [c for c in df.columns if c not in excluir and pd.api.types.is_numeric_dtype(df[c])]
     return candidatas
