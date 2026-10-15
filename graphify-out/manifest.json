@@ -5,12 +5,6 @@
     "ast_hash": "777833a442370f8e33989ebb29ae6935",
     "semantic_hash": "777833a442370f8e33989ebb29ae6935"
   },
-  "app/ml_runner.py": {
-    "mtime": 1790721101.5607095,
-    "seen": 1791066522.0166922,
-    "ast_hash": "e8b7b395781635f90409a42fe1c04eca",
-    "semantic_hash": "e8b7b395781635f90409a42fe1c04eca"
-  },
   "app/server.py": {
     "mtime": 1791065764.335585,
     "seen": 1791066522.0166922,
@@ -66,10 +60,10 @@
     "semantic_hash": "308739d2b59c30f3b11a7733a0d22135"
   },
   "src/ml_pipeline/data_ingestion.py": {
-    "mtime": 1790723897.2504406,
-    "seen": 1791066522.0166922,
-    "ast_hash": "bc686f1c29bf3ab37e95f1113e2eda34",
-    "semantic_hash": "bc686f1c29bf3ab37e95f1113e2eda34"
+    "mtime": 1791954143.0806324,
+    "seen": 1792007742.7027452,
+    "ast_hash": "a33abc08ed61c92c4a7f3a532ab1782c",
+    "semantic_hash": ""
   },
   "src/ml_pipeline/export_dashboard.py": {
     "mtime": 1791065967.6100738,
@@ -78,22 +72,22 @@
     "semantic_hash": "debc9cd31261d5741c5458850741aa05"
   },
   "src/ml_pipeline/feature_engineering.py": {
-    "mtime": 1790722761.4136631,
-    "seen": 1791066522.0166922,
-    "ast_hash": "deb9f0d31e90047a84ab23374f77f712",
-    "semantic_hash": "deb9f0d31e90047a84ab23374f77f712"
+    "mtime": 1792007665.5638359,
+    "seen": 1792007742.7027452,
+    "ast_hash": "891bd37fffcb914132e66f85715b2c05",
+    "semantic_hash": ""
   },
   "src/ml_pipeline/ml_orchestrator.py": {
-    "mtime": 1790724531.5703561,
-    "seen": 1791066522.0166922,
-    "ast_hash": "9ea063e9ca1cbee6c798de000ad56494",
-    "semantic_hash": "9ea063e9ca1cbee6c798de000ad56494"
+    "mtime": 1791954261.2683227,
+    "seen": 1792007742.7027452,
+    "ast_hash": "5644a38f83b182633a5e56232aa15031",
+    "semantic_hash": ""
   },
   "src/ml_pipeline/model_training.py": {
-    "mtime": 1790724434.339702,
-    "seen": 1791066522.0166922,
-    "ast_hash": "d4a7736ad9fe26bbf01535fb4c1210c5",
-    "semantic_hash": "d4a7736ad9fe26bbf01535fb4c1210c5"
+    "mtime": 1792007667.5955758,
+    "seen": 1792007742.7027452,
+    "ast_hash": "2d2d8f3146ed1cd5639fec7308aa7452",
+    "semantic_hash": ""
   },
   "src/ml_pipeline/prediction.py": {
     "mtime": 1790722792.229359,
@@ -118,5 +112,143 @@
     "seen": 1791066522.0166922,
     "ast_hash": "c3110deebbdc398962e2133321ee48a7",
     "semantic_hash": "c3110deebbdc398962e2133321ee48a7"
+  },
+  "scratch/compare_baseline.py": {
+    "mtime": 1791998988.3323517,
+    "seen": 1792007742.7027452,
+    "ast_hash": "f63ceba8f67f6fa4e0346dc71cf1e4dc",
+    "semantic_hash": ""
+  },
+  "scratch/experiment_clip.py": {
+    "mtime": 1792007596.68803,
+    "seen": 1792007742.7027452,
+    "ast_hash": "efc23747995072662aeec0b446ef6cfe",
+    "semantic_hash": ""
+  },
+  "tests/test_ml_pipeline.py": {
+    "mtime": 1792007679.6701517,
+    "seen": 1792007742.7027452,
+    "ast_hash": "96f243d908b79dd8cfa5335c20e0812a",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1787763722.246444,
+    "seen": 1792007742.7027452,
+    "ast_hash": "dc3d5082c62588533975fcbacbe58801",
+    "semantic_hash": ""
+  },
+  "app/templates/index.html": {
+    "mtime": 1791065796.0668485,
+    "seen": 1792007742.7027452,
+    "ast_hash": "046fbf96475397e71370e9ca9e289c4e",
+    "semantic_hash": ""
+  },
+  "data/README.md": {
+    "mtime": 1787597627.4723697,
+    "seen": 1792007742.7027452,
+    "ast_hash": "3e08532ac9f5aecd16fb7247d6905cde",
+    "semantic_hash": ""
+  },
+  "docs/ARQUITETURA_DE_DADOS.md": {
+    "mtime": 1789085758.6541963,
+    "seen": 1792007742.7027452,
+    "ast_hash": "bc203469108f9046b6b46a3bbb3ec7b1",
+    "semantic_hash": ""
+  },
+  "docs/CIENCIA_DE_DADOS_XGBOOST.md": {
+    "mtime": 1787763722.2469501,
+    "seen": 1792007742.7027452,
+    "ast_hash": "53cabf2330a3592981f5cdb4d22d1248",
+    "semantic_hash": ""
+  },
+  "docs/legado/guia_execucao.md": {
+    "mtime": 1768852116.4277194,
+    "seen": 1792007742.7027452,
+    "ast_hash": "53c8440ccc421b874a62e0f91d25d36b",
+    "semantic_hash": ""
+  },
+  "docs/legado/guia_interpretacao.md": {
+    "mtime": 1763940732.9341202,
+    "seen": 1792007742.7027452,
+    "ast_hash": "0f7b4628951dfbb6e553716569a59db1",
+    "semantic_hash": ""
+  },
+  "docs/legado/historico_diario_projeto.md": {
+    "mtime": 1787706765.5029294,
+    "seen": 1792007742.7027452,
+    "ast_hash": "e3f9e56989e1e4b57f0d8fca25283f0b",
+    "semantic_hash": ""
+  },
+  "docs/legado/instrucoes_mapas_latitude.md": {
+    "mtime": 1767469484.5787227,
+    "seen": 1792007742.7027452,
+    "ast_hash": "4b63a763100f0d1db479cc3d547463eb",
+    "semantic_hash": ""
+  },
+  "plano_correcao_ml_e_app.md": {
+    "mtime": 1790637970.6091845,
+    "seen": 1792007742.7027452,
+    "ast_hash": "fdf9721857346b3b3d24d256aeb0f216",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1771532488.9626224,
+    "seen": 1792007742.7027452,
+    "ast_hash": "6b64c351058303a43c37ef67dcf4afea",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/01_projecao_cenarios_matplotlib.png": {
+    "mtime": 1790639494.0687437,
+    "seen": 1792007742.7027452,
+    "ast_hash": "5ac475733925cd40a781fb7912036a4f",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/01_projecao_cenarios_plotly.png": {
+    "mtime": 1790639490.4862745,
+    "seen": 1792007742.7027452,
+    "ast_hash": "71e58f4fc309352eb9c371047a8d4152",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/02_distribuicao_sazonal_plotly.png": {
+    "mtime": 1790639491.915641,
+    "seen": 1792007742.7027452,
+    "ast_hash": "ecbf6e3649ba2c49c8aff9bcf5fc2f6c",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/distribuicao_sazonal.png": {
+    "mtime": 1791066288.4816153,
+    "seen": 1792007742.7027452,
+    "ast_hash": "2f34cfff5d68b8a49626f77315b01211",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/grafico_barras_anuais.png": {
+    "mtime": 1791066284.2310615,
+    "seen": 1792007742.7027452,
+    "ast_hash": "3c5308b948b4e42f8b1d7a730bc744cc",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/grafico_cenarios.png": {
+    "mtime": 1791066291.2974365,
+    "seen": 1792007742.7027452,
+    "ast_hash": "90b542cc53e9bcc7e719bf9d0ddadb40",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/grafico_clima_vs_dengue.png": {
+    "mtime": 1791066287.0775547,
+    "seen": 1792007742.7027452,
+    "ast_hash": "2e512ccf92995d369aebeba906518158",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/grafico_feature_importance.png": {
+    "mtime": 1791066289.86789,
+    "seen": 1792007742.7027452,
+    "ast_hash": "e8e8ac77eb86585f389480e032bb9d43",
+    "semantic_hash": ""
+  },
+  "graficos_artigo/grafico_serie_temporal.png": {
+    "mtime": 1791066285.6473162,
+    "seen": 1792007742.7027452,
+    "ast_hash": "a577fc825fdad4fd3bdf2618da0df1df",
+    "semantic_hash": ""
   }
 }

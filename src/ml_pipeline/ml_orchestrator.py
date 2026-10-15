@@ -20,6 +20,7 @@ import sys
 from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel
 from src.ml_pipeline.feature_engineering import build_ml_features, get_feature_columns
 from src.ml_pipeline.model_training import train_model
+from src.ml_pipeline.baselines import evaluate_baselines
 
 logging.basicConfig(
     level=logging.INFO,
@@ -114,15 +115,25 @@ def run_pipeline(
     )
 
     # ==============================
-    # 5. Salvar relatório de execução
+    # 5. Baselines (persistência, sazonal, GLM NB)
     # ==============================
-    logger.info("[FASE 5] Salvando relatório de execução...")
+    logger.info("[FASE 5] Avaliando baselines...")
+    try:
+        baseline_results = evaluate_baselines(df_train, target_col)
+    except Exception as e:
+        logger.warning(f"Baselines falharam: {e}")
+        baseline_results = []
+
+    # ==============================
+    # 6. Salvar relatório de execução
+    # ==============================
+    logger.info("[FASE 6] Salvando relatório de execução...")
 
     output_dir = root_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     run_log = {
-        "pipeline_version": "v3",
+        "pipeline_version": "v3.1",
         "modo": modo,
         "n_cidades": int(df_train["code"].nunique()),
         "n_samples": len(df_train),
@@ -130,6 +141,7 @@ def run_pipeline(
         "features": feature_cols,
         "validation": validation_report,
         "metrics_por_ano": metrics,
+        "baselines_por_ano": baseline_results,
         "feature_importance": feature_importance[:20],  # top 20
     }
 

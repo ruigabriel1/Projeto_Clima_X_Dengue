@@ -114,6 +114,78 @@ def build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
         d["abs_latitude"] = d["latitude"].abs()
 
     # ============================
+    # 8. Lag sazonal (mesmo mês do ano anterior)
+    # ============================
+    d["dengue_lag12"] = g["dengue_cases"].shift(12)
+    d["dengue_lag12"] = d["dengue_lag12"].fillna(0.0)  # primeiros 12 meses sem histórico
+
+    # ============================
+    # 9. Graus-dia de desenvolvimento do Aedes (limiar 18°C)
+    # ============================
+    if "temp_media" in d.columns:
+        d["graus_dia_18"] = (d["temp_media"] - 18.0).clip(lower=0)
+        d["graus_dia_18_lag1"] = g["graus_dia_18"].shift(1)
+        d["graus_dia_18_lag2"] = g["graus_dia_18"].shift(2)
+
+    # ============================
+    # 10. Acumulados de precipitação (2 e 3 meses anteriores)
+    # ============================
+    if "precipitacao" in d.columns:
+        d["_prec_shifted"] = g["precipitacao"].shift(1)
+        d["prec_acum_3m"] = d.groupby("code", sort=False)["_prec_shifted"].transform(
+            lambda x: x.rolling(3, min_periods=2).sum()
+        )
+        d.drop(columns=["_prec_shifted"], inplace=True)
+
+    # ============================
+    # 11. Anomalias climáticas vs climatologia da cidade × mês
+    #     (calculadas no passado: usamos shift(1) para não vazar)
+    # ============================
+    if "temp_media" in d.columns:
+        d["_temp_clim"] = d.groupby(["code", "month"])["temp_media"].transform("mean")
+        d["temp_anomalia"] = d["temp_media"] - d["_temp_clim"]
+        d["temp_anomalia_lag1"] = g["temp_anomalia"].shift(1)
+        d.drop(columns=["_temp_clim", "temp_anomalia"], inplace=True)
+
+    if "precipitacao" in d.columns:
+        d["_prec_clim"] = d.groupby(["code", "month"])["precipitacao"].transform("mean")
+        d["prec_anomalia"] = d["precipitacao"] - d["_prec_clim"]
+        d["prec_anomalia_lag1"] = g["prec_anomalia"].shift(1)
+        d.drop(columns=["_prec_clim", "prec_anomalia"], inplace=True)
+
+    # ============================
+    # 12. Lag espacial: incidência média da faixa de latitude (vizinhança)
+    # ============================
+    if "lat_faixa_id" in d.columns and "populacao" in d.columns:
+        pop_safe = d["populacao"].replace(0, np.nan)
+        d["_incid"] = d["dengue_cases"] / pop_safe * 100_000
+        d["_incid_faixa"] = d.groupby(["lat_faixa_id", "year", "month"])["_incid"].transform("mean")
+        d["incid_faixa_lag1"] = g["_incid_faixa"].shift(1)
+        d.drop(columns=["_incid", "_incid_faixa"], inplace=True)
+        d["incid_faixa_lag1"] = d["incid_faixa_lag1"].fillna(0)
+
+    # ============================
+    # 13. Rolling curto de casos (3 meses) com shift
+    # ============================
+    d["_dengue_s1"] = g["dengue_cases"].shift(1)
+    d["dengue_rolling_3"] = d.groupby("code", sort=False)["_dengue_s1"].transform(
+        lambda x: x.rolling(3, min_periods=2).mean()
+    )
+    d["dengue_rolling_3"] = d["dengue_rolling_3"].fillna(0.0)
+    d.drop(columns=["_dengue_s1"], inplace=True)
+
+    # ============================
+    # Preencher NaN residuais nas features avançadas (warm-up)
+    # ============================
+    _fill_zero_cols = [
+        "prec_acum_3m", "temp_anomalia_lag1", "prec_anomalia_lag1",
+        "graus_dia_18_lag1", "graus_dia_18_lag2",
+    ]
+    for col in _fill_zero_cols:
+        if col in d.columns:
+            d[col] = d[col].fillna(0.0)
+
+    # ============================
     # Drop warm-up rows (primeiros 3 meses por cidade)
     # ============================
     cols_to_check = [c for c in ["dengue_lag3", "temp_lag3", "prec_lag3"] if c in d.columns]
@@ -129,7 +201,7 @@ def build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
 _VARS_MES_CORRENTE = {
     "umidmed", "umidmax", "umidmin", "temp_media", "temp_maxima", "temp_minima",
     "precipitacao", "vel_vento_max", "rajada_vento_max", "temp_solo", "enso",
-    "amplitude_termica", "receptivo_num",
+    "amplitude_termica", "receptivo_num", "graus_dia_18",
 }
 
 
