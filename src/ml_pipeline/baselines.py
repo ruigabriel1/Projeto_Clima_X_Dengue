@@ -1,37 +1,57 @@
 """
-Modelos de baseline para comparação com o XGBoost.
+Modelos de baseline para comparação com o XGBoost (multi-doença).
 Todos usam a mesma interface: fit(X_train, y_train) + predict(X_test) → np.array.
 
 Baselines implementados:
-  - Persistência (t-1): y_hat = dengue_lag1
-  - Naive sazonal: y_hat = dengue_lag12 (mesmo mês do ano anterior)
+  - Persistência (t-1): y_hat = <doenca>_lag1
+  - Naive sazonal: y_hat = <doenca>_lag12 (mesmo mês do ano anterior)
   - GLM Binomial Negativa: statsmodels com clima + sazonalidade + offset log(pop)
 """
 import logging
+import re
 
 import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+# Mapa de doença → prefixo (consistente com feature_engineering)
+_PREFIXOS = {
+    "dengue_cases": "dengue",
+    "chik_cases": "chik",
+    "zika_cases": "zika",
+}
+
+
+def _lag_col_name(target_col: str, lag: int) -> str:
+    """Constrói o nome da coluna de lag para a doença-alvo."""
+    prefix = _PREFIXOS.get(target_col, "dengue")
+    return f"{prefix}_lag{lag}"
+
 
 class PersistenciaBaseline:
-    """Prever = valor do mês anterior (dengue_lag1)."""
+    """Prever = valor do mês anterior (<doença>_lag1)."""
 
-    def __init__(self, lag_col: str = "dengue_lag1"):
-        self.lag_col = lag_col
+    def __init__(self, target_col: str = "dengue_cases"):
+        self.lag_col = _lag_col_name(target_col, 1)
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
+        if self.lag_col not in df.columns:
+            logger.warning(f"Coluna {self.lag_col} ausente, retornando 0.")
+            return np.zeros(len(df))
         return df[self.lag_col].fillna(0).values.astype(float)
 
 
 class NaiveSazonalBaseline:
-    """Prever = mesmo mês do ano anterior (dengue_lag12)."""
+    """Prever = mesmo mês do ano anterior (<doença>_lag12)."""
 
-    def __init__(self, lag_col: str = "dengue_lag12"):
-        self.lag_col = lag_col
+    def __init__(self, target_col: str = "dengue_cases"):
+        self.lag_col = _lag_col_name(target_col, 12)
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
+        if self.lag_col not in df.columns:
+            logger.warning(f"Coluna {self.lag_col} ausente, retornando 0.")
+            return np.zeros(len(df))
         return df[self.lag_col].fillna(0).values.astype(float)
 
 
@@ -56,7 +76,7 @@ class GLMBinomialNegativa:
             "enso_lag1", "enso_lag2",
             "amplitude_lag1",
             "graus_dia_18_lag1",
-            "prec_acum_3m",
+            "prec_acum_3m_lag1",
             "temp_anomalia_lag1",
             "prec_anomalia_lag1",
             "abs_latitude",
@@ -69,8 +89,12 @@ class GLMBinomialNegativa:
         import statsmodels.api as sm
 
         self.feature_cols = self._prepare_features(df_train)
+        # statsmodels não aceita NaN: ajusta só nas linhas completas e guarda
+        # as medianas do TREINO para imputar no teste (sem olhar o futuro).
+        df_train = df_train.dropna(subset=self.feature_cols + [target_col])
+        self._medians = df_train[self.feature_cols].median()
         X = df_train[self.feature_cols].copy()
-        X = sm.add_constant(X)
+        X = sm.add_constant(X, has_constant="add")
         y = df_train[target_col].values
 
         # Offset: log(população / 100.000), para modelar incidência
@@ -98,8 +122,8 @@ class GLMBinomialNegativa:
         if self.model is None:
             return np.full(len(df_test), self._fallback_mean)
 
-        X = df_test[self.feature_cols].copy()
-        X = sm.add_constant(X)
+        X = df_test[self.feature_cols].fillna(self._medians)
+        X = sm.add_constant(X, has_constant="add")
 
         if "populacao" in df_test.columns:
             offset = np.log(df_test["populacao"].clip(lower=1).values / 100_000)
@@ -133,14 +157,15 @@ def evaluate_baselines(
         fold_result = {"year": int(test_year), "n_test": int(test_mask.sum())}
 
         # Persistência
-        persist = PersistenciaBaseline()
+        persist = PersistenciaBaseline(target_col=target_col)
         p_pred = persist.predict(df_test)
         fold_result["persist_r2"] = round(r2_score(y_test, p_pred), 4)
         fold_result["persist_mae"] = round(mean_absolute_error(y_test, p_pred), 2)
 
         # Naive sazonal
-        if "dengue_lag12" in df.columns:
-            sazonal = NaiveSazonalBaseline()
+        sazonal_col = _lag_col_name(target_col, 12)
+        if sazonal_col in df.columns:
+            sazonal = NaiveSazonalBaseline(target_col=target_col)
             s_pred = sazonal.predict(df_test)
             fold_result["sazonal_r2"] = round(r2_score(y_test, s_pred), 4)
             fold_result["sazonal_mae"] = round(mean_absolute_error(y_test, s_pred), 2)
@@ -159,3 +184,4 @@ def evaluate_baselines(
         logger.info(f"  Baselines {test_year}: {fold_result}")
 
     return results
+

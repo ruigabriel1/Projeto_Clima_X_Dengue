@@ -42,10 +42,10 @@
     "semantic_hash": "337c5070ee1a43fa3572835909bb1099"
   },
   "main.py": {
-    "mtime": 1791065780.4609225,
-    "seen": 1791066522.0166922,
-    "ast_hash": "94abed5667ff11bf8ee842a044a76299",
-    "semantic_hash": "94abed5667ff11bf8ee842a044a76299"
+    "mtime": 1792959019.3238852,
+    "seen": 1792959305.7057276,
+    "ast_hash": "b7fa48c6205cb1738f62d345afe55b90",
+    "semantic_hash": ""
   },
   "src/config.py": {
     "mtime": 1782942799.871922,
@@ -60,9 +60,9 @@
     "semantic_hash": "308739d2b59c30f3b11a7733a0d22135"
   },
   "src/ml_pipeline/data_ingestion.py": {
-    "mtime": 1791954143.0806324,
-    "seen": 1792007742.7027452,
-    "ast_hash": "a33abc08ed61c92c4a7f3a532ab1782c",
+    "mtime": 1792796598.1033897,
+    "seen": 1792959305.7057276,
+    "ast_hash": "40cc733e6150edafacdac0b51a7659c0",
     "semantic_hash": ""
   },
   "src/ml_pipeline/export_dashboard.py": {
@@ -72,28 +72,28 @@
     "semantic_hash": "debc9cd31261d5741c5458850741aa05"
   },
   "src/ml_pipeline/feature_engineering.py": {
-    "mtime": 1792007665.5638359,
-    "seen": 1792007742.7027452,
-    "ast_hash": "891bd37fffcb914132e66f85715b2c05",
+    "mtime": 1792800281.8257148,
+    "seen": 1792959305.7057276,
+    "ast_hash": "a02da07b5162c47dba4b20d0bb9c919d",
     "semantic_hash": ""
   },
   "src/ml_pipeline/ml_orchestrator.py": {
-    "mtime": 1791954261.2683227,
-    "seen": 1792007742.7027452,
-    "ast_hash": "5644a38f83b182633a5e56232aa15031",
+    "mtime": 1792959097.0374873,
+    "seen": 1792959305.7057276,
+    "ast_hash": "00d262fde4e5514bde97fa40d22c06f7",
     "semantic_hash": ""
   },
   "src/ml_pipeline/model_training.py": {
-    "mtime": 1792007667.5955758,
-    "seen": 1792007742.7027452,
-    "ast_hash": "2d2d8f3146ed1cd5639fec7308aa7452",
+    "mtime": 1792799712.6288981,
+    "seen": 1792959305.7057276,
+    "ast_hash": "25f51f02083fb0696f4a3a9b3237584d",
     "semantic_hash": ""
   },
   "src/ml_pipeline/prediction.py": {
-    "mtime": 1790722792.229359,
-    "seen": 1791066522.0166922,
-    "ast_hash": "b02a84460cd44c6fbf3bde04812bc0ed",
-    "semantic_hash": "b02a84460cd44c6fbf3bde04812bc0ed"
+    "mtime": 1792958989.6540601,
+    "seen": 1792959305.7057276,
+    "ast_hash": "3ed5758d7a286ee671309661e6b209fe",
+    "semantic_hash": ""
   },
   "src/processamento/ingestor_api_sul.py": {
     "mtime": 1789752137.7944512,
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "tests/test_ml_pipeline.py": {
-    "mtime": 1792007679.6701517,
-    "seen": 1792007742.7027452,
-    "ast_hash": "96f243d908b79dd8cfa5335c20e0812a",
+    "mtime": 1792800354.0072868,
+    "seen": 1792959305.7057276,
+    "ast_hash": "7ef6a7fc943efa4c1c1420ffcf560a90",
     "semantic_hash": ""
   },
   "README.md": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "requirements.txt": {
-    "mtime": 1771532488.9626224,
-    "seen": 1792007742.7027452,
-    "ast_hash": "6b64c351058303a43c37ef67dcf4afea",
+    "mtime": 1792959031.1061947,
+    "seen": 1792959305.7057276,
+    "ast_hash": "d17a35db201e913bcd517c04d7bec319",
     "semantic_hash": ""
   },
   "graficos_artigo/01_projecao_cenarios_matplotlib.png": {
@@ -249,6 +249,18 @@
     "mtime": 1791066285.6473162,
     "seen": 1792007742.7027452,
     "ast_hash": "a577fc825fdad4fd3bdf2618da0df1df",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/baselines.py": {
+    "mtime": 1792799763.4988673,
+    "seen": 1792959305.7057276,
+    "ast_hash": "a80c723a40fd665603438807a4d33822",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/interpretability.py": {
+    "mtime": 1792958921.1916625,
+    "seen": 1792959305.7057276,
+    "ast_hash": "aed659ff5f689afc5cf7b58083cca3f3",
     "semantic_hash": ""
   }
 }

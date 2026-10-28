@@ -15,8 +15,14 @@
   "13": "app/__init__.py",
   "14": "comandos_uteis.ps1",
   "15": "ml_pipeline/__init__.py",
-  "16": "🚨 O que você deve corrigir urgentemente",
+  "16": "test_ml_pipeline.py",
   "17": "C.2 Algoritmos Recomendados para Este Problema",
   "18": "Como obter os dados",
-  "19": "exportar_dados_dashboard"
+  "19": "main.py",
+  "20": "ml_orchestrator.py",
+  "21": "run_interpretability",
+  "22": "evaluate_baselines",
+  "23": "GLMBinomialNegativa",
+  "24": "TestMultiDoenca",
+  "25": "mini_panel"
 }

@@ -1,14 +1,15 @@
 """
-Módulo de treinamento do motor de ML v3.
+Módulo de treinamento do motor de ML v4 (multi-doença).
 Isola o algoritmo, validação temporal e tunagem de hiperparâmetros.
 
-v3 — Corrige:
+v4 — Mudanças:
   - Clipping: agora é POR CIDADE (não global), com P99.
   - Validação: Expanding Window temporal (treina em ≤ano_t, testa em ano_t+1).
-  - Log: usa logging em vez de print.
-  - Retorna métricas detalhadas por fold.
+  - Baseline de persistência detectado pelo prefixo da doença-alvo.
+  - Suporte a offset de população (base_margin) para Poisson / Tweedie.
 """
 import logging
+import re
 from pathlib import Path
 
 import numpy as np
@@ -18,6 +19,13 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 
 logger = logging.getLogger(__name__)
+
+# Mapa de doença → prefixo (consistente com feature_engineering)
+_PREFIXOS = {
+    "dengue_cases": "dengue",
+    "chik_cases": "chik",
+    "zika_cases": "zika",
+}
 
 
 def clip_outliers_per_city(df: pd.DataFrame, col: str = "dengue_cases", percentile: float = 99.0) -> pd.Series:
@@ -55,6 +63,26 @@ def _expanding_window_splits(years: pd.Series, min_train_years: int = 3):
         yield train_mask, test_mask, test_year
 
 
+def _detect_persist_col(df: pd.DataFrame, target_col: str) -> str | None:
+    """Encontra a coluna de lag1 da doença-alvo para o baseline de persistência."""
+    prefix = _PREFIXOS.get(target_col)
+    if prefix is None:
+        return None
+    for c in df.columns:
+        m = re.fullmatch(rf"{prefix}_lag(\d+)", c)
+        if m and int(m.group(1)) == 1:
+            return c
+    return None
+
+
+def _build_base_margin(df: pd.DataFrame) -> np.ndarray | None:
+    """Offset = log(pop / 100.000) para modelar incidência, não contagem bruta."""
+    if "populacao" not in df.columns:
+        return None
+    pop = df["populacao"].fillna(1).clip(lower=1).values
+    return np.log(pop / 100_000.0)
+
+
 def train_model(
     df: pd.DataFrame,
     feature_cols: list[str],
@@ -62,6 +90,8 @@ def train_model(
     tune_hyperparams: bool = False,
     save_path: Path | None = None,
     clip_percentile: float | None = None,
+    use_pop_offset: bool = False,
+    return_oof: bool = False,
 ):
     """
     Treina o modelo XGBoost Poisson com Expanding Window CV.
@@ -77,6 +107,8 @@ def train_model(
       model   — modelo treinado no dataset completo.
       metrics — lista de dicts (um por fold Expanding Window).
       fi      — lista de tuplas (feature, importância), ordenada desc.
+      oof     — (só se return_oof=True) DataFrame code/year/month/y_true/y_pred
+                com as predições fora-da-amostra de cada fold.
     """
     X = df[feature_cols].copy()
     y_raw = df[target_col].copy()
@@ -135,20 +167,40 @@ def train_model(
             eval_metric="poisson-nloglik",
         )
 
+    # ---------- Offset de população ----------
+    base_margin_all = _build_base_margin(df) if use_pop_offset else None
+
     # ---------- Expanding Window CV ----------
     metrics = []
-    logger.info("Iniciando Validação Temporal (Expanding Window)...")
+    oof_parts = []
+    persist_col = _detect_persist_col(df, target_col)
+    logger.info(f"Iniciando Validação Temporal (Expanding Window)... persist_col={persist_col}")
 
     for train_mask, test_mask, test_year in _expanding_window_splits(years, min_train_years=3):
         X_train, y_train = X[train_mask], y_clipped[train_mask]
         X_test = X[test_mask]
         y_test = y_raw[test_mask].values  # avalia no valor REAL (sem clip)
 
-        model_fold = xgb.XGBRegressor(**best_params)
-        model_fold.fit(X_train, y_train)
+        fit_kw = {}
+        pred_kw = {}
+        if base_margin_all is not None:
+            fit_kw["base_margin"] = base_margin_all[train_mask]
+            pred_kw["base_margin"] = base_margin_all[test_mask]
 
-        preds = model_fold.predict(X_test)
+        model_fold = xgb.XGBRegressor(**best_params)
+        model_fold.fit(X_train, y_train, **fit_kw)
+
+        preds = model_fold.predict(X_test, **pred_kw)
         preds = np.maximum(preds, 0)
+
+        if return_oof:
+            oof_parts.append(pd.DataFrame({
+                "code": df.loc[test_mask, "code"].values,
+                "year": df.loc[test_mask, "year"].values,
+                "month": df.loc[test_mask, "month"].values,
+                "y_true": y_test,
+                "y_pred": preds,
+            }))
 
         r2 = r2_score(y_test, preds)
         mae = mean_absolute_error(y_test, preds)
@@ -157,8 +209,8 @@ def train_model(
 
         # Baseline de persistência: prever que o mês seguinte repete o anterior
         r2_persist = mae_persist = None
-        if "dengue_lag1" in df.columns:
-            base = df.loc[test_mask, "dengue_lag1"].values
+        if persist_col and persist_col in df.columns:
+            base = df.loc[test_mask, persist_col].fillna(0).values
             r2_persist = round(r2_score(y_test, base), 4)
             mae_persist = round(mean_absolute_error(y_test, base), 2)
 
@@ -186,7 +238,10 @@ def train_model(
     # ---------- Treino Final (dataset completo) ----------
     logger.info("Treinando modelo final no dataset completo...")
     final_model = xgb.XGBRegressor(**best_params)
-    final_model.fit(X, y_clipped)
+    fit_kw_final = {}
+    if base_margin_all is not None:
+        fit_kw_final["base_margin"] = base_margin_all
+    final_model.fit(X, y_clipped, **fit_kw_final)
 
     # Feature Importance
     fi = sorted(
@@ -200,4 +255,7 @@ def train_model(
         joblib.dump(final_model, save_path)
         logger.info(f"Modelo salvo em {save_path}")
 
+    if return_oof:
+        oof = pd.concat(oof_parts, ignore_index=True) if oof_parts else pd.DataFrame()
+        return final_model, metrics, fi, oof
     return final_model, metrics, fi

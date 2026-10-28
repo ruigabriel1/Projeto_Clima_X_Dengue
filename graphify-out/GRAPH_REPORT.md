@@ -1,16 +1,16 @@
-# Graph Report - Projeto_Clima_X_Dengue  (2026-10-14)
+# Graph Report - Projeto_Clima_X_Dengue  (2026-10-25)
 
 ## Corpus Check
-- 31 files · ~79,384 words
+- 33 files · ~82,989 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 398 nodes · 533 edges · 20 communities
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.85)
+- 478 nodes · 693 edges · 26 communities
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 15 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `be9c7881`
+- Built from commit: `5d04e880`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -28,47 +28,53 @@
 - GUIA DE EXECUÇÃO DAS ANÁLISES URGENTES
 - Plano de Correção: ML + Aplicação Prodígia
 - 2. Correlação de Spearman (ρ)
-- 🚨 O que você deve corrigir urgentemente
+- test_ml_pipeline.py
 - C.2 Algoritmos Recomendados para Este Problema
 - Como obter os dados
-- exportar_dados_dashboard
+- main.py
+- ml_orchestrator.py
+- run_interpretability
+- evaluate_baselines
+- GLMBinomialNegativa
+- TestMultiDoenca
+- mini_panel
 
 ## God Nodes (most connected - your core abstractions)
-1. `build_ml_features()` - 15 edges
+1. `build_ml_features()` - 23 edges
 2. `📊 Mapas de Faixas de Latitude - Incidência de Dengue` - 15 edges
-3. `train_model()` - 12 edges
-4. `📊 Guia de Interpretação dos Resultados` - 12 edges
-5. `🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior` - 12 edges
-6. `get_feature_columns()` - 11 edges
-7. `main()` - 11 edges
-8. `save_pdf_reports()` - 10 edges
-9. `GUIA DE EXECUÇÃO DAS ANÁLISES URGENTES` - 10 edges
-10. `build_base_panel()` - 8 edges
+3. `train_model()` - 14 edges
+4. `get_feature_columns()` - 13 edges
+5. `run_interpretability()` - 12 edges
+6. `📊 Guia de Interpretação dos Resultados` - 12 edges
+7. `🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior` - 12 edges
+8. `main()` - 11 edges
+9. `evaluate_baselines()` - 10 edges
+10. `_run_single_disease()` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `TestMultiDoenca` --uses--> `PersistenciaBaseline`  [INFERRED]
+  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
+- `TestMultiDoenca` --uses--> `NaiveSazonalBaseline`  [INFERRED]
+  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
 - `api_status()` --calls--> `get_db_status()`  [INFERRED]
   app/server.py → src/ml_pipeline/export_dashboard.py
 - `api_cidades()` --calls--> `get_cidades()`  [INFERRED]
   app/server.py → src/ml_pipeline/export_dashboard.py
-- `main()` --calls--> `exportar_dados_dashboard()`  [EXTRACTED]
-  main.py → src/ml_pipeline/export_dashboard.py
-- `exportar_dados_dashboard()` --calls--> `build_base_panel()`  [EXTRACTED]
-  src/ml_pipeline/export_dashboard.py → src/processamento/motor_lote_modelagem_v2_por_latitude.py
-- `loadAndRender()` --calls--> `fetchResultados()`  [EXTRACTED]
-  app/static/js/main.js → app/static/js/api.js
+- `command_train()` --calls--> `run_pipeline()`  [EXTRACTED]
+  main.py → src/ml_pipeline/ml_orchestrator.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (20 total, 0 thin omitted)
+## Communities (26 total, 0 thin omitted)
 
 ### Community 0 - "motor_lote_modelagem_v2_por_latitude.py"
 Cohesion: 0.10
 Nodes (44): ml_runner.py — Wrapper leve do motor ML para a interface Prodígia. Encapsula…, build_base_panel(), build_code_lookup_from_latitude_files(), _build_ml_features(), build_monthly_climatology(), build_yearly_templates(), calibrate_region(), CalibrationBundle (+36 more)
 
 ### Community 1 - "build_ml_features"
-Cohesion: 0.06
-Nodes (47): fixture, Compara o modelo v3 contra baseline de persistência (y_hat = lag1) e lista FI., Experimento: efeito do clipping e das features do mês corrente no R² v3., Series, build_base_panel(), DataFrame, Path, Módulo responsável por construir o painel base a partir do banco de dados… (+39 more)
+Cohesion: 0.11
+Nodes (20): Experimento: efeito do clipping e das features do mês corrente no R² v3., _anomalia_expanding(), build_ml_features(), get_feature_columns(), _prefixo_doenca(), DataFrame, Series, Módulo de Feature Engineering v4 (multi-doença, multi-horizonte). Princípios: -… (+12 more)
 
 ### Community 2 - "main.js"
 Cohesion: 0.31
@@ -87,8 +93,8 @@ Cohesion: 0.05
 Nodes (38): 1. Correlação ≠ Causalidade, 1. Teste de Normalidade, 2. Significância ≠ Importância Prática, 3. Considere o Contexto, 3. Teste Mann-Whitney U, 4. Outliers, 4. Teste Kruskal-Wallis, 5. Teste de Levene (+30 more)
 
 ### Community 6 - "🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior"
-Cohesion: 0.06
-Nodes (32): 1. Tratamento de Anomalias Climáticas (INMET), 2. Tratamento Epidemiológico de Lacunas (SINAN), 3. Overhaul do Geoprocessamento Visual (Mapas), A Engenharia de Features e Validação Global (Notebooks 03 e 04), 🔬 Ambiente de Exploração (Jupyter Notebooks - `.ipynb`), 🏭 Ambiente de Produção (Scripts Python - `.py`), Arquivos para Validação, B. Arquitetura de Dados — Medallion Architecture (+24 more)
+Cohesion: 0.05
+Nodes (42): 1. Caminhos Absolutos Hardcoded — **Severidade: CRÍTICA**, 1. Tratamento de Anomalias Climáticas (INMET), 2. Duplicação da Lógica Wide→Long — **Severidade: ALTA**, 2. Tratamento Epidemiológico de Lacunas (SINAN), 3. Overhaul do Geoprocessamento Visual (Mapas), 3. Pipeline sem Orquestração de Dependências — **Severidade: ALTA**, 4. Nomenclatura Inconsistente de Colunas — **Severidade: MÉDIA**, 5. Sem Testes Unitários — **Severidade: MÉDIA** (+34 more)
 
 ### Community 7 - "Arquitetura de Dados — Pipeline Medallion (Evolução API/SQLite)"
 Cohesion: 0.06
@@ -99,8 +105,8 @@ Cohesion: 0.06
 Nodes (30): Ajuste de faixas de latitude:, 📈 Análise dos Resultados (2015-2023), 🎨 Classificação de Cores, 🚀 Como Executar, Cálculo da Média por Faixa, Descrição, Entrada, Erro: "Nenhum arquivo CSV encontrado" (+22 more)
 
 ### Community 9 - "prediction.py"
-Cohesion: 0.33
-Nodes (5): predict_future_scenarios(), DataFrame, Módulo de predição do motor de ML. Responsável por pegar o modelo treinado…, Dada a tabela climática projetada (ou climatologia estendida com deltas do…, # TODO: Implementar a lógica de geração dos DataFrames futuros com os
+Cohesion: 0.21
+Nodes (13): get_climate_feature_columns(), Features do Modelo B (clima → risco). Requer build_ml_features(...,…, _apply_ssp_deltas(), bootstrap_uncertainty(), _compute_city_climatology(), predict_scenarios(), DataFrame, Path (+5 more)
 
 ### Community 10 - "GUIA DE EXECUÇÃO DAS ANÁLISES URGENTES"
 Cohesion: 0.07
@@ -114,9 +120,9 @@ Nodes (25): Automated Tests, Diagnóstico Resumido, Eliminar o Botão "Treinar M
 Cohesion: 0.18
 Nodes (11): 2. Correlação de Spearman (ρ), Como Interpretar:, Direção:, Exemplo 1: Temperatura Média, Exemplo 2: Temperatura Mínima, Exemplo 3: Precipitação, Exemplo de Resultado:, Exemplos Práticos: (+3 more)
 
-### Community 16 - "🚨 O que você deve corrigir urgentemente"
-Cohesion: 0.20
-Nodes (10): 1. Caminhos Absolutos Hardcoded — **Severidade: CRÍTICA**, 2. Duplicação da Lógica Wide→Long — **Severidade: ALTA**, 3. Pipeline sem Orquestração de Dependências — **Severidade: ALTA**, 4. Nomenclatura Inconsistente de Colunas — **Severidade: MÉDIA**, 5. Sem Testes Unitários — **Severidade: MÉDIA**, 6. Arquivo Temporário na Raiz — **Severidade: BAIXA**, 7. README Desatualizado — **Severidade: BAIXA**, A. Análise Crítica do Processo Atual (+2 more)
+### Community 16 - "test_ml_pipeline.py"
+Cohesion: 0.14
+Nodes (20): _build_base_margin(), clip_outliers_per_city(), _detect_persist_col(), _expanding_window_splits(), DataFrame, ndarray, Path, Series (+12 more)
 
 ### Community 17 - "C.2 Algoritmos Recomendados para Este Problema"
 Cohesion: 0.22
@@ -126,28 +132,52 @@ Nodes (9): C.1 Análise do Seu Modelo Atual, C.2 Algoritmos Recomendados para Es
 Cohesion: 0.29
 Nodes (6): 1. Dados Meteorológicos (INMET), 2. Dados Epidemiológicos (DataSUS/SINAN), 3. Dados ENSO (NOAA), 4. Recurso Gráfico, Como obter os dados, Estrutura esperada
 
-### Community 19 - "exportar_dados_dashboard"
-Cohesion: 0.60
-Nodes (4): command_run_model(), main(), exportar_dados_dashboard(), Consolida os dados do banco e resultados ML (ml_run_log) no JSON do dashboard.
+### Community 19 - "main.py"
+Cohesion: 0.29
+Nodes (9): command_export_dashboard(), command_run_model(), command_train(), main(), Executa o pipeline ML v4 (multi-doença)., Executa o motor legado de projeções SSP (mantido para retrocompatibilidade)., Exporta dados e gráficos para o Dashboard., exportar_dados_dashboard() (+1 more)
+
+### Community 20 - "ml_orchestrator.py"
+Cohesion: 0.16
+Nodes (15): Compara o modelo v3 contra baseline de persistência (y_hat = lag1) e lista FI., build_base_panel(), DataFrame, Path, Módulo responsável por construir o painel base a partir do banco de dados…, Valida o painel base e retorna um dicionário-relatório de qualidade. Levanta…, Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto…, validate_panel() (+7 more)
+
+### Community 21 - "run_interpretability"
+Cohesion: 0.25
+Nodes (17): compute_shap_values(), plot_partial_dependence(), plot_shap_importance(), plot_top_pdps(), DataFrame, ndarray, Path, Módulo de interpretabilidade do modelo XGBoost (v4 multi-doença). Fornece: -… (+9 more)
+
+### Community 22 - "evaluate_baselines"
+Cohesion: 0.21
+Nodes (10): evaluate_baselines(), _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, Avalia persistência, naive sazonal e GLM NB com Expanding Window. Retorna lista…, Constrói o nome da coluna de lag para a doença-alvo., Prever = valor do mês anterior (<doença>_lag1). (+2 more)
+
+### Community 23 - "GLMBinomialNegativa"
+Cohesion: 0.22
+Nodes (7): GLMBinomialNegativa, DataFrame, ndarray, Prediz casos a partir do GLM ajustado., GLM Binomial Negativa com offset log(população). Usa variáveis climáticas +…, Seleciona features do Modelo B (sem lags de dengue)., Ajusta o GLM NB com offset log(pop).
+
+### Community 24 - "TestMultiDoenca"
+Cohesion: 0.18
+Nodes (8): parametrize, Testa que o pipeline funciona para cada doença suportada., build_ml_features roda sem erro para cada doença., Features de uma doença NÃO devem incluir a coluna-alvo de outra., Verifica que os lags de chikungunya são criados quando solicitado., Testa o fluxo completo: features → treino → predição, por doença., TestIntegration, TestMultiDoenca
+
+### Community 25 - "mini_panel"
+Cohesion: 0.67
+Nodes (3): fixture, mini_panel(), Cria um painel sintético com 2 cidades × 72 meses (6 anos) e 3 doenças.
 
 ## Knowledge Gaps
 - **165 isolated node(s):** `Resultado Principal`, `Estrutura do Repositório`, `Como Rodar`, `Documentação`, `Fontes de Dados` (+160 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 229 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 262 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior` connect `🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior` to `🚨 O que você deve corrigir urgentemente`, `C.2 Algoritmos Recomendados para Este Problema`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `📊 Guia de Interpretação dos Resultados` connect `📊 Guia de Interpretação dos Resultados` to `2. Correlação de Spearman (ρ)`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `build_base_panel()` connect `motor_lote_modelagem_v2_por_latitude.py` to `exportar_dados_dashboard`?**
-  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `run_pipeline()` connect `ml_orchestrator.py` to `main.py`?**
+  _High betweenness centrality (0.114) - this node is a cross-community bridge._
+- **Why does `exportar_dados_dashboard()` connect `main.py` to `motor_lote_modelagem_v2_por_latitude.py`?**
+  _High betweenness centrality (0.108) - this node is a cross-community bridge._
+- **Why does `build_base_panel()` connect `motor_lote_modelagem_v2_por_latitude.py` to `main.py`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **What connects `Resultado Principal`, `Estrutura do Repositório`, `Como Rodar` to the rest of the system?**
   _165 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `motor_lote_modelagem_v2_por_latitude.py` be split into smaller, more focused modules?**
   _Cohesion score 0.1036077705827937 - nodes in this community are weakly interconnected._
 - **Should `build_ml_features` be split into smaller, more focused modules?**
-  _Cohesion score 0.055299539170506916 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11375661375661375 - nodes in this community are weakly interconnected._
 - **Should `ingestor_api_sul.py` be split into smaller, more focused modules?**
   _Cohesion score 0.14210526315789473 - nodes in this community are weakly interconnected._

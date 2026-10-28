@@ -1,24 +1,31 @@
 """
-Orquestrador MLOps principal v3.
+Orquestrador MLOps principal v4 (multi-doença).
 Acopla ingestão, validação, engenharia de features, treino e avaliação.
 
 Modos de execução:
   - "regional"  → todas as cidades do painel (≈1.190 municípios)
   - "rapido"    → filtra uma cidade para debug rápido
 
-Mudanças v3:
-  - Usa validate_panel() após ingestão.
-  - Usa get_feature_columns() para selecionar features de forma segura.
-  - Expanding Window CV (via model_training v3).
-  - Salva modelo .joblib e relatório .json.
+Doenças suportadas:
+  - dengue | chikungunya | zika | todas (loop)
+
+Mudanças v4:
+  - Aceita --doenca para rodar o pipeline por doença.
+  - "todas" itera sobre dengue + chikungunya + zika.
+  - Nomes de arquivos (modelo, log) incluem a doença.
+  - Passa target_col correto ao feature_engineering, training e baselines.
 """
 from pathlib import Path
 import logging
 import json
 import sys
 
-from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel
-from src.ml_pipeline.feature_engineering import build_ml_features, get_feature_columns
+import pandas as pd
+
+from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel, DOENCAS
+from src.ml_pipeline.feature_engineering import (
+    build_ml_features, get_feature_columns, get_climate_feature_columns, DOENCA_PARA_COL,
+)
 from src.ml_pipeline.model_training import train_model
 from src.ml_pipeline.baselines import evaluate_baselines
 
@@ -30,10 +37,168 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _run_single_disease(
+    panel: pd.DataFrame,
+    doenca: str,
+    root_dir: Path,
+    modo: str,
+    tune_hyperparams: bool,
+    validation_report: dict,
+):
+    """Executa o pipeline para uma doença específica."""
+
+    target_col = DOENCA_PARA_COL[doenca]
+    logger.info("=" * 50)
+    logger.info(f"=== Doença: {doenca.upper()} (alvo: {target_col}) ===")
+    logger.info("=" * 50)
+
+    # Verificar se a coluna existe no painel
+    if target_col not in panel.columns:
+        logger.warning(f"Coluna {target_col} ausente do painel. Pulando {doenca}.")
+        return None, None
+
+    # Verificar se há dados suficientes (não todos nulos)
+    n_validos = panel[target_col].notna().sum()
+    n_positivos = (panel[target_col] > 0).sum()
+    logger.info(f"  {doenca}: {n_validos} registros válidos, {n_positivos} com casos > 0")
+    if n_positivos < 50:
+        logger.warning(f"Dados insuficientes para {doenca} ({n_positivos} positivos). Pulando.")
+        return None, None
+
+    # ==============================
+    # 3. Feature Engineering
+    # ==============================
+    logger.info(f"[FASE 3] Engenharia de Features ({doenca})...")
+    df_features = build_ml_features(panel, doenca=doenca)
+
+    feature_cols = get_feature_columns(df_features, doenca=doenca)
+
+    # Remove apenas linhas sem alvo. NaN nas features é informação ("sem histórico")
+    # e o XGBoost trata nativamente; o GLM imputa internamente com medianas do treino.
+    df_train = df_features.dropna(subset=[target_col]).copy()
+    logger.info(f"Matriz de treino ({doenca}): {len(df_train)} linhas × {len(feature_cols)} features")
+    logger.info(f"Features ({doenca}): {feature_cols}")
+
+    if len(df_train) < 100:
+        logger.error(f"Dados insuficientes para {doenca} ({len(df_train)} linhas). Pulando.")
+        return None, None
+
+    # ==============================
+    # 4. Treinamento + Validação
+    # ==============================
+    logger.info(f"[FASE 4] Treinamento e Validação ({doenca})...")
+
+    model_path = root_dir / "output" / "models" / f"xgboost_poisson_{doenca}_v4.joblib"
+
+    model, metrics, feature_importance, oof_a = train_model(
+        df=df_train,
+        feature_cols=feature_cols,
+        target_col=target_col,
+        tune_hyperparams=tune_hyperparams,
+        save_path=model_path,
+        return_oof=True,
+    )
+    backtest_dir = root_dir / "output" / "backtest"
+    backtest_dir.mkdir(parents=True, exist_ok=True)
+    oof_a.to_csv(backtest_dir / f"oof_modeloA_{doenca}.csv", index=False)
+
+    # ==============================
+    # 5. Baselines
+    # ==============================
+    logger.info(f"[FASE 5] Avaliando baselines ({doenca})...")
+    try:
+        baseline_results = evaluate_baselines(df_train, target_col)
+    except Exception as e:
+        logger.warning(f"Baselines falharam para {doenca}: {e}")
+        baseline_results = []
+
+    # ==============================
+    # 6. Interpretabilidade (SHAP + PDPs)
+    # ==============================
+    interp_report = {}
+    logger.info(f"[FASE 6] Interpretabilidade ({doenca})...")
+    try:
+        from src.ml_pipeline.interpretability import run_interpretability
+        interp_dir = root_dir / "output" / "interpretability"
+        interp_report = run_interpretability(
+            model=model,
+            df=df_train,
+            feature_cols=feature_cols,
+            output_dir=interp_dir,
+            doenca=doenca,
+        )
+    except Exception as e:
+        logger.warning(f"Interpretabilidade falhou para {doenca}: {e}")
+
+    # ==============================
+    # 7. Modelo B (clima → risco) + Cenários SSP
+    # ==============================
+    modelo_b_report = {}
+    logger.info(f"[FASE 7] Modelo B + projeções SSP ({doenca})...")
+    try:
+        from src.ml_pipeline.prediction import predict_scenarios
+        clim_cols = get_climate_feature_columns(df_train)
+        model_b, metrics_b, fi_b, oof_b = train_model(
+            df=df_train,
+            feature_cols=clim_cols,
+            target_col=target_col,
+            save_path=root_dir / "output" / "models" / f"xgboost_poisson_{doenca}_modeloB_v4.joblib",
+            use_pop_offset=True,
+            return_oof=True,
+        )
+        oof_b.to_csv(backtest_dir / f"oof_modeloB_{doenca}.csv", index=False)
+        proj = predict_scenarios(
+            model_b, panel, clim_cols, doenca=doenca, use_pop_offset=True, oof=oof_b,
+            output_dir=root_dir / "output" / "projecoes_v4",
+        )
+        modelo_b_report = {
+            "features": clim_cols,
+            "metrics_por_ano": metrics_b,
+            "feature_importance": fi_b[:20],
+            "projecoes_anuais": proj["anual"].to_dict(orient="records"),
+            "intervalo_empirico": proj["intervalo"],
+        }
+    except Exception as e:
+        logger.warning(f"Modelo B / projeções falharam para {doenca}: {e}", exc_info=True)
+
+    # ==============================
+    # 8. Salvar relatório
+    # ==============================
+    output_dir = root_dir / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    run_log = {
+        "pipeline_version": "v4.1",
+        "doenca": doenca,
+        "target_col": target_col,
+        "modo": modo,
+        "n_cidades": int(df_train["code"].nunique()),
+        "n_samples": len(df_train),
+        "n_features": len(feature_cols),
+        "features": feature_cols,
+        "validation": validation_report,
+        "metrics_por_ano": metrics,
+        "baselines_por_ano": baseline_results,
+        "feature_importance": feature_importance[:20],
+        "interpretability": interp_report,
+        "modelo_b": modelo_b_report,
+    }
+
+    log_file = output_dir / f"ml_run_log_{doenca}_v4.json"
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(run_log, f, indent=2, ensure_ascii=False, default=str)
+
+    logger.info(f"  Modelo salvo: {model_path}")
+    logger.info(f"  Log salvo: {log_file}")
+
+    return model, run_log
+
+
 def run_pipeline(
     root_dir: Path,
     modo: str = "regional",
     tune_hyperparams: bool = False,
+    doenca: str = "dengue",
 ):
     """
     Executa o pipeline completo de ML.
@@ -42,12 +207,13 @@ def run_pipeline(
         root_dir: raiz do projeto.
         modo: "regional" (completo) ou "rapido" (1 cidade para debug).
         tune_hyperparams: se True, faz RandomizedSearchCV.
+        doenca: "dengue" | "chikungunya" | "zika" | "todas".
 
     Returns:
-        model, run_log  (ou None, None em caso de erro).
+        results — dict de {doença: (model, run_log)}.
     """
     logger.info("=" * 60)
-    logger.info("=== Pipeline ML v3 (XGBoost Poisson + Expanding Window) ===")
+    logger.info("=== Pipeline ML v4 (XGBoost Poisson + Multi-Doença) ===")
     logger.info("=" * 60)
 
     # ==============================
@@ -58,16 +224,15 @@ def run_pipeline(
 
     if modo == "rapido":
         # Debug: filtra a cidade com mais dados (Joinville = 420910)
-        panel = panel[panel["code"] == "420910"].copy()
-        if panel.empty:
-            # Fallback: primeira cidade disponível
-            first_code = panel["code"].iloc[0] if not panel.empty else None
-            if first_code:
-                panel = panel[panel["code"] == first_code].copy()
+        if "420910" in panel["code"].values:
+            panel = panel[panel["code"] == "420910"].copy()
+        elif not panel.empty:
+            first_code = panel["code"].iloc[0]
+            panel = panel[panel["code"] == first_code].copy()
 
     if panel.empty:
         logger.error("Painel vazio após ingestão! Abortando.")
-        return None, None
+        return {}
 
     logger.info(f"Painel: {len(panel)} linhas × {len(panel.columns)} colunas, {panel['code'].nunique()} cidades")
 
@@ -79,90 +244,49 @@ def run_pipeline(
         validation_report = validate_panel(panel)
     except ValueError as e:
         logger.error(f"Validação falhou: {e}")
-        return None, None
+        return {}
 
     # ==============================
-    # 3. Feature Engineering
+    # 3-6. Loop por doença
     # ==============================
-    logger.info("[FASE 3] Engenharia de Features...")
-    df_features = build_ml_features(panel)
+    doencas_para_rodar = list(DOENCA_PARA_COL.keys()) if doenca == "todas" else [doenca]
+    results = {}
 
-    feature_cols = get_feature_columns(df_features)
-    target_col = "dengue_cases"
+    for d in doencas_para_rodar:
+        if d not in DOENCA_PARA_COL:
+            logger.error(f"Doença '{d}' não reconhecida. Opções: {list(DOENCA_PARA_COL.keys())} ou 'todas'.")
+            continue
+        model, run_log = _run_single_disease(
+            panel=panel,
+            doenca=d,
+            root_dir=root_dir,
+            modo=modo,
+            tune_hyperparams=tune_hyperparams,
+            validation_report=validation_report,
+        )
+        if model is not None:
+            results[d] = (model, run_log)
 
-    # Garantir que não há NaN nas features
-    df_train = df_features.dropna(subset=feature_cols + [target_col]).copy()
-    logger.info(f"Matriz de treino: {len(df_train)} linhas × {len(feature_cols)} features")
-    logger.info(f"Features: {feature_cols}")
+    logger.info("=" * 60)
+    logger.info(f"=== Pipeline v4 Finalizado! Doenças treinadas: {list(results.keys())} ===")
+    logger.info("=" * 60)
 
-    if len(df_train) < 100:
-        logger.error(f"Dados insuficientes ({len(df_train)} linhas). Abortando.")
-        return None, None
-
-    # ==============================
-    # 4. Treinamento + Validação
-    # ==============================
-    logger.info("[FASE 4] Treinamento e Validação (Expanding Window)...")
-
-    model_path = root_dir / "output" / "models" / "xgboost_poisson_v3.joblib"
-
-    model, metrics, feature_importance = train_model(
-        df=df_train,
-        feature_cols=feature_cols,
-        target_col=target_col,
-        tune_hyperparams=tune_hyperparams,
-        save_path=model_path,
-    )
-
-    # ==============================
-    # 5. Baselines (persistência, sazonal, GLM NB)
-    # ==============================
-    logger.info("[FASE 5] Avaliando baselines...")
-    try:
-        baseline_results = evaluate_baselines(df_train, target_col)
-    except Exception as e:
-        logger.warning(f"Baselines falharam: {e}")
-        baseline_results = []
-
-    # ==============================
-    # 6. Salvar relatório de execução
-    # ==============================
-    logger.info("[FASE 6] Salvando relatório de execução...")
-
-    output_dir = root_dir / "output"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    run_log = {
-        "pipeline_version": "v3.1",
-        "modo": modo,
-        "n_cidades": int(df_train["code"].nunique()),
-        "n_samples": len(df_train),
-        "n_features": len(feature_cols),
-        "features": feature_cols,
-        "validation": validation_report,
-        "metrics_por_ano": metrics,
-        "baselines_por_ano": baseline_results,
-        "feature_importance": feature_importance[:20],  # top 20
-    }
-
-    log_file = output_dir / "ml_run_log_v3.json"
-    with open(log_file, "w", encoding="utf-8") as f:
-        json.dump(run_log, f, indent=2, ensure_ascii=False, default=str)
-
-    logger.info(f"=== Pipeline v3 Finalizado! ===")
-    logger.info(f"  Modelo: {model_path}")
-    logger.info(f"  Log: {log_file}")
-
-    return model, run_log
+    return results
 
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Pipeline ML v3 - Dengue × Clima")
+    parser = argparse.ArgumentParser(description="Pipeline ML v4 - Arboviroses × Clima")
     parser.add_argument("--modo", default="regional", choices=["regional", "rapido"])
     parser.add_argument("--tune", action="store_true", help="Tunar hiperparâmetros")
+    parser.add_argument(
+        "--doenca",
+        default="dengue",
+        choices=["dengue", "chikungunya", "zika", "todas"],
+        help="Doença-alvo (ou 'todas' para loop)",
+    )
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent.parent
-    run_pipeline(root, modo=args.modo, tune_hyperparams=args.tune)
+    run_pipeline(root, modo=args.modo, tune_hyperparams=args.tune, doenca=args.doenca)

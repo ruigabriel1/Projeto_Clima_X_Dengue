@@ -14,12 +14,18 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# Colunas que jamais devem entrar como features (vazamento ou rótulos)
+# Colunas que jamais devem entrar no painel (duplicatas exatas dos alvos)
 _COLS_PROIBIDAS = {
-    "CASOS_EST_DENGUE",       # 100% idêntica ao alvo
-    "CASOS_EST_CHIKUNGUNYA",  # idêntica à coluna não-estimada
-    "CASOS_ZIKA",             # nula em 2024-2025
-    "CASOS_EST_ZIKA",         # nula em 2024-2025
+    "CASOS_EST_DENGUE",       # 100% idêntica a CASOS_DENGUE
+    "CASOS_EST_CHIKUNGUNYA",  # idêntica a CASOS_CHIKUNGUNYA
+    "CASOS_EST_ZIKA",         # idêntica a CASOS_ZIKA
+}
+
+# Doenças disponíveis no banco: nome -> coluna-alvo interna
+DOENCAS = {
+    "dengue": "dengue_cases",
+    "chikungunya": "chik_cases",
+    "zika": "zika_cases",  # atenção: só existe até início de 2024
 }
 
 
@@ -165,6 +171,7 @@ def build_base_panel(root_dir: Path, modo: str = "regional") -> pd.DataFrame:
         "FAIXA_LATITUDE": "lat_faixa_id",
         "CASOS_DENGUE": "dengue_cases",
         "CASOS_CHIKUNGUNYA": "chik_cases",
+        "CASOS_ZIKA": "zika_cases",
         "ENSO_ONI": "enso",
         "POPULACAO": "populacao",
     }
@@ -231,15 +238,25 @@ def validate_panel(panel: pd.DataFrame) -> dict:
         if enso_var < 0.001:
             logger.error("VALIDAÇÃO: ENSO sem variância! Provavelmente não foi carregado corretamente.")
 
-    # 6. Alvo
-    if "dengue_cases" in panel.columns:
-        zeros_pct = (panel["dengue_cases"] == 0).mean() * 100
-        report["alvo_zeros_pct"] = round(zeros_pct, 1)
-        report["alvo_p99"] = float(panel["dengue_cases"].quantile(0.99))
-        report["alvo_max"] = float(panel["dengue_cases"].max())
+    # 6. Alvos (uma entrada por doença)
+    report["doencas"] = {}
+    for nome, col in DOENCAS.items():
+        if col not in panel.columns:
+            continue
+        s = panel[col]
+        anos_validos = sorted(panel.loc[s.notna(), "year"].unique().tolist())
+        report["doencas"][nome] = {
+            "total_casos": float(s.sum()),
+            "zeros_pct": round(float((s == 0).mean() * 100), 1),
+            "nulos_pct": round(float(s.isna().mean() * 100), 1),
+            "p99": float(s.quantile(0.99)),
+            "max": float(s.max()),
+            "cidades_com_caso": int(panel.loc[s > 0, "code"].nunique()),
+            "anos_com_dado": [int(a) for a in anos_validos],
+        }
 
     # 7. Vazamento
-    vazamento = [c for c in ["CASOS_EST_DENGUE", "CASOS_EST_CHIKUNGUNYA", "CASOS_ZIKA", "CASOS_EST_ZIKA"] if c in panel.columns]
+    vazamento = [c for c in _COLS_PROIBIDAS if c in panel.columns]
     report["colunas_vazamento_presentes"] = vazamento
     if vazamento:
         raise ValueError(f"VALIDAÇÃO FALHOU: colunas de vazamento presentes: {vazamento}")

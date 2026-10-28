@@ -1,201 +1,36 @@
 """
-Módulo de Feature Engineering v3.
-Cria features temporais, climáticas, epidemiológicas e socioeconômicas
-**sem vazamento** — todas baseadas em .shift(≥1).
+Módulo de Feature Engineering v4 (multi-doença, multi-horizonte).
 
-Novas Features vs. v2:
-  - Incidência per capita (dengue / pop * 100_000)
-  - Umidade real (umidmed, umidmax, umidmin) em vez de "proxy"
-  - Rolagens corrigidas (shift ANTES de roll → sem olhar o futuro)
-  - Receptividade ambiental como feature direta
-  - Interação ENSO × temperatura
-  - Amplitude térmica
+Princípios:
+  - Toda feature usada na previsão é calculada com informação de até t-h,
+    onde h é o horizonte de previsão (h=1 → prever o mês seguinte).
+  - Features epidemiológicas são geradas para TODAS as doenças do painel
+    (dengue, chikungunya, zika). A seleção de quais entram no modelo é feita
+    em get_feature_columns(), conforme a doença-alvo.
+  - Valores ausentes por falta de histórico (ex.: lag12 no primeiro ano) ficam
+    como NaN. O XGBoost trata NaN nativamente; preencher com 0 seria afirmar
+    "zero casos", o que é falso.
+  - Climatologia para anomalias é EXPANDING (só anos anteriores), sem olhar o futuro.
+
+Duas tarefas:
+  - Modelo A (previsão): get_feature_columns(df, doenca, horizonte)
+  - Modelo B (clima → risco, cenários SSP): get_climate_feature_columns(df)
 """
+import logging
+import re
+
 import numpy as np
 import pandas as pd
-import logging
 
 logger = logging.getLogger(__name__)
 
-
-def build_ml_features(panel: pd.DataFrame) -> pd.DataFrame:
-    """
-    Constrói as features para o modelo preditivo.
-    Recebe o painel base (saída de build_base_panel) e retorna o DataFrame
-    com features e sem linhas com NaN de warm-up (primeiros 3 meses por cidade).
-    """
-    d = panel.copy().sort_values(["code", "year", "month"]).reset_index(drop=True)
-    g = d.groupby("code", sort=False)
-
-    # ============================
-    # 1. Sazonalidade trigonométrica
-    # ============================
-    d["month_sin"] = np.sin(2.0 * np.pi * d["month"] / 12.0)
-    d["month_cos"] = np.cos(2.0 * np.pi * d["month"] / 12.0)
-    d["is_outbreak_season"] = d["month"].isin([1, 2, 3, 4, 5]).astype(float)
-
-    # ============================
-    # 2. Lags do alvo (Inércia epidêmica)
-    # ============================
-    for lag in [1, 2, 3]:
-        d[f"dengue_lag{lag}"] = g["dengue_cases"].shift(lag)
-
-    # Memória epidêmica de 12 meses — SHIFT(1) ANTES DE ROLL
-    # Garante que nunca olhamos o mês corrente
-    d["_dengue_shifted"] = g["dengue_cases"].shift(1)
-    d["dengue_rolling_12"] = d.groupby("code", sort=False)["_dengue_shifted"].transform(
-        lambda x: x.rolling(12, min_periods=3).mean()
-    )
-    d["dengue_rolling_12"] = d["dengue_rolling_12"].fillna(0.0)
-    d.drop(columns=["_dengue_shifted"], inplace=True)
-
-    # ============================
-    # 3. Lags climáticos
-    # ============================
-    clima_cols = {
-        "temp_media": "temp",
-        "precipitacao": "prec",
-    }
-    for col_orig, prefix in clima_cols.items():
-        if col_orig in d.columns:
-            for lag in [1, 2, 3]:
-                d[f"{prefix}_lag{lag}"] = g[col_orig].shift(lag)
-
-    # Umidade REAL (se existir)
-    if "umidmed" in d.columns:
-        for lag in [1, 2]:
-            d[f"umid_lag{lag}"] = g["umidmed"].shift(lag)
-    else:
-        # Fallback: proxy de temp × prec
-        if "temp_lag1" in d.columns and "prec_lag1" in d.columns:
-            d["umidade_proxy_lag1"] = d["temp_lag1"] * d["prec_lag1"]
-            d["umidade_proxy_lag2"] = d["temp_lag2"] * d["prec_lag2"]
-
-    # Amplitude térmica
-    if "temp_maxima" in d.columns and "temp_minima" in d.columns:
-        d["amplitude_termica"] = d["temp_maxima"] - d["temp_minima"]
-        d["amplitude_lag1"] = g["amplitude_termica"].shift(1)
-
-    # ============================
-    # 4. ENSO lags e interações
-    # ============================
-    if "enso" in d.columns:
-        for lag in [1, 2, 3]:
-            d[f"enso_lag{lag}"] = g["enso"].shift(lag)
-        # Interação: El Niño/Niña × temperatura → potencia efeito
-        if "temp_lag1" in d.columns:
-            d["enso_x_temp_lag1"] = d["enso_lag1"] * d["temp_lag1"]
-
-    # ============================
-    # 5. Receptividade ambiental
-    # ============================
-    if "receptivo" in d.columns:
-        # Tratar valores nulos ou texto
-        d["receptivo_num"] = pd.to_numeric(d["receptivo"], errors="coerce").fillna(0).astype(float)
-    else:
-        d["receptivo_num"] = 0.0
-
-    # ============================
-    # 6. População e incidência
-    # ============================
-    if "populacao" in d.columns:
-        pop = d["populacao"].fillna(0)
-        d["log_pop"] = np.log1p(pop)
-        # Incidência lagged (per 100k hab)
-        d["incidencia_lag1"] = (d["dengue_lag1"] / pop.replace(0, np.nan) * 100_000).fillna(0)
-    else:
-        d["log_pop"] = 0.0
-        d["incidencia_lag1"] = 0.0
-
-    # ============================
-    # 7. Latitude (proxy para clima geral)
-    # ============================
-    if "latitude" in d.columns:
-        d["abs_latitude"] = d["latitude"].abs()
-
-    # ============================
-    # 8. Lag sazonal (mesmo mês do ano anterior)
-    # ============================
-    d["dengue_lag12"] = g["dengue_cases"].shift(12)
-    d["dengue_lag12"] = d["dengue_lag12"].fillna(0.0)  # primeiros 12 meses sem histórico
-
-    # ============================
-    # 9. Graus-dia de desenvolvimento do Aedes (limiar 18°C)
-    # ============================
-    if "temp_media" in d.columns:
-        d["graus_dia_18"] = (d["temp_media"] - 18.0).clip(lower=0)
-        d["graus_dia_18_lag1"] = g["graus_dia_18"].shift(1)
-        d["graus_dia_18_lag2"] = g["graus_dia_18"].shift(2)
-
-    # ============================
-    # 10. Acumulados de precipitação (2 e 3 meses anteriores)
-    # ============================
-    if "precipitacao" in d.columns:
-        d["_prec_shifted"] = g["precipitacao"].shift(1)
-        d["prec_acum_3m"] = d.groupby("code", sort=False)["_prec_shifted"].transform(
-            lambda x: x.rolling(3, min_periods=2).sum()
-        )
-        d.drop(columns=["_prec_shifted"], inplace=True)
-
-    # ============================
-    # 11. Anomalias climáticas vs climatologia da cidade × mês
-    #     (calculadas no passado: usamos shift(1) para não vazar)
-    # ============================
-    if "temp_media" in d.columns:
-        d["_temp_clim"] = d.groupby(["code", "month"])["temp_media"].transform("mean")
-        d["temp_anomalia"] = d["temp_media"] - d["_temp_clim"]
-        d["temp_anomalia_lag1"] = g["temp_anomalia"].shift(1)
-        d.drop(columns=["_temp_clim", "temp_anomalia"], inplace=True)
-
-    if "precipitacao" in d.columns:
-        d["_prec_clim"] = d.groupby(["code", "month"])["precipitacao"].transform("mean")
-        d["prec_anomalia"] = d["precipitacao"] - d["_prec_clim"]
-        d["prec_anomalia_lag1"] = g["prec_anomalia"].shift(1)
-        d.drop(columns=["_prec_clim", "prec_anomalia"], inplace=True)
-
-    # ============================
-    # 12. Lag espacial: incidência média da faixa de latitude (vizinhança)
-    # ============================
-    if "lat_faixa_id" in d.columns and "populacao" in d.columns:
-        pop_safe = d["populacao"].replace(0, np.nan)
-        d["_incid"] = d["dengue_cases"] / pop_safe * 100_000
-        d["_incid_faixa"] = d.groupby(["lat_faixa_id", "year", "month"])["_incid"].transform("mean")
-        d["incid_faixa_lag1"] = g["_incid_faixa"].shift(1)
-        d.drop(columns=["_incid", "_incid_faixa"], inplace=True)
-        d["incid_faixa_lag1"] = d["incid_faixa_lag1"].fillna(0)
-
-    # ============================
-    # 13. Rolling curto de casos (3 meses) com shift
-    # ============================
-    d["_dengue_s1"] = g["dengue_cases"].shift(1)
-    d["dengue_rolling_3"] = d.groupby("code", sort=False)["_dengue_s1"].transform(
-        lambda x: x.rolling(3, min_periods=2).mean()
-    )
-    d["dengue_rolling_3"] = d["dengue_rolling_3"].fillna(0.0)
-    d.drop(columns=["_dengue_s1"], inplace=True)
-
-    # ============================
-    # Preencher NaN residuais nas features avançadas (warm-up)
-    # ============================
-    _fill_zero_cols = [
-        "prec_acum_3m", "temp_anomalia_lag1", "prec_anomalia_lag1",
-        "graus_dia_18_lag1", "graus_dia_18_lag2",
-    ]
-    for col in _fill_zero_cols:
-        if col in d.columns:
-            d[col] = d[col].fillna(0.0)
-
-    # ============================
-    # Drop warm-up rows (primeiros 3 meses por cidade)
-    # ============================
-    cols_to_check = [c for c in ["dengue_lag3", "temp_lag3", "prec_lag3"] if c in d.columns]
-    if cols_to_check:
-        d = d.dropna(subset=cols_to_check).copy()
-
-    n_features = [c for c in d.columns if c not in ["code", "city_name", "year", "month", "dengue_cases", "chik_cases", "populacao", "latitude", "longitude", "lat_faixa_id"]]
-    logger.info(f"build_ml_features: {len(d)} linhas x {len(n_features)} features")
-    return d
-
+# Coluna de casos -> prefixo das features
+PREFIXOS = {
+    "dengue_cases": "dengue",
+    "chik_cases": "chik",
+    "zika_cases": "zika",
+}
+DOENCA_PARA_COL = {"dengue": "dengue_cases", "chikungunya": "chik_cases", "zika": "zika_cases"}
 
 # Variáveis observadas NO PRÓPRIO mês-alvo: desconhecidas no momento da previsão.
 _VARS_MES_CORRENTE = {
@@ -204,24 +39,202 @@ _VARS_MES_CORRENTE = {
     "amplitude_termica", "receptivo_num", "graus_dia_18",
 }
 
+_META = {
+    "code", "city_name", "year", "month", "populacao", "latitude", "lat_faixa_id",
+    "receptivo",  # versão bruta; usamos receptivo_num
+}
 
-def get_feature_columns(df: pd.DataFrame, forecast: bool = True) -> list[str]:
-    """
-    Retorna a lista de colunas que devem ser usadas como features (X) pelo modelo.
-    Exclui colunas de identificação, alvo, e variáveis não-numéricas.
 
-    forecast=True (padrão) remove também as variáveis do mês corrente,
-    deixando só informação disponível ANTES do mês previsto (previsão real t+1).
-    Experimento v3: forecast puro deu R² médio 0.476 vs 0.456 com elas.
+def _roll_shifted(d: pd.DataFrame, col: str, shift: int, window: int, min_periods: int, how: str = "mean"):
+    """Rolling por cidade aplicado sobre a série já deslocada (nunca inclui t..t-shift+1)."""
+    s = d.groupby("code", sort=False)[col].shift(shift)
+    r = s.groupby(d["code"], sort=False).rolling(window, min_periods=min_periods)
+    r = r.mean() if how == "mean" else r.sum()
+    return r.reset_index(level=0, drop=True).sort_index()
+
+
+def _anomalia_expanding(d: pd.DataFrame, col: str) -> pd.Series:
     """
-    excluir = {
-        "code", "city_name", "year", "month",
-        "dengue_cases", "chik_cases",
-        "populacao", "latitude", "longitude", "lat_faixa_id",
-        "receptivo",  # versão texto; já convertida para receptivo_num
+    Anomalia = valor - média do MESMO mês nos anos ANTERIORES da mesma cidade.
+    Primeiro ano de cada cidade fica NaN (sem climatologia prévia).
+    """
+    clim = d.groupby(["code", "month"], sort=False)[col].transform(
+        lambda x: x.shift(1).expanding().mean()
+    )
+    return d[col] - clim
+
+
+def build_ml_features(panel: pd.DataFrame, doenca: str = "dengue", horizonte: int = 1) -> pd.DataFrame:
+    """
+    Constrói as features a partir do painel base.
+
+    Args:
+        panel: saída de build_base_panel (ou painel sintético nos testes).
+        doenca: "dengue" | "chikungunya" | "zika" — define quais linhas de warm-up remover.
+        horizonte: h ≥ 1. Lags começam em h (prever t usando até t-h).
+    """
+    if horizonte < 1:
+        raise ValueError("horizonte deve ser >= 1")
+    h = horizonte
+    alvo = DOENCA_PARA_COL[doenca]
+    if alvo not in panel.columns:
+        raise ValueError(f"Coluna-alvo '{alvo}' ausente do painel.")
+
+    d = panel.copy().sort_values(["code", "year", "month"]).reset_index(drop=True)
+    g = d.groupby("code", sort=False)
+    has_pop = "populacao" in d.columns
+    pop = d["populacao"].replace(0, np.nan) if has_pop else None
+
+    # ---------- 1. Sazonalidade ----------
+    d["month_sin"] = np.sin(2.0 * np.pi * d["month"] / 12.0)
+    d["month_cos"] = np.cos(2.0 * np.pi * d["month"] / 12.0)
+    d["is_outbreak_season"] = d["month"].isin([1, 2, 3, 4, 5]).astype(float)
+
+    # ---------- 2. Memória epidêmica (todas as doenças) ----------
+    for col, p in PREFIXOS.items():
+        if col not in d.columns:
+            continue
+        for k in (h, h + 1, h + 2):
+            d[f"{p}_lag{k}"] = g[col].shift(k)
+        if h <= 12:
+            d[f"{p}_lag12"] = g[col].shift(12)
+        d[f"{p}_rolling_3"] = _roll_shifted(d, col, h, 3, 2)
+        d[f"{p}_rolling_12"] = _roll_shifted(d, col, h, 12, 3)
+        if has_pop:
+            d[f"{p}_incid_lag{h}"] = d[f"{p}_lag{h}"] / pop * 100_000
+
+    # ---------- 3. Lag espacial: incidência média da faixa de latitude ----------
+    if "lat_faixa_id" in d.columns and has_pop:
+        p_alvo = PREFIXOS[alvo]
+        incid = d[alvo] / pop * 100_000
+        faixa = incid.groupby([d["lat_faixa_id"], d["year"], d["month"]]).transform("mean")
+        d[f"{p_alvo}_incid_faixa_lag{h}"] = faixa.groupby(d["code"], sort=False).shift(h)
+
+    # ---------- 4. Clima: lags ----------
+    clima_lags = {
+        "temp_media": ("temp", 3),
+        "precipitacao": ("prec", 3),
+        "umidmed": ("umid", 2),
+        "temp_maxima": ("tmax", 1),
+        "temp_minima": ("tmin", 1),
+        "temp_solo": ("tsolo", 1),
+        "vel_vento_max": ("vento", 1),
     }
+    for col, (p, n) in clima_lags.items():
+        if col in d.columns:
+            for k in range(h, h + n):
+                d[f"{p}_lag{k}"] = g[col].shift(k)
+
+    if "temp_maxima" in d.columns and "temp_minima" in d.columns:
+        d["amplitude_termica"] = d["temp_maxima"] - d["temp_minima"]
+        d[f"amplitude_lag{h}"] = g["amplitude_termica"].shift(h)
+
+    if "temp_media" in d.columns:
+        # Graus-dia acima de 18 °C (limiar de desenvolvimento do Aedes aegypti)
+        d["graus_dia_18"] = (d["temp_media"] - 18.0).clip(lower=0)
+        for k in (h, h + 1):
+            d[f"graus_dia_18_lag{k}"] = g["graus_dia_18"].shift(k)
+        d["_temp_anom"] = _anomalia_expanding(d, "temp_media")
+        d[f"temp_anomalia_lag{h}"] = g["_temp_anom"].shift(h)
+
+    if "precipitacao" in d.columns:
+        d[f"prec_acum_3m_lag{h}"] = _roll_shifted(d, "precipitacao", h, 3, 2, how="sum")
+        d["_prec_anom"] = _anomalia_expanding(d, "precipitacao")
+        d[f"prec_anomalia_lag{h}"] = g["_prec_anom"].shift(h)
+
+    d = d.drop(columns=[c for c in ("_temp_anom", "_prec_anom") if c in d.columns])
+
+    # ---------- 5. ENSO (efeito defasado de vários meses) ----------
+    if "enso" in d.columns:
+        for k in range(h, h + 6):
+            d[f"enso_lag{k}"] = g["enso"].shift(k)
+        if f"temp_lag{h}" in d.columns:
+            d[f"enso_x_temp_lag{h}"] = d[f"enso_lag{h}"] * d[f"temp_lag{h}"]
+
+    # ---------- 6. Receptividade (InfoDengue) ----------
+    if "receptivo" in d.columns:
+        d["receptivo_num"] = pd.to_numeric(d["receptivo"], errors="coerce").astype(float)
+        d[f"receptivo_lag{h}"] = d.groupby("code", sort=False)["receptivo_num"].shift(h)
+
+    # ---------- 7. Estáticas da cidade ----------
+    if has_pop:
+        d["log_pop"] = np.log1p(d["populacao"].fillna(0))
+    if "latitude" in d.columns:
+        d["abs_latitude"] = d["latitude"].abs()
+
+    # ---------- Warm-up: remove linhas sem o histórico mínimo da doença-alvo ----------
+    p_alvo = PREFIXOS[alvo]
+    d = d[d[f"{p_alvo}_lag{h + 2}"].notna()].copy()
+
+    logger.info(f"build_ml_features[{doenca}, h={h}]: {len(d)} linhas x {d.shape[1]} colunas")
+    return d
+
+
+def _prefixo_doenca(col: str):
+    for p in PREFIXOS.values():
+        if col.startswith(p + "_"):
+            return p
+    return None
+
+
+def get_feature_columns(
+    df: pd.DataFrame,
+    forecast: bool = True,
+    doenca: str = "dengue",
+) -> list[str]:
+    """
+    Features do Modelo A (previsão).
+
+    - Inclui toda a memória epidêmica da doença-alvo.
+    - Das outras doenças (mesmo vetor, co-circulação, confusão diagnóstica), inclui
+      apenas o lag mais recente e a média de 3 meses. Zika só entra como feature
+      no modelo da própria zika (a série termina em 2024).
+    - forecast=True remove variáveis do mês corrente (desconhecidas na previsão).
+    """
+    p_alvo = PREFIXOS[DOENCA_PARA_COL[doenca]]
+    excluir = set(_META) | set(PREFIXOS.keys())
     if forecast:
         excluir |= _VARS_MES_CORRENTE
-    # Só incluir colunas numéricas
-    candidatas = [c for c in df.columns if c not in excluir and pd.api.types.is_numeric_dtype(df[c])]
-    return candidatas
+
+    candidatas = [
+        c for c in df.columns
+        if c not in excluir and pd.api.types.is_numeric_dtype(df[c])
+    ]
+
+    # Menor lag disponível por doença (depende do horizonte)
+    menor_lag = {}
+    for c in candidatas:
+        m = re.fullmatch(r"(dengue|chik|zika)_lag(\d+)", c)
+        if m:
+            p, k = m.group(1), int(m.group(2))
+            menor_lag[p] = min(k, menor_lag.get(p, 999))
+
+    out = []
+    for c in candidatas:
+        p = _prefixo_doenca(c)
+        if p is None or p == p_alvo:
+            out.append(c)
+        elif p == "zika":
+            continue
+        elif c in (f"{p}_rolling_3", f"{p}_lag{menor_lag.get(p)}"):
+            out.append(c)
+    return out
+
+
+# Features do Modelo B: apenas clima, sazonalidade e contexto da cidade.
+# Nenhuma informação de casos (nem lags). É o que permite projetar cenários SSP,
+# onde não existe "caso do mês anterior".
+_FEATURES_MODELO_B = [
+    "temp_media", "temp_maxima", "temp_minima", "precipitacao", "umidmed",
+    "graus_dia_18", "amplitude_termica",
+    "temp_lag1", "temp_lag2", "prec_lag1", "prec_lag2", "graus_dia_18_lag1",
+    "prec_acum_3m_lag1",
+    "enso", "enso_lag1", "enso_lag2", "enso_lag3",
+    "month_sin", "month_cos",
+    "abs_latitude", "longitude", "log_pop",
+]
+
+
+def get_climate_feature_columns(df: pd.DataFrame) -> list[str]:
+    """Features do Modelo B (clima → risco). Requer build_ml_features(..., horizonte=1)."""
+    return [c for c in _FEATURES_MODELO_B if c in df.columns]
