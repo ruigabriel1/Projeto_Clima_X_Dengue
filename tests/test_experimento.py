@@ -142,6 +142,32 @@ class TestExperimentoPontaAPonta:
             run_teste_final(out_dir=tmp_path, panel=mini_panel)
 
 
+class TestExperimentoV5:
+    def test_ponta_a_ponta_sem_2026(self, mini_panel, tmp_path):
+        from src.ml_pipeline import experimento_v5 as v5
+
+        ano_2026 = mini_panel[mini_panel["year"] == 2023].assign(year=2026, dengue_cases=10_000)
+        panel = pd.concat([mini_panel, ano_2026], ignore_index=True)
+        res, ef, dec = v5.run(panel=panel, out_dir=tmp_path, doencas=("dengue",), horizontes=(1, 2))
+
+        for h in (1, 2):
+            oof = pd.read_csv(tmp_path / f"oof_dengue_h{h}.csv.gz")
+            assert oof["year"].max() <= 2025          # 2026 nunca entra
+            assert oof["y_true"].max() < 10_000
+        assert set(res["modelo"]) == {"semclima_semsusc", "clima_semsusc", "semclima_susc", "clima_susc", "persistencia"}
+        assert {"auc", "brier_skill", "mae_incid_mediana_cidades", "skill"} <= set(res.columns)
+        assert len(ef) == 4 and set(ef["grupo"]) == {"clima", "suscetibilidade"}
+        assert dec["dengue"]["modelo"] in set(res["modelo"])
+
+    def test_calibracao_so_usa_anos_anteriores(self):
+        from src.ml_pipeline.experimento_v5 import calibrar_temporal
+        oof = pd.DataFrame({"year": [2020] * 4 + [2021] * 4, "escore": [0, 1, 2, 3] * 2,
+                            "risco_alto": [0, 0, 1, 1, 1, 1, 0, 0]})
+        p = calibrar_temporal(oof, "escore")
+        assert p[oof.year == 2020].isna().all()                 # 1º ano: sem passado para calibrar
+        assert list(p[oof.year == 2021]) == [0, 0, 1, 1]        # aprendeu só com 2020
+
+
 class TestTravaHoldout:
     def test_trava_impede_reuso(self, tmp_path):
         from src.ml_pipeline.teste_final import LOCK_NAME, HoldoutJaUsado, run_teste_final

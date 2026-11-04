@@ -80,6 +80,24 @@ def command_modelo_final(args):
     mf_main(["--sem-teste"] if args.sem_teste else [])
 
 
+def command_atualizar_dados(args):
+    """Atualização incremental e idempotente do banco (InfoDengue, Open-Meteo, NOAA)."""
+    from src.processamento.atualizacao_incremental import main as at_main
+    at_main(["--alvo", args.alvo] + (["--rodada", args.rodada] if args.rodada else []))
+
+
+def command_experimento_v5(args):
+    """Protocolo v5: clima parcimonioso × suscetibilidade, alvo de risco, 2025 como 2ª validação."""
+    from src.ml_pipeline.experimento_v5 import main as v5_main
+    v5_main(["--doenca", args.doenca])
+
+
+def command_dlnm(args):
+    """Protocolo v5 (H1): efeito defasado do clima por DLNM (Poisson condicional)."""
+    from src.analise_efeito.dlnm import main as dlnm_main
+    dlnm_main(["--doenca", args.doenca])
+
+
 def command_serve(args):
     """Sobe o servidor do Dashboard."""
     try:
@@ -150,6 +168,20 @@ def main():
     p_mf = subparsers.add_parser("modelo-final", help="Fase 4.1: retreino 2015–2025 para produção.")
     p_mf.add_argument("--sem-teste", action="store_true", help="Permite treinar antes do teste 2025")
     p_mf.set_defaults(func=command_modelo_final)
+
+    # ---------- Protocolo v5 (docs/PROTOCOLO_V5.md) ----------
+    p_at = subparsers.add_parser("atualizar-dados", help="Atualização incremental idempotente do banco.")
+    p_at.add_argument("--alvo", choices=["infodengue", "openmeteo", "noaa", "todos"], default="todos")
+    p_at.add_argument("--rodada", default=None, help="Identificador para retomar uma rodada interrompida")
+    p_at.set_defaults(func=command_atualizar_dados)
+
+    p_v5 = subparsers.add_parser("experimento-v5", help="Experimento v5: clima × suscetibilidade, risco.")
+    p_v5.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
+    p_v5.set_defaults(func=command_experimento_v5)
+
+    p_dl = subparsers.add_parser("dlnm", help="Efeito do clima por DLNM (Poisson condicional).")
+    p_dl.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
+    p_dl.set_defaults(func=command_dlnm)
 
     # Comando serve
     parser_serve = subparsers.add_parser(

@@ -66,3 +66,12 @@ O produto é o **alerta de risco**; a contagem é informação secundária.
 ## Desvios
 
 Qualquer desvio deste protocolo é registrado aqui, com data e motivo, antes de rodar a análise afetada.
+
+- **2026-11-04 — DLNM, dimensão do valor.** O texto "spline natural com 3 graus de liberdade (nós nos
+  percentis 10/50/90)" é inconsistente: 3 nós internos + fronteiras no mínimo/máximo geram 4 funções de
+  base (convenção de `ns()` no R, usada pelo pacote `dlnm`). Adota-se a especificação pelos nós
+  (P10/P50/P90 internos, fronteiras no mín./máx.) → 4 g.l. por variável. Registrado antes de rodar o DLNM.
+- **2026-11-04 — Suscetibilidade, "meses desde o último surto".** Quando a cidade nunca teve mês
+  ≥ 100/100 mil até t−h, a feature fica ausente (NaN, tratado nativamente pelo XGBoost), em vez de
+  truncada em 60 (o truncamento em 60 vale para quem já teve surto). Implementado assim no código antes da
+  execução; registrado aqui durante a execução do experimento v5, antes de qualquer resultado ser visto.
