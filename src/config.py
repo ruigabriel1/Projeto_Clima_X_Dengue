@@ -16,6 +16,7 @@ DB_PATH = DATA_PROCESSED_DIR / "dengue_analytics.db"
 # ---------- Experimento final (docs/PLANO_EXPERIMENTO_FINAL.md) ----------
 # 2025 foi o holdout da v4 (já usado). O holdout da v5 é jan–ago/2026 (docs/PROTOCOLO_V5.md).
 ANO_HOLDOUT = 2025
+ANO_HOLDOUT_V5 = 2026                  # jan–ago/2026: teste prospectivo único da v5
 ANO_PRIMEIRO_TESTE_DEV = 2018          # folds de desenvolvimento: 2018..2024
 HORIZONTES = (1, 2, 3)
 DOENCAS_EXPERIMENTO = ("dengue", "chikungunya")   # zika fica fora (dados insuficientes)

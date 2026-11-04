@@ -20,9 +20,10 @@ import logging
 import json
 import sys
 
+import numpy as np
 import pandas as pd
 
-from src.config import ANO_HOLDOUT
+from src.config import ANO_HOLDOUT, ANO_HOLDOUT_V5
 from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel, DOENCAS
 from src.ml_pipeline.feature_engineering import (
     build_ml_features, get_feature_columns, DOENCA_PARA_COL,
@@ -71,7 +72,9 @@ def _run_single_disease(
     logger.info(f"[FASE 3] Engenharia de Features ({doenca})...")
     df_features = build_ml_features(panel, doenca=doenca)
 
-    feature_cols = get_feature_columns(df_features, doenca=doenca)
+    # Protocolo v5: clima parcimonioso (sem ENSO cru) + suscetibilidade; o conjunto completo da v4
+    # foi podado porque o ENSO funcionava como identificador de ano (memorização de surtos).
+    feature_cols = get_feature_columns(df_features, doenca=doenca, clima="parcimonioso", suscetibilidade=True)
 
     # Remove apenas linhas sem alvo. NaN nas features é informação ("sem histórico")
     # e o XGBoost trata nativamente; o GLM imputa internamente com medianas do treino.
@@ -96,6 +99,7 @@ def _run_single_disease(
         target_col=target_col,
         save_path=model_path,
         return_oof=True,
+        use_pop_offset=True,             # protocolo v5: o modelo aprende incidência
         max_test_year=ANO_HOLDOUT - 1,   # 2025 é holdout do experimento final: não validar nele
     )
     backtest_dir = root_dir / "output" / "backtest"
@@ -126,6 +130,7 @@ def _run_single_disease(
             feature_cols=feature_cols,
             output_dir=interp_dir,
             doenca=doenca,
+            base_margin=np.log(df_train["populacao"].clip(lower=1).to_numpy() / 100_000.0),
         )
     except Exception as e:
         logger.warning(f"Interpretabilidade falhou para {doenca}: {e}")
@@ -189,6 +194,7 @@ def run_pipeline(
     # ==============================
     logger.info("[FASE 1] Ingestão do painel base...")
     panel = build_base_panel(root_dir, modo=modo)
+    panel = panel[panel["year"] < ANO_HOLDOUT_V5]   # 2026 é o holdout prospectivo da v5
 
     if modo == "rapido":
         # Debug: filtra a cidade com mais dados (Joinville = 420910)
