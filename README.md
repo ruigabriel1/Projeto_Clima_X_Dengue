@@ -1,97 +1,103 @@
-# Clima × Arboviroses — Previsão de Dengue e Chikungunya na Região Sul
+# Clima × Arboviroses — Dengue e Chikungunya na Região Sul do Brasil
 
-Projeto de Machine Learning que prevê casos mensais de **dengue e chikungunya** nos
-**1.190 municípios da Região Sul** (PR, SC, RS) com 1, 2 e 3 meses de antecedência, a partir do
-histórico de casos e de variáveis climáticas, e serve a previsão por uma API.
+Dados públicos de 1.190 municípios (PR, SC, RS), 2015–2026, usados para responder duas perguntas
+**separadas**:
 
-**Pergunta de pesquisa:** *"Variáveis climáticas melhoram a previsão de casos de dengue e
-chikungunya em horizontes de 1, 2 e 3 meses, além do que o histórico de casos já explica?"*
+1. **O clima afeta o risco de dengue e chikungunya?** → análise de efeito (DLNM).
+2. **O clima ajuda a *prever* esse risco de 1 a 3 meses, além do histórico de casos?** → experimento preditivo
+   com protocolo pré-registrado ([docs/PROTOCOLO_V5.md](docs/PROTOCOLO_V5.md)) e teste prospectivo em 2026.
 
-Plano completo do experimento: [docs/PLANO_EXPERIMENTO_FINAL.md](docs/PLANO_EXPERIMENTO_FINAL.md).
+## Resultados principais
+
+**Efeito do clima (DLNM, Poisson condicional, 2015–2025)** — RR acumulado em 0–3 meses, P90 vs. mediana,
+controlando sazonalidade de cada cidade e choques interanuais de cada estado:
+
+| | Temperatura (P90 ≈ 24,5 °C) | Precipitação (P90 ≈ 253 mm) |
+|---|---|---|
+| Dengue | **1,46** [1,07–1,99] | 1,08 [0,94–1,23] |
+| Chikungunya | **1,60** [1,04–2,48] | **1,68** [1,36–2,08] |
+
+No caso da dengue, o efeito da temperatura cresce com a defasagem e é máximo em ~3 meses.
+
+**Valor preditivo (XGBoost Poisson, OOF 2018–2024)** — ΔMAE ao acrescentar cada grupo, IC 95% por bootstrap de municípios:
+
+| | Clima parcimonioso (temp. + chuva) | Suscetibilidade (incidência acumulada) |
+|---|---|---|
+| Dengue | −1,1% (h1), −0,7% (h2), −0,5% n.s. (h3) | −0,9% a −1,0% |
+| Chikungunya | sem efeito (n.s. nos 3 horizontes) | −2,7% a −3,5% |
+
+- O clima tem efeito real, mas acrescenta **~1%** à previsão de dengue e **nada** à de chikungunya.
+- Na versão anterior (26 variáveis + índice ENSO), o "clima" piorava a dengue em até 8%. Isso era memorização:
+  o ENSO é um único valor por mês para todas as cidades e funcionava como "identificador do ano".
+- **Alerta de risco** (P(incidência > P75 da própria cidade)): AUC 0,76–0,82, superior ao alerta oficial do
+  InfoDengue defasado (0,52–0,68). Para dengue em 1–2 meses, **repetir o último valor (persistência)
+  empata ou supera o modelo** — o ganho real do modelo está na chikungunya e no horizonte de 3 meses.
+- Teste prospectivo único em jan–ago/2026: ver `docs/resultados_v5/`.
+
+Histórico da versão anterior (teste em 2025): [docs/resultados_experimento/](docs/resultados_experimento/).
 
 ## Dados
 
-| Fonte | O que fornece | Tabela no SQLite |
+| Fonte | Conteúdo | Tabela |
 |---|---|---|
-| **InfoDengue** (notificações SINAN) | Casos mensais de dengue, chikungunya e zika por município; umidade; receptividade | `ingestao_saude` |
-| **Open-Meteo** (reanálise ERA5) | Temperatura média/mín/máx, precipitação, vento, temperatura do solo | `ingestao_clima` |
-| **NOAA** | Índice ONI (El Niño / La Niña) | `ingestao_enso` |
-| **IBGE SIDRA** | População estimada por município | `ingestao_populacao` |
+| InfoDengue (notificações SINAN) | casos mensais de dengue, chikungunya, zika; nível de alerta | `ingestao_saude` |
+| Open-Meteo (reanálise ERA5) | temperatura, precipitação e outras variáveis diárias | `ingestao_clima` |
+| NOAA | índice ONI (El Niño / La Niña) | `ingestao_enso` |
+| IBGE SIDRA | população estimada | `ingestao_populacao` |
 
-Painel: 1.190 municípios × 132 meses (2015–2025). Banco em `data/processed/dengue_analytics.db`
-(não versionado; gerado pelos robôs em `src/processamento/`).
-
-## Metodologia (resumo)
-
-- **Modelo:** XGBoost com objetivo Poisson e hiperparâmetros **fixos** (sem grid search).
-- **Features:** lags e médias móveis de casos (a partir de t−h), sazonalidade, incidência da faixa
-  de latitude, população, e — na variante "com clima" — lags de temperatura, chuva, umidade,
-  graus-dia, anomalias, ENSO e receptividade.
-- **Experimento:** doença (2) × horizonte (3) × clima (com/sem) × corte P99 (com/sem) = 24 modelos,
-  mais baselines de persistência (casos[t−h]) e sazonal (casos[t−12]).
-- **Validação:** expanding window com folds de teste 2018–2024. **2025 é holdout**, usado uma única vez.
-- **Métricas (fixadas antes):** MAE, R², MAE-surto, Skill Score vs. persistência, AUC de "risco alto".
+O banco `data/processed/dengue_analytics.db` não é versionado. Para criá-lo ou atualizá-lo, rode `python main.py atualizar-dados`
+(idempotente; preserva o histórico já usado nas análises).
 
 ## Como rodar
 
 ```bash
 python -m venv .venv
-.venv/Scripts/pip install -r requirements.txt     # Windows (Linux/Mac: .venv/bin/pip)
+.venv/Scripts/pip install -r requirements.txt      # Linux/Mac: .venv/bin/pip
 
-python main.py experimento              # Fase 1 — 24 rodadas + baselines (~4 min)
-python main.py analise --diagnostico    # Fase 2 — tabela, efeito do clima, SHAP, config sugerida
-python main.py teste-final --confirmar  # Fase 3 — teste ÚNICO em 2025 (trava após rodar)
-python main.py modelo-final             # Fase 4 — retreino 2015–2025 para produção
-python main.py serve                    # Dashboard + API em http://localhost:8000 (docs em /docs)
+python main.py atualizar-dados          # ingestão incremental (InfoDengue, Open-Meteo, NOAA)
+python main.py dlnm                     # efeito do clima → output/dlnm/
+python main.py experimento-v5           # clima × suscetibilidade → output/experimento_v5/
+python main.py modelo-risco             # benchmark InfoDengue + modelos de alerta
+python main.py teste-prospectivo --confirmar   # teste ÚNICO em 2026 (trava após rodar)
+python main.py serve                    # dashboard + API em http://localhost:8000 (/docs)
 
-python -m pytest -q                     # testes (dados sintéticos, não precisam do banco)
+python -m pytest -q                     # testes (dados sintéticos)
 ```
 
-Saídas do experimento em `output/experimento/` (`resultados.csv`, `analise.md`, `teste_final_2025.md`).
-
-## API de previsão
+## API
 
 ```http
 POST /api/predict
 {"codigo_ibge": "4106902", "doenca": "dengue", "meses_a_frente": 2}
 ```
 
-```json
-{
-  "cidade": "Curitiba", "doenca": "dengue", "horizonte_meses": 2,
-  "mes_alvo": "2026-02", "ultimo_mes_observado": "2025-12",
-  "casos_previstos": 812, "intervalo_confianca": [140, 4630],
-  "nivel_risco": "alto", "confiabilidade": "normal",
-  "avisos": ["Os meses mais recentes ... podem estar incompletos (atraso de notificação) ..."],
-  "nota": "Modelo validado no ano de 2025 (teste único): MAE ..., R² ..."
-}
-```
-*(valores ilustrativos)*
+Resposta (campos principais):
+- `probabilidade_risco_alto`: probabilidade calibrada de a incidência do mês-alvo ficar acima do P75 histórico da própria cidade;
+- `nivel_risco`: baixo / médio / alto / crítico, derivado da probabilidade;
+- `alerta_infodengue_ultimo`: alerta oficial do InfoDengue (1–4) no último mês observado;
+- contagem secundária: `casos_previstos` e `intervalo_confianca` (intervalo de 90%);
+- `confiabilidade`, `avisos` e `nota`, com as métricas de validação.
 
-- Código IBGE de 6 ou 7 dígitos; cobertura: municípios da Região Sul (fora disso → 404).
-- `nivel_risco` é **relativo à própria cidade**: baixo ≤ mediana histórica < médio ≤ P75 < alto ≤ P90 < crítico.
-- Intervalo de 90% calibrado nos erros fora-da-amostra de 2018–2024.
-- Cidades com poucos casos ou R² fora-da-amostra < 0,2 recebem `confiabilidade: "baixa"`.
-- Sem dados de clima para os meses necessários → usa o modelo sem clima.
-- Zika: sem previsão (dados insuficientes), resposta explicativa.
-- `GET /api/modelo/info`: configuração, métricas e prazo de retreino dos modelos carregados.
+A cobertura é a Região Sul (código fora dela → 404). Zika não tem previsão (dados insuficientes).
 
 ## Estrutura
 
 ```
-src/ml_pipeline/        pipeline de ML (ingestão → features → treino → experimento → produção)
-src/prediction_service/ preditor, classificador de risco, fonte de dados, schemas da API
-src/processamento/      robôs de ingestão das APIs públicas
-app/                    FastAPI + dashboard
-tests/                  pytest
-docs/                   plano do experimento, arquitetura de dados, decisões de modelagem
+src/processamento/       ingestão (APIs públicas → SQLite, upsert idempotente)
+src/analise_efeito/      DLNM (efeito do clima)
+src/ml_pipeline/         features, treino, experimentos, alerta de risco, teste prospectivo
+src/prediction_service/  preditor da API
+app/                     FastAPI + dashboard
+docs/                    protocolo, plano, arquitetura, resultados versionados
+tests/                   pytest
 ```
 
-Detalhes de arquitetura e regras metodológicas para quem for contribuir: [CLAUDE.md](CLAUDE.md).
+Regras metodológicas e guia para quem for contribuir: [CLAUDE.md](CLAUDE.md).
 
-## Limitações conhecidas
+## Limitações
 
-- Os casos vêm de notificação (SINAN via InfoDengue): sujeitos a subnotificação e atraso, em
-  especial nos meses mais recentes.
-- O modelo precisa ser retreinado a cada 6–12 meses com dados novos.
-- Zika não é modelada; chikungunya tem poucos surtos no período, então suas métricas são instáveis.
+- Os casos vêm de notificação: há subnotificação e atraso, principalmente nos meses recentes.
+- Clima por centróide municipal (ERA5), não por estação.
+- Só ~10 anos de dinâmica interanual: choques comuns (sorotipo, imunidade) dominam a variação entre anos e
+  não são observados diretamente.
+- O efeito da temperatura ainda cresce no lag 3: a janela de 0–3 meses pré-registrada pode ser curta.
