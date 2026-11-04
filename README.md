@@ -1,103 +1,155 @@
-# Clima × Arboviroses — Dengue e Chikungunya na Região Sul do Brasil
+<div align="center">
 
-Dados públicos de 1.190 municípios (PR, SC, RS), 2015–2026, usados para responder duas perguntas
-**separadas**:
+# 🦟 Clima × Arboviroses
 
-1. **O clima afeta o risco de dengue e chikungunya?** → análise de efeito (DLNM).
-2. **O clima ajuda a *prever* esse risco de 1 a 3 meses, além do histórico de casos?** → experimento preditivo
-   com protocolo pré-registrado ([docs/PROTOCOLO_V5.md](docs/PROTOCOLO_V5.md)) e teste prospectivo em 2026.
+### O calor aumenta a dengue no Sul do Brasil. Mas isso ajuda a prever o próximo surto?
 
-## Resultados principais
+Dados públicos de **1.190 municípios** (PR, SC, RS), **2015–2026**, um protocolo pré-registrado
+e uma API que entrega **alerta de risco** por município, de 1 a 3 meses à frente.
 
-**Efeito do clima (DLNM, Poisson condicional, 2015–2025)** — RR acumulado em 0–3 meses, P90 vs. mediana,
-controlando sazonalidade de cada cidade e choques interanuais de cada estado:
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-Poisson-EB5E28)
+![FastAPI](https://img.shields.io/badge/FastAPI-API%20de%20previsão-009688?logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-ingestão%20idempotente-003B57?logo=sqlite&logoColor=white)
+![Testes](https://img.shields.io/badge/pytest-62%20testes-0A9EDC?logo=pytest&logoColor=white)
+![Protocolo](https://img.shields.io/badge/protocolo-pré--registrado-6f42c1)
 
-| | Temperatura (P90 ≈ 24,5 °C) | Precipitação (P90 ≈ 253 mm) |
+</div>
+
+---
+
+## Em 30 segundos
+
+| Pergunta | Resposta | Evidência |
+|---|---|---|
+| **O clima afeta o risco?** | **Sim.** Um mês quente (P90, ~24,5 °C) eleva o risco de dengue em **46%** nos 3 meses seguintes | DLNM, IC 95% [1,07–1,99] |
+| **O clima ajuda a prever?** | **Pouco.** Melhora a previsão de dengue em ~1% e a de chikungunya em 0% | Experimento controlado, IC por bootstrap |
+| **O que ajuda de verdade?** | O histórico de casos e a **imunidade acumulada** da população (−1% a −3,5% de erro) | Mesmo experimento |
+| **O alerta funciona?** | **Supera o alerta oficial do InfoDengue** em todas as combinações (AUC 0,76–0,82 contra 0,52–0,68) | Validação 2018–2024 |
+| **Onde ele perde?** | Na dengue a 1 mês, repetir o último valor empata com o modelo. E nenhum modelo acerta o **tamanho** dos surtos | Teste único em 2025 |
+
+> **Tese:** o clima tem efeito mensurável sobre as arboviroses, mas acrescenta pouco à previsão de curto
+> prazo além do histórico de casos. A previsão útil é de **risco relativo**, não de magnitude.
+
+---
+
+## O efeito do clima
+
+<p align="center"><img src="docs/resultados_v5/dlnm_dengue.png" width="820" alt="Curvas de risco relativo da dengue por temperatura e precipitação"></p>
+
+Modelo de defasagem distribuída não linear (**DLNM**) por Poisson condicional, com efeitos fixos para a
+sazonalidade de cada cidade e para os choques de cada ano em cada estado. Esse controle é o que impede de
+confundir "um ano quente" com "um ano de surto" por outros motivos (sorotipo novo, imunidade).
+
+| | Temperatura (P90 vs. mediana) | Precipitação (P90 vs. mediana) |
 |---|---|---|
 | Dengue | **1,46** [1,07–1,99] | 1,08 [0,94–1,23] |
 | Chikungunya | **1,60** [1,04–2,48] | **1,68** [1,36–2,08] |
 
-No caso da dengue, o efeito da temperatura cresce com a defasagem e é máximo em ~3 meses.
+O efeito da temperatura na dengue cresce com a defasagem e chega ao máximo em ~3 meses, o tempo do ciclo
+do mosquito somado à incubação e à notificação.
 
-**Valor preditivo (XGBoost Poisson, OOF 2018–2024)** — ΔMAE ao acrescentar cada grupo, IC 95% por bootstrap de municípios:
+## O que aprendemos sobre previsão (incluindo o que deu errado)
 
-| | Clima parcimonioso (temp. + chuva) | Suscetibilidade (incidência acumulada) |
-|---|---|---|
-| Dengue | −1,1% (h1), −0,7% (h2), −0,5% n.s. (h3) | −0,9% a −1,0% |
-| Chikungunya | sem efeito (n.s. nos 3 horizontes) | −2,7% a −3,5% |
+<p align="center"><img src="docs/resultados_experimento/skill_por_horizonte.png" width="820" alt="Ganho sobre a persistência por horizonte"></p>
 
-- O clima tem efeito real, mas acrescenta **~1%** à previsão de dengue e **nada** à de chikungunya.
-- Na versão anterior (26 variáveis + índice ENSO), o "clima" piorava a dengue em até 8%. Isso era memorização:
-  o ENSO é um único valor por mês para todas as cidades e funcionava como "identificador do ano".
-- **Alerta de risco** (P(incidência > P75 da própria cidade)): AUC 0,76–0,82, superior ao alerta oficial do
-  InfoDengue defasado (0,52–0,68). Para dengue em 1–2 meses, **repetir o último valor (persistência)
-  empata ou supera o modelo** — o ganho real do modelo está na chikungunya e no horizonte de 3 meses.
-- Teste prospectivo único em jan–ago/2026: ver `docs/resultados_v5/`.
+- **Primeira versão:** 26 variáveis de clima + índice El Niño **pioravam** a dengue em até 8%. O El Niño é um
+  único valor por mês para as 1.190 cidades e virava um "identificador do ano": o modelo decorava surtos
+  passados.
+- **Teste único em 2025:** a validação prometia ganho, mas o ano real desmentiu. Depois do recorde de 2024,
+  o modelo previu outra temporada grande, e 2025 caiu 68% na região inteira.
+- **Versão atual:** só 2 variáveis de clima escolhidas antes de ver os dados, imunidade acumulada como
+  feature e foco em risco relativo. O ganho do clima ficou pequeno mas real; o do El Niño era ilusão.
 
-Histórico da versão anterior (teste em 2025): [docs/resultados_experimento/](docs/resultados_experimento/).
-
-## Dados
-
-| Fonte | Conteúdo | Tabela |
-|---|---|---|
-| InfoDengue (notificações SINAN) | casos mensais de dengue, chikungunya, zika; nível de alerta | `ingestao_saude` |
-| Open-Meteo (reanálise ERA5) | temperatura, precipitação e outras variáveis diárias | `ingestao_clima` |
-| NOAA | índice ONI (El Niño / La Niña) | `ingestao_enso` |
-| IBGE SIDRA | população estimada | `ingestao_populacao` |
-
-O banco `data/processed/dengue_analytics.db` não é versionado. Para criá-lo ou atualizá-lo, rode `python main.py atualizar-dados`
-(idempotente; preserva o histórico já usado nas análises).
-
-## Como rodar
-
-```bash
-python -m venv .venv
-.venv/Scripts/pip install -r requirements.txt      # Linux/Mac: .venv/bin/pip
-
-python main.py atualizar-dados          # ingestão incremental (InfoDengue, Open-Meteo, NOAA)
-python main.py dlnm                     # efeito do clima → output/dlnm/
-python main.py experimento-v5           # clima × suscetibilidade → output/experimento_v5/
-python main.py modelo-risco             # benchmark InfoDengue + modelos de alerta
-python main.py teste-prospectivo --confirmar   # teste ÚNICO em 2026 (trava após rodar)
-python main.py serve                    # dashboard + API em http://localhost:8000 (/docs)
-
-python -m pytest -q                     # testes (dados sintéticos)
-```
-
-## API
+## O que a API entrega
 
 ```http
 POST /api/predict
 {"codigo_ibge": "4106902", "doenca": "dengue", "meses_a_frente": 2}
 ```
 
-Resposta (campos principais):
-- `probabilidade_risco_alto`: probabilidade calibrada de a incidência do mês-alvo ficar acima do P75 histórico da própria cidade;
-- `nivel_risco`: baixo / médio / alto / crítico, derivado da probabilidade;
-- `alerta_infodengue_ultimo`: alerta oficial do InfoDengue (1–4) no último mês observado;
-- contagem secundária: `casos_previstos` e `intervalo_confianca` (intervalo de 90%);
-- `confiabilidade`, `avisos` e `nota`, com as métricas de validação.
+| Campo | O que é |
+|---|---|
+| `probabilidade_risco_alto` | Probabilidade calibrada de a incidência passar do P75 histórico **da própria cidade** |
+| `nivel_risco` | baixo · médio · alto · crítico |
+| `alerta_infodengue_ultimo` | Alerta oficial (1–4) do último mês, para comparação |
+| `casos_previstos`, `intervalo_confianca` | Magnitude, sempre com intervalo de 90% |
+| `confiabilidade`, `avisos`, `nota` | Quando não confiar: pouco histórico, clima ausente, meses não consolidados |
 
-A cobertura é a Região Sul (código fora dela → 404). Zika não tem previsão (dados insuficientes).
+Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez de previsão (dados insuficientes).
+
+## Como a IA foi usada, e onde ela foi barrada
+
+O projeto foi desenvolvido com apoio de um agente de IA (Claude Code) para código, revisão e análise.
+O que tornou isso confiável foram as regras em volta dele:
+
+- **Pré-registro:** hipóteses, métricas e regra de decisão foram commitadas ([`docs/PROTOCOLO_V5.md`](docs/PROTOCOLO_V5.md))
+  **antes** de baixar os dados do teste. Os desvios ficam registrados com data.
+- **Holdouts de uso único:** 2025 e 2026 só podem ser testados uma vez; o código grava uma trava.
+- **Caça a vazamento:** testes automáticos garantem que nenhuma variável usa informação do futuro. Três
+  vazamentos reais foram pegos dessa forma, incluindo o alerta oficial do próprio mês entrando como variável.
+- **Comparação honesta:** todo resultado é comparado com "repetir o último mês" e com o alerta oficial.
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    A[InfoDengue · Open-Meteo · NOAA · IBGE] -->|upsert idempotente| B[(SQLite)]
+    B --> C[Painel 1.190 municípios × mês]
+    C --> D[DLNM<br/>efeito do clima]
+    C --> E[Features sem vazamento<br/>lags ≥ horizonte]
+    E --> F[XGBoost Poisson<br/>offset populacional]
+    F --> G[Calibração isotônica<br/>risco relativo]
+    G --> H[FastAPI /api/predict]
+```
+
+## Rodando
+
+```bash
+python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+
+python main.py atualizar-dados          # baixa/atualiza os dados públicos
+python main.py dlnm                     # efeito do clima
+python main.py experimento-v5           # clima × imunidade acumulada
+python main.py modelo-risco             # benchmark + modelos de alerta
+python main.py serve                    # dashboard + API em http://localhost:8000/docs
+python -m pytest -q                     # 62 testes, só com dados sintéticos
+```
 
 ## Estrutura
 
 ```
-src/processamento/       ingestão (APIs públicas → SQLite, upsert idempotente)
-src/analise_efeito/      DLNM (efeito do clima)
-src/ml_pipeline/         features, treino, experimentos, alerta de risco, teste prospectivo
+src/processamento/       ingestão das APIs públicas
+src/analise_efeito/      DLNM
+src/ml_pipeline/         features, experimentos, alerta de risco, testes únicos
 src/prediction_service/  preditor da API
 app/                     FastAPI + dashboard
-docs/                    protocolo, plano, arquitetura, resultados versionados
+docs/                    protocolo, arquitetura, resultados versionados
 tests/                   pytest
 ```
 
-Regras metodológicas e guia para quem for contribuir: [CLAUDE.md](CLAUDE.md).
+## Próximos passos
+
+- [ ] Teste prospectivo **único** em jan–ago/2026 (pré-registrado, aguardando o fim da ingestão do clima)
+- [ ] Combinar modelo e persistência para a contagem de casos
+- [ ] Correção de atraso de notificação (nowcasting) nos meses recentes
+- [ ] Artigo científico com os resultados
 
 ## Limitações
 
-- Os casos vêm de notificação: há subnotificação e atraso, principalmente nos meses recentes.
-- Clima por centróide municipal (ERA5), não por estação.
-- Só ~10 anos de dinâmica interanual: choques comuns (sorotipo, imunidade) dominam a variação entre anos e
-  não são observados diretamente.
-- O efeito da temperatura ainda cresce no lag 3: a janela de 0–3 meses pré-registrada pode ser curta.
+- Os casos são notificações: há subnotificação e atraso.
+- O clima é da reanálise ERA5 no centro de cada município, não de estações locais.
+- Só ~10 anos de dinâmica entre anos: sorotipo e imunidade dominam e não são observados diretamente.
+- O efeito da temperatura ainda cresce no lag 3: a janela de 0–3 meses pode ser curta.
+
+---
+
+<div align="center">
+
+**Rui Gabriel Oliveira** · engenharia de dados, modelagem e API
+Pesquisa de mestrado de Fernando R. D. J. de Oliveira (UNOESC) ·
+Melhor trabalho da Região Sul no IV Symposium One Health / Saúde Única (2026)
+
+[LinkedIn](https://www.linkedin.com/in/rui-gabriel-oliveira/) · [GitHub](https://github.com/ruigabriel1)
+
+</div>

@@ -1,53 +1,37 @@
-﻿# 📂 Dados do Projeto — Clima × Dengue
+﻿# Dados
 
-> **IMPORTANTE**: Os dados brutos **não estão incluídos neste repositório** por serem dados sensíveis de saúde pública e meteorologia com restrições de distribuição.
+Os dados **não ficam no repositório** porque são grandes (~70 MB) e regeneráveis. Todas as fontes são
+**públicas e abertas**, e um único comando monta o banco local:
 
-## Como obter os dados
+```bash
+python main.py atualizar-dados          # cria/atualiza data/processed/dengue_analytics.db
+```
 
-Para reproduzir as análises, você precisará coletar os seguintes dados e organizá-los na estrutura abaixo:
+A atualização é idempotente (upsert por município × ano × mês), retoma de onde parou se a internet cair
+e nunca sobrescreve meses antigos já usados nas análises.
 
-### 1. Dados Meteorológicos (INMET)
-- **Fonte**: [INMET - BDMEP](https://bdmep.inmet.gov.br/)
-- **Arquivos necessários**:
-  - `Temp_media_MENSAL.csv` — Temperatura média mensal por município
-  - `Temp_minima_MENSAL.csv` — Temperatura mínima mensal por município
-  - `Temp_maxima_MENSAL.csv` — Temperatura máxima mensal por município
-  - `precipitacao_mensal_rev.csv` — Precipitação acumulada mensal por município
-- **Formato**: CSV separado por `;`, formato wide (municípios nas colunas), com 2 linhas de cabeçalho
-- **Período**: 2015 a 2024
-- **Região**: Municípios da Região Sul (PR, SC, RS)
+## Fontes
 
-### 2. Dados Epidemiológicos (DataSUS/SINAN)
-- **Fonte**: [DataSUS - SINAN](http://tabnet.datasus.gov.br/)
-- **Arquivo necessário**:
-  - `dengue_MENSAL.csv` — Incidência mensal de dengue por município
-- **Formato**: CSV separado por `;`, formato wide (municípios nas colunas)
+| Fonte | O que vem | Tabela | Acesso |
+|---|---|---|---|
+| [InfoDengue](https://info.dengue.mat.br/services/api) (Fiocruz/FGV) | Casos mensais de dengue, chikungunya e zika notificados ao SINAN; nível de alerta oficial | `ingestao_saude` | API pública |
+| [Open-Meteo](https://open-meteo.com/en/docs/historical-weather-api) (reanálise ERA5) | Temperatura, precipitação, vento e temperatura do solo no centróide de cada município | `ingestao_clima` | API pública (tem limite por hora; o robô espera e continua) |
+| [NOAA CPC](https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt) | Índice ONI (El Niño / La Niña) | `ingestao_enso` | Arquivo público |
+| [IBGE SIDRA](https://apisidra.ibge.gov.br/) (tabela 6579) | População estimada por município | `ingestao_populacao` | API pública |
 
-### 3. Dados ENSO (NOAA)
-- **Fonte**: [NOAA - ONI Index](https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php)
-- **Arquivo necessário**:
-  - `elnino_lanina_2015-2024.csv` — Índice Oceânico Niño (ONI) mensal
+## Cobertura atual
 
-### 4. Recurso Gráfico
-- `R_transparent.png` — Imagem de rosa dos ventos para composição de mapas
+- 1.190 municípios de PR, SC e RS, mensal, de janeiro/2015 até o último mês fechado.
+- 2015–2025 completo e conferido contra a fonte (totais idênticos ao InfoDengue em novembro/2026).
+- Zika só tem dados até o início de 2024 na fonte, por isso não é modelada.
 
-## Estrutura esperada
+## Estrutura
 
 ```
 data/
-├── raw/                          ← Coloque os dados brutos aqui
-│   ├── Temp_media_MENSAL.csv
-│   ├── Temp_minima_MENSAL.csv
-│   ├── Temp_maxima_MENSAL.csv
-│   ├── precipitacao_mensal_rev.csv
-│   ├── dengue_MENSAL.csv
-│   ├── elnino_lanina_2015-2024.csv
-│   └── R_transparent.png
-├── processed/                    ← Gerado automaticamente pelo pipeline
-│   ├── dados_consolidados.csv
-│   └── dados_consolidados_log.csv
-└── geodados/                     ← Gerado automaticamente pelo cache de geodados
-    ├── cache_municipios_sul.gpkg
-    ├── cache_estados_brasil.gpkg
-    └── cache_paises_vizinhos.gpkg
+├── processed/dengue_analytics.db   banco SQLite (gerado; fora do git)
+└── geodados/                        malha municipal em cache (gerada; fora do git)
 ```
+
+Os casos são notificações: há subnotificação e atraso, principalmente nos meses mais recentes. Por isso a
+API de previsão ignora meses ingeridos menos de 28 dias após o fim do mês.

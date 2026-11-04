@@ -1,0 +1,12 @@
+{
+  "chikungunya": {
+    "clima": false,
+    "suscetibilidade": true,
+    "modelo": "semclima_susc"
+  },
+  "dengue": {
+    "clima": true,
+    "suscetibilidade": true,
+    "modelo": "clima_susc"
+  }
+}
