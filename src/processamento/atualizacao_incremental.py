@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sqlite3
 import sys
 import time
@@ -61,7 +62,8 @@ def upsert(conn: sqlite3.Connection, tabela: str, df: pd.DataFrame, ano_corte: i
     df = df.copy()
     df["INGERIDO_EM"] = datetime.now().isoformat(timespec="seconds")
     preparar_esquema(conn, tabela, list(df.columns))
-    df.to_sql("_tmp_upsert", conn, if_exists="replace", index=False)
+    tmp = f"_tmp_upsert_{tabela}_{os.getpid()}"   # único por processo: ingestões em paralelo no mesmo banco
+    df.to_sql(tmp, conn, if_exists="replace", index=False)
     cols = [c for c in df.columns if c not in CHAVES]
     on = " AND ".join(f"{tabela}.{k} = s.{k}" for k in CHAVES)
 
@@ -70,14 +72,14 @@ def upsert(conn: sqlite3.Connection, tabela: str, df: pd.DataFrame, ano_corte: i
 
     hist = [c for c in COLS_HISTORICO.get(tabela, []) if c in cols]
     if hist:
-        conn.execute(f"UPDATE {tabela} SET {sets(hist)} FROM _tmp_upsert AS s WHERE {on} AND {tabela}.ANO < {ano_corte}")
-    conn.execute(f"UPDATE {tabela} SET {sets(cols)} FROM _tmp_upsert AS s WHERE {on} AND {tabela}.ANO >= {ano_corte}")
+        conn.execute(f"UPDATE {tabela} SET {sets(hist)} FROM {tmp} AS s WHERE {on} AND {tabela}.ANO < {ano_corte}")
+    conn.execute(f"UPDATE {tabela} SET {sets(cols)} FROM {tmp} AS s WHERE {on} AND {tabela}.ANO >= {ano_corte}")
     todas = ", ".join(f'"{c}"' for c in df.columns)
     cur = conn.execute(
-        f"INSERT INTO {tabela} ({todas}) SELECT {todas} FROM _tmp_upsert AS s "
+        f"INSERT INTO {tabela} ({todas}) SELECT {todas} FROM {tmp} AS s "
         f"WHERE s.ANO >= {ano_corte} AND NOT EXISTS (SELECT 1 FROM {tabela} WHERE {on})"
     )
-    conn.execute("DROP TABLE _tmp_upsert")
+    conn.execute(f"DROP TABLE {tmp}")
     return {"inseridas": cur.rowcount}
 
 
