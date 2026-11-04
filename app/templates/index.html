@@ -31,7 +31,8 @@
         <h3>Informações</h3>
         <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
           Este painel exibe resultados consolidados do modelo preditivo MLOps (XGBoost Poisson).
-          Os gráficos abaixo representam projeções baseadas nos cenários climáticos globais (SSP) do IPCC para a região selecionada.
+          Os gráficos mostram o histórico observado e o desempenho fora da amostra do modelo
+          (previsão de 1 a 3 meses). Previsões por município: <a href="/docs">API /api/predict</a>.
         </p>
       </div>
     </aside>
@@ -45,7 +46,7 @@
       </div>
 
       <div class="top-bar">
-        <h2>Dashboard Analítico - São Carlos (SC)</h2>
+        <h2>Dashboard Analítico — Região Sul (PR, SC, RS)</h2>
       </div>
 
       <!-- STATUS CARDS -->
@@ -59,12 +60,12 @@
           <span class="stat-value" id="periodoDados">-</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Projeção Até</span>
-          <span class="stat-value" id="projecaoAte">-</span>
+          <span class="stat-label" id="labelUltimoAno">Casos no último ano</span>
+          <span class="stat-value" id="casosUltimoAno">-</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Variação vs Baseline — 2035-2040 (SSP2-4.5)</span>
-          <span class="stat-value text-ssp245" id="totalCasosProjetados">-</span>
+          <span class="stat-label">Incidência no último ano (por 100 mil)</span>
+          <span class="stat-value" id="incidenciaUltimoAno">-</span>
         </div>
       </section>
 
@@ -93,9 +94,9 @@
         <div class="chart-card hero-chart">
           <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="margin: 0;"></h3>
-            <button class="btn-outline btn-sm" onclick="downloadChart('chartCenarios', 'projecao_cenarios')">⬇ Baixar PNG</button>
+            <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">⬇ Baixar PNG</button>
           </div>
-          <div id="chartCenarios" style="width:100%; height:500px;"></div>
+          <div id="chartBacktest" style="width:100%; height:500px;"></div>
         </div>
         
         <!-- Linha 2: Lado a Lado -->
@@ -111,16 +112,17 @@
         <!-- Linha 3 -->
         <div class="chart-card">
           <div class="chart-header">
-            <h3>Tabela de Projeções Analíticas</h3>
+            <h3>Resumo Epidemiológico Anual</h3>
           </div>
           <div class="table-responsive">
             <table id="resumoTable" class="data-table">
               <thead>
                 <tr>
-                  <th>Ano Base</th>
-                  <th>SSP1-2.6 (Otimista)</th>
-                  <th>SSP2-4.5 (Moderado)</th>
-                  <th>SSP5-8.5 (Pessimista)</th>
+                  <th>Ano</th>
+                  <th>Casos</th>
+                  <th>Incidência (/100 mil)</th>
+                  <th>Pico mensal</th>
+                  <th>Variação vs ano anterior</th>
                 </tr>
               </thead>
               <tbody>

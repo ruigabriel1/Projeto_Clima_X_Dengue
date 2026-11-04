@@ -31,11 +31,7 @@ def command_train(args):
                 feats = log.get("n_features", 0)
                 metrics = log.get("metrics_por_ano", [])
                 avg_r2 = sum(m["r2"] for m in metrics) / len(metrics) if metrics else 0
-                mb = log.get("modelo_b", {})
-                mb_r2 = mb.get("metrics_por_ano", [{}])
-                mb_avg = sum(m.get("r2", 0) for m in mb_r2) / len(mb_r2) if mb_r2 else 0
-                print(f"  ✅ {d}: {n} amostras, {feats} features")
-                print(f"      Modelo A R²={avg_r2:.3f}  |  Modelo B R²={mb_avg:.3f}")
+                print(f"  ✅ {d}: {n} amostras, {feats} features, R² médio (EW)={avg_r2:.3f}")
         else:
             print("⚠️ Nenhum modelo treinado.")
     except Exception as e:

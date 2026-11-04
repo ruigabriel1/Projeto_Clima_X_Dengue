@@ -1,5 +1,5 @@
 import { fetchStatus, fetchResultados } from './api.js';
-import { renderChartCenarios, renderChartSazonal, renderChartHeatmap } from './charts.js';
+import { renderChartBacktest, renderChartSazonal, renderChartHeatmap } from './charts.js';
 import { showLoader, updateStats, populateTable } from './ui.js';
 
 let cachedData = null;
@@ -26,7 +26,7 @@ function renderAll(data) {
   document.getElementById("chartsGrid").classList.add("visible");
   updateStats(data);
   populateTable(data);
-  renderChartCenarios(data.projecao_cenarios);
+  renderChartBacktest(data.serie_temporal_mensal);
   renderChartSazonal(data.dist_sazonal);
   renderChartHeatmap(data.dist_sazonal);
 }

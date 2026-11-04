@@ -12,9 +12,7 @@ Princípios:
     "zero casos", o que é falso.
   - Climatologia para anomalias é EXPANDING (só anos anteriores), sem olhar o futuro.
 
-Duas tarefas:
-  - Modelo A (previsão): get_feature_columns(df, doenca, horizonte)
-  - Modelo B (clima → risco, cenários SSP): get_climate_feature_columns(df)
+Seleção de features para previsão: get_feature_columns(df, doenca, usar_clima).
 """
 import logging
 import re
@@ -236,22 +234,3 @@ def get_feature_columns(
         elif c in (f"{p}_rolling_3", f"{p}_lag{menor_lag.get(p)}"):
             out.append(c)
     return out
-
-
-# Features do Modelo B: apenas clima, sazonalidade e contexto da cidade.
-# Nenhuma informação de casos (nem lags). É o que permite projetar cenários SSP,
-# onde não existe "caso do mês anterior".
-_FEATURES_MODELO_B = [
-    "temp_media", "temp_maxima", "temp_minima", "precipitacao", "umidmed",
-    "graus_dia_18", "amplitude_termica",
-    "temp_lag1", "temp_lag2", "prec_lag1", "prec_lag2", "graus_dia_18_lag1",
-    "prec_acum_3m_lag1",
-    "enso", "enso_lag1", "enso_lag2", "enso_lag3",
-    "month_sin", "month_cos",
-    "abs_latitude", "longitude", "log_pop",
-]
-
-
-def get_climate_feature_columns(df: pd.DataFrame) -> list[str]:
-    """Features do Modelo B (clima → risco). Requer build_ml_features(..., horizonte=1)."""
-    return [c for c in _FEATURES_MODELO_B if c in df.columns]

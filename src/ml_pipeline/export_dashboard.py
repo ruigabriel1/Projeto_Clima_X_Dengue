@@ -5,7 +5,6 @@ Fontes (todas geradas por `python main.py train`):
   - data/processed/dengue_analytics.db           → histórico real e clima
   - output/ml_run_log_<doenca>_v4.json           → métricas A/B, baselines, SHAP
   - output/backtest/oof_modeloA_<doenca>.csv     → previsões fora-da-amostra (real × previsto)
-  - output/projecoes_v4/projecoes_<doenca>_ssp_mensal.csv → cenários SSP por cidade
 
 Saída: output/dashboard/resultados_<doenca>.json (um por doença) + índice.
 Não depende mais do motor legado por latitude.
@@ -123,13 +122,11 @@ def exportar_doenca(doenca: str, codigo_ibge: Optional[str] = None) -> dict:
     # --- Métricas A (média dos folds) e baselines
     mA = log.get("metrics_por_ano", [])
     bl = log.get("baselines_por_ano", [])
-    mB = log.get("modelo_b", {}).get("metrics_por_ano", [])
     metricas = {
         "r2": _mean(m["r2"] for m in mA), "mae": _mean(m["mae"] for m in mA), "rmse": _mean(m["rmse"] for m in mA),
         "anos_teste": [m["year"] for m in mA],
     }
     baselines = {k: _mean(b.get(k) for b in bl) for k in ("persist_mae", "sazonal_mae", "glm_nb_mae", "persist_r2", "sazonal_r2", "glm_nb_r2")}
-    metricas_b = {"r2": _mean(m["r2"] for m in mB), "mae": _mean(m["mae"] for m in mB)}
     melhor_baseline = min((v for k, v in baselines.items() if k.endswith("_mae") and v is not None), default=None)
     if melhor_baseline is not None and metricas["mae"] is not None and metricas["mae"] >= melhor_baseline:
         avisos.append(f"O Modelo A NÃO supera o melhor baseline (MAE {metricas['mae']:.1f} vs {melhor_baseline:.1f}).")
@@ -166,10 +163,13 @@ def exportar_doenca(doenca: str, codigo_ibge: Optional[str] = None) -> dict:
         pop = pop_ano.loc[pop_ano["year"] == ano, "pop"]
         inc = round(total / float(pop.iloc[0]) * 1e5, 1) if len(pop) and pop.iloc[0] > 0 else None
         prev = tabela[-1]["casos"] if tabela else None
+        n_meses = int(g["month"].nunique())
+        parcial = n_meses < 12   # ano em curso: não comparar com ano completo
         tabela.append({
-            "ano": int(ano), "casos": int(total), "incidencia": inc,
+            "ano": int(ano), "casos": int(total), "incidencia": None if parcial else inc,
             "pico": int(pico["casos"]), "mes_pico": MESES_PT[int(pico["month"]) - 1],
-            "variacao": round((total - prev) / prev * 100, 1) if prev else None,
+            "variacao": round((total - prev) / prev * 100, 1) if prev and not parcial else None,
+            "meses": n_meses, "parcial": parcial,
         })
 
     # --- Correlação de Spearman com lags (série agregada do escopo)
@@ -198,38 +198,13 @@ def exportar_doenca(doenca: str, codigo_ibge: Optional[str] = None) -> dict:
         "heatmap": [],
     }
 
-    # --- Projeções SSP
-    projecao = {}
-    proj_path = OUT_DIR / "projecoes_v4" / f"projecoes_{doenca}_ssp_mensal.csv"
-    intervalo = log.get("modelo_b", {}).get("intervalo_empirico", {})
-    if proj_path.exists():
-        pj = pd.read_csv(proj_path, dtype={"code": str})
-        if codes:
-            pj = pj[pj["code"].isin(codes)]
-        anual = pj.groupby(["scenario", "period"], sort=False)["predicted_cases"].sum()
-        base = float(anual.get(("baseline", "historico"), np.nan))
-        for sc in ("ssp126", "ssp245", "ssp585"):
-            if sc not in anual.index.get_level_values(0):
-                continue
-            s = anual.loc[sc]
-            projecao[sc] = {
-                "anos": ["Baseline"] + list(s.index),
-                "casos": [round(base)] + [round(float(x)) for x in s.values],
-                "delta_pct": [0.0] + [round((float(x) / base - 1) * 100, 2) if base else None for x in s.values],
-            }
-            if intervalo.get("ratio_min") is not None:
-                projecao[sc]["low"] = [round(c * intervalo["ratio_min"]) for c in projecao[sc]["casos"]]
-                projecao[sc]["high"] = [round(c * intervalo["ratio_max"]) for c in projecao[sc]["casos"]]
-        hm = pj[pj["scenario"].isin(["baseline", "ssp245"])].groupby(["period", "month"], sort=False)["predicted_cases"].sum().reset_index()
-        dist_sazonal["heatmap"] = [
-            {"ano": "Baseline" if r.period == "historico" else r.period, "mes": int(r.month), "casos": round(float(r.predicted_cases), 1)}
-            for r in hm.itertuples()
-        ]
-    else:
-        avisos.append("Projeções SSP ausentes (Modelo B não rodou).")
-
-    if metricas_b["r2"] is not None and metricas_b["r2"] < 0.3:
-        avisos.append(f"Modelo B (só clima) tem R² baixo ({metricas_b['r2']:.2f}): leia as projeções como sensibilidade relativa ao clima, não como previsão de casos.")
+    # --- Mapa de calor HISTÓRICO (ano × mês). Projeções climáticas foram removidas na v5:
+    # o clima não melhora a previsão de curto prazo, então projetar casos por cenário SSP
+    # não é defensável (docs/PLANO_V5_LIMPEZA_PUBLICAVEL.md, Step 1).
+    dist_sazonal["heatmap"] = [
+        {"ano": int(r.year), "mes": int(r.month), "casos": round(float(r.casos), 1)}
+        for r in hist.itertuples()
+    ]
 
     anos_hist = sorted(hist["year"].unique())
     return _clean({
@@ -237,17 +212,14 @@ def exportar_doenca(doenca: str, codigo_ibge: Optional[str] = None) -> dict:
         "escopo": codigo_ibge or "regional",
         "n_cidades": n_cidades,
         "periodo": f"{anos_hist[0]}–{anos_hist[-1]}" if anos_hist else "-",
-        "projecao_ate": 2040,
+        "ultimo_ano": int(anos_hist[-1]) if anos_hist else None,
         "metricas": metricas,
-        "metricas_modelo_b": metricas_b,
         "baselines": baselines,
         "feature_importance": fi,
         "serie_temporal_mensal": serie,
         "tabela_epidemiologica": tabela,
         "tabela_correlacao": correl,
         "dist_sazonal": dist_sazonal,
-        "projecao_cenarios": projecao,
-        "intervalo_empirico": intervalo,
         "avisos": avisos,
     })
 

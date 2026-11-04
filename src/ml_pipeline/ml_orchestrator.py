@@ -25,7 +25,7 @@ import pandas as pd
 from src.config import ANO_HOLDOUT
 from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel, DOENCAS
 from src.ml_pipeline.feature_engineering import (
-    build_ml_features, get_feature_columns, get_climate_feature_columns, DOENCA_PARA_COL,
+    build_ml_features, get_feature_columns, DOENCA_PARA_COL,
 )
 from src.ml_pipeline.model_training import train_model
 from src.ml_pipeline.baselines import evaluate_baselines
@@ -133,39 +133,9 @@ def _run_single_disease(
         logger.warning(f"Interpretabilidade falhou para {doenca}: {e}")
 
     # ==============================
-    # 7. Modelo B (clima → risco) + Cenários SSP
-    # ==============================
-    modelo_b_report = {}
-    logger.info(f"[FASE 7] Modelo B + projeções SSP ({doenca})...")
-    try:
-        from src.ml_pipeline.prediction import predict_scenarios
-        clim_cols = get_climate_feature_columns(df_train)
-        model_b, metrics_b, fi_b, oof_b = train_model(
-            df=df_train,
-            feature_cols=clim_cols,
-            target_col=target_col,
-            save_path=root_dir / "output" / "models" / f"xgboost_poisson_{doenca}_modeloB_v4.joblib",
-            use_pop_offset=True,
-            return_oof=True,
-            max_test_year=ANO_HOLDOUT - 1,
-        )
-        oof_b.to_csv(backtest_dir / f"oof_modeloB_{doenca}.csv", index=False)
-        proj = predict_scenarios(
-            model_b, panel, clim_cols, doenca=doenca, use_pop_offset=True, oof=oof_b,
-            output_dir=root_dir / "output" / "projecoes_v4",
-        )
-        modelo_b_report = {
-            "features": clim_cols,
-            "metrics_por_ano": metrics_b,
-            "feature_importance": fi_b[:20],
-            "projecoes_anuais": proj["anual"].to_dict(orient="records"),
-            "intervalo_empirico": proj["intervalo"],
-        }
-    except Exception as e:
-        logger.warning(f"Modelo B / projeções falharam para {doenca}: {e}", exc_info=True)
-
-    # ==============================
-    # 8. Salvar relatório
+    # 7. Salvar relatório
+    # (O Modelo B "só clima" e as projeções SSP foram removidos na v5: ver
+    #  docs/PLANO_V5_LIMPEZA_PUBLICAVEL.md, Step 1.)
     # ==============================
     output_dir = root_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -184,7 +154,6 @@ def _run_single_disease(
         "baselines_por_ano": baseline_results,
         "feature_importance": feature_importance[:20],
         "interpretability": interp_report,
-        "modelo_b": modelo_b_report,
     }
 
     log_file = output_dir / f"ml_run_log_{doenca}_v4.json"
