@@ -1,0 +1,372 @@
+{
+  "executado_em": "2026-11-04 12:46:18",
+  "git_commit": "97cd45a",
+  "ano_teste": 2025,
+  "reexecucao_forcada": false,
+  "doencas": {
+    "dengue": {
+      "modelo": "xgb_semclima_semcorte",
+      "horizontes": {
+        "h1": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 23.931031417433456,
+            "r2": 0.47479557815883444,
+            "mae_surto": 71.08143172458706,
+            "pico_medio_surto": 137.4834188034188,
+            "n_surto": 2925,
+            "mae_persistencia": 23.563795518207282,
+            "skill_score": -0.015584751571215152,
+            "auc_risco_alto": 0.9061258337779343,
+            "acuracia_risco_alto": 0.5336134453781513,
+            "pct_risco_alto": 0.5209383753501401
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": false,
+            "ok_mae_surto": false,
+            "ok_skill": false,
+            "ok_auc": true,
+            "ok_r2": true,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 23.563795518207282,
+              "r2": 0.6093708575995714,
+              "mae_surto": 73.89401709401709,
+              "pico_medio_surto": 137.4834188034188,
+              "n_surto": 2925,
+              "mae_persistencia": 23.563795518207282,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.8684791643278895,
+              "acuracia_risco_alto": 0.8115546218487395,
+              "pct_risco_alto": 0.5209383753501401
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 106.52955182072829,
+              "r2": -4.059978535799034,
+              "mae_surto": 281.6926495726496,
+              "pico_medio_surto": 137.4834188034188,
+              "n_surto": 2925,
+              "mae_persistencia": 23.563795518207282,
+              "skill_score": -3.5208995188578593,
+              "auc_risco_alto": 0.8407653013893697,
+              "acuracia_risco_alto": 0.7567927170868347,
+              "pct_risco_alto": 0.5209383753501401
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 20.639725728777155,
+            "r2": 0.5174872732785811,
+            "mae_surto": 95.86220822121008,
+            "skill_score": 0.2240380680005023,
+            "auc_risco_alto": 0.9091524116263712
+          },
+          "queda_relevante_vs_validacao": true
+        },
+        "h2": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 44.338115834540766,
+            "r2": -0.22113853408139428,
+            "mae_surto": 118.97283034947229,
+            "pico_medio_surto": 138.24965753424658,
+            "n_surto": 2920,
+            "mae_persistencia": 38.91953781512605,
+            "skill_score": -0.13922513790255728,
+            "auc_risco_alto": 0.8800488960075465,
+            "acuracia_risco_alto": 0.525,
+            "pct_risco_alto": 0.5217086834733894
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": false,
+            "ok_mae_surto": false,
+            "ok_skill": false,
+            "ok_auc": true,
+            "ok_r2": false,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 38.91953781512605,
+              "r2": -0.043879634457909544,
+              "mae_surto": 107.60719178082192,
+              "pico_medio_surto": 138.24965753424658,
+              "n_surto": 2920,
+              "mae_persistencia": 38.91953781512605,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.8238148515727102,
+              "acuracia_risco_alto": 0.7640756302521008,
+              "pct_risco_alto": 0.5217086834733894
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 106.52955182072829,
+              "r2": -4.059978535799034,
+              "mae_surto": 282.43013698630136,
+              "pico_medio_surto": 138.24965753424658,
+              "n_surto": 2920,
+              "mae_persistencia": 38.91953781512605,
+              "skill_score": -1.7371741238747613,
+              "auc_risco_alto": 0.841114025175155,
+              "acuracia_risco_alto": 0.7568627450980392,
+              "pct_risco_alto": 0.5217086834733894
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 26.460637982050347,
+            "r2": 0.4443059802432864,
+            "mae_surto": 118.92853425756982,
+            "skill_score": 0.4026579807925566,
+            "auc_risco_alto": 0.8932725679299409
+          },
+          "queda_relevante_vs_validacao": true
+        },
+        "h3": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 68.49813477759268,
+            "r2": -0.9175019082445444,
+            "mae_surto": 182.12430068291343,
+            "pico_medio_surto": 137.7693096377307,
+            "n_surto": 2926,
+            "mae_persistencia": 49.050840336134456,
+            "skill_score": -0.39647219717726057,
+            "auc_risco_alto": 0.8614220185280204,
+            "acuracia_risco_alto": 0.5234593837535014,
+            "pct_risco_alto": 0.5216386554621849
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": false,
+            "ok_mae_surto": false,
+            "ok_skill": false,
+            "ok_auc": true,
+            "ok_r2": false,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 49.050840336134456,
+              "r2": -0.4877142955930458,
+              "mae_surto": 112.42652084757349,
+              "pico_medio_surto": 137.7693096377307,
+              "n_surto": 2926,
+              "mae_persistencia": 49.050840336134456,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.7865279833183315,
+              "acuracia_risco_alto": 0.7292016806722689,
+              "pct_risco_alto": 0.5216386554621849
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 106.52955182072829,
+              "r2": -4.059978535799034,
+              "mae_surto": 281.9066985645933,
+              "pico_medio_surto": 137.7693096377307,
+              "n_surto": 2926,
+              "mae_persistencia": 49.050840336134456,
+              "skill_score": -1.171819098117485,
+              "auc_risco_alto": 0.8417192798405334,
+              "acuracia_risco_alto": 0.7570028011204482,
+              "pct_risco_alto": 0.5216386554621849
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 29.779385175927167,
+            "r2": 0.3287834776437387,
+            "mae_surto": 131.65136625935787,
+            "skill_score": 0.4587722264611972,
+            "auc_risco_alto": 0.8795377713374437
+          },
+          "queda_relevante_vs_validacao": true
+        }
+      }
+    },
+    "chikungunya": {
+      "modelo": "xgb_clima_p99",
+      "horizontes": {
+        "h1": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 0.95620350606703,
+            "r2": 0.23608191220659414,
+            "mae_surto": 9.209156442541305,
+            "pico_medio_surto": 12.002313030069391,
+            "n_surto": 1297,
+            "mae_persistencia": 1.0365546218487396,
+            "skill_score": 0.07751749313355041,
+            "auc_risco_alto": 0.8801504572789226,
+            "acuracia_risco_alto": 0.12289915966386554,
+            "pct_risco_alto": 0.12058823529411765
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": true,
+            "ok_mae_surto": false,
+            "ok_skill": true,
+            "ok_auc": true,
+            "ok_r2": true,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 1.0365546218487396,
+              "r2": 0.4328180783099429,
+              "mae_surto": 9.710871241326137,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.0365546218487396,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.7265550563156986,
+              "acuracia_risco_alto": 0.8782913165266106,
+              "pct_risco_alto": 0.12058823529411765
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 1.2417366946778712,
+              "r2": 0.009563325360908648,
+              "mae_surto": 11.651503469545105,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.0365546218487396,
+              "skill_score": -0.19794622348331298,
+              "auc_risco_alto": 0.6399840859203078,
+              "acuracia_risco_alto": 0.8624649859943978,
+              "pct_risco_alto": 0.12058823529411765
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 0.1953412896866433,
+            "r2": 0.1629584544503174,
+            "mae_surto": 3.4437058636089493,
+            "skill_score": -0.0001698159645988,
+            "auc_risco_alto": 0.8926369707857368
+          },
+          "queda_relevante_vs_validacao": false
+        },
+        "h2": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 1.0832890918298692,
+            "r2": 0.07176657530886532,
+            "mae_surto": 10.561366021433887,
+            "pico_medio_surto": 12.002313030069391,
+            "n_surto": 1297,
+            "mae_persistencia": 1.4644957983193276,
+            "skill_score": 0.2602989417429095,
+            "auc_risco_alto": 0.867866664299023,
+            "acuracia_risco_alto": 0.12289915966386554,
+            "pct_risco_alto": 0.12058823529411765
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": true,
+            "ok_mae_surto": false,
+            "ok_skill": true,
+            "ok_auc": true,
+            "ok_r2": true,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 1.4644957983193276,
+              "r2": -0.10323601660400672,
+              "mae_surto": 13.844255975327679,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.4644957983193276,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.6945931620602125,
+              "acuracia_risco_alto": 0.8700280112044818,
+              "pct_risco_alto": 0.12058823529411765
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 1.2417366946778712,
+              "r2": 0.009563325360908648,
+              "mae_surto": 11.651503469545105,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.4644957983193276,
+              "skill_score": 0.1521063453354372,
+              "auc_risco_alto": 0.6399840859203078,
+              "acuracia_risco_alto": 0.8624649859943978,
+              "pct_risco_alto": 0.12058823529411765
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 0.2143283480765828,
+            "r2": 0.0911853461554796,
+            "mae_surto": 3.7871811509745927,
+            "skill_score": 0.1696344454193549,
+            "auc_risco_alto": 0.8792677013283007
+          },
+          "queda_relevante_vs_validacao": false
+        },
+        "h3": {
+          "teste_2025": {
+            "n": 14280,
+            "mae": 1.1248696379763328,
+            "r2": 0.0325384638664199,
+            "mae_surto": 11.035060057935715,
+            "pico_medio_surto": 12.002313030069391,
+            "n_surto": 1297,
+            "mae_persistencia": 1.7007002801120448,
+            "skill_score": 0.3385844342295136,
+            "auc_risco_alto": 0.85576936949835,
+            "acuracia_risco_alto": 0.1226890756302521,
+            "pct_risco_alto": 0.12058823529411765
+          },
+          "criterios_2025": {
+            "ok_mae_vs_persistencia": true,
+            "ok_mae_surto": false,
+            "ok_skill": true,
+            "ok_auc": true,
+            "ok_r2": true,
+            "passa_todos": false
+          },
+          "baselines_2025": {
+            "persistencia": {
+              "n": 14280,
+              "mae": 1.7007002801120448,
+              "r2": -0.4523751255989483,
+              "mae_surto": 15.265998457979954,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.7007002801120448,
+              "skill_score": 0.0,
+              "auc_risco_alto": 0.6577343379911172,
+              "acuracia_risco_alto": 0.8584733893557422,
+              "pct_risco_alto": 0.12058823529411765
+            },
+            "sazonal": {
+              "n": 14280,
+              "mae": 1.2417366946778712,
+              "r2": 0.009563325360908648,
+              "mae_surto": 11.651503469545105,
+              "pico_medio_surto": 12.002313030069391,
+              "n_surto": 1297,
+              "mae_persistencia": 1.7007002801120448,
+              "skill_score": 0.2698674133245491,
+              "auc_risco_alto": 0.6399840859203078,
+              "acuracia_risco_alto": 0.8624649859943978,
+              "pct_risco_alto": 0.12058823529411765
+            }
+          },
+          "validacao_2018_2024": {
+            "mae": 0.2192983796841753,
+            "r2": 0.065455966129698,
+            "mae_surto": 3.969160045085698,
+            "skill_score": 0.2365721935909254,
+            "auc_risco_alto": 0.8705054679511828
+          },
+          "queda_relevante_vs_validacao": false
+        }
+      }
+    }
+  }
+}

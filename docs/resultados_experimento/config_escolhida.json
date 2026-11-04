@@ -1,0 +1,121 @@
+{
+  "confirmado_pelo_usuario": true,
+  "regra": "ver analise_experimento.py",
+  "doencas": {
+    "dengue": {
+      "usar_clima": false,
+      "corte_p99": false,
+      "modelo": "xgb_semclima_semcorte",
+      "ganho_skill_clima_medio": {
+        "p99": -0.0464,
+        "semcorte": -0.0414
+      },
+      "corte_reducao_mae_pct": -0.15,
+      "corte_perda_r2": 0.0078,
+      "metricas_dev_por_horizonte": {
+        "1": {
+          "mae": 20.6397,
+          "r2": 0.5175,
+          "mae_surto": 95.8622,
+          "pico_medio_surto": 178.5642,
+          "skill_score": 0.224,
+          "auc_risco_alto": 0.9092,
+          "passa_todos": false
+        },
+        "2": {
+          "mae": 26.4606,
+          "r2": 0.4443,
+          "mae_surto": 118.9285,
+          "pico_medio_surto": 175.4761,
+          "skill_score": 0.4027,
+          "auc_risco_alto": 0.8933,
+          "passa_todos": false
+        },
+        "3": {
+          "mae": 29.7794,
+          "r2": 0.3288,
+          "mae_surto": 131.6514,
+          "pico_medio_surto": 174.9672,
+          "skill_score": 0.4588,
+          "auc_risco_alto": 0.8795,
+          "passa_todos": false
+        }
+      },
+      "shap": {
+        "h1": {
+          "pct_shap_clima": 12.69,
+          "melhor_feature_clima": "tmin_lag1",
+          "rank_melhor_feature_clima": 9
+        },
+        "h2": {
+          "pct_shap_clima": 26.25,
+          "melhor_feature_clima": "receptivo_lag2",
+          "rank_melhor_feature_clima": 6
+        },
+        "h3": {
+          "pct_shap_clima": 32.05,
+          "melhor_feature_clima": "tmax_lag3",
+          "rank_melhor_feature_clima": 6
+        }
+      }
+    },
+    "chikungunya": {
+      "usar_clima": true,
+      "corte_p99": true,
+      "modelo": "xgb_clima_p99",
+      "ganho_skill_clima_medio": {
+        "p99": 0.0415,
+        "semcorte": 0.0511
+      },
+      "corte_reducao_mae_pct": 1.78,
+      "corte_perda_r2": 0.0028,
+      "metricas_dev_por_horizonte": {
+        "1": {
+          "mae": 0.1953,
+          "r2": 0.163,
+          "mae_surto": 3.4437,
+          "pico_medio_surto": 4.5651,
+          "skill_score": -0.0002,
+          "auc_risco_alto": 0.8926,
+          "passa_todos": false
+        },
+        "2": {
+          "mae": 0.2143,
+          "r2": 0.0912,
+          "mae_surto": 3.7872,
+          "pico_medio_surto": 4.566,
+          "skill_score": 0.1696,
+          "auc_risco_alto": 0.8793,
+          "passa_todos": false
+        },
+        "3": {
+          "mae": 0.2193,
+          "r2": 0.0655,
+          "mae_surto": 3.9692,
+          "pico_medio_surto": 4.6023,
+          "skill_score": 0.2366,
+          "auc_risco_alto": 0.8705,
+          "passa_todos": false
+        }
+      },
+      "shap": {
+        "h1": {
+          "pct_shap_clima": 15.36,
+          "melhor_feature_clima": "receptivo_lag1",
+          "rank_melhor_feature_clima": 7
+        },
+        "h2": {
+          "pct_shap_clima": 20.96,
+          "melhor_feature_clima": "receptivo_lag2",
+          "rank_melhor_feature_clima": 5
+        },
+        "h3": {
+          "pct_shap_clima": 21.17,
+          "melhor_feature_clima": "receptivo_lag3",
+          "rank_melhor_feature_clima": 6
+        }
+      }
+    }
+  },
+  "confirmado_em": "2026-11-04"
+}

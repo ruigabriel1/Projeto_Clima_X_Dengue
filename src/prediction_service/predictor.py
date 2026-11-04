@@ -162,6 +162,12 @@ class Preditor:
 
         teste = hmeta.get("metricas_teste_2025")
         val = var.get("metricas_validacao") or {}
+        if teste and teste.get("skill_score") is not None and teste["skill_score"] < 0:
+            baixa = True
+            avisos.append(
+                f"No teste de 2025 este modelo errou mais que repetir o último valor conhecido "
+                f"(Skill {teste['skill_score']:.2f}); use a previsão com cautela."
+            )
         if teste:
             nota = (f"Modelo validado no ano de 2025 (teste único): MAE {teste['mae']:.1f} casos/mês, "
                     f"R² {teste['r2']:.2f}, Skill vs. persistência {teste['skill_score']:.2f}.")
