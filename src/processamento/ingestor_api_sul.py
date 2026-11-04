@@ -61,20 +61,24 @@ def fetch_infodengue(geocode, disease='dengue', start_year=2015, end_year=2025):
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='coerce')
                     
+            if 'nivel' in df.columns:
+                df['nivel'] = pd.to_numeric(df['nivel'], errors='coerce')
             agg_rules = {
                 'casos': 'sum',
                 'casos_est': 'sum',
                 'receptivo': 'mean',
                 'umidmed': 'mean',
                 'umidmax': 'mean',
-                'umidmin': 'mean'
+                'umidmin': 'mean',
+                'nivel': 'max',   # alerta oficial do InfoDengue (1 verde … 4 vermelho), pior semana do mês
             }
             agg_rules = {k: v for k, v in agg_rules.items() if k in df.columns}
             df_grouped = df.groupby(['ANO', 'MES']).agg(agg_rules).reset_index()
             
             df_grouped = df_grouped.rename(columns={
                 'casos': f'CASOS_{disease.upper()}',
-                'casos_est': f'CASOS_EST_{disease.upper()}'
+                'casos_est': f'CASOS_EST_{disease.upper()}',
+                'nivel': f'NIVEL_{disease.upper()}',
             })
             
             df_grouped['CODIGO_MUNICIPIO'] = geocode
@@ -92,9 +96,11 @@ def sleep_until_next_hour():
     logger.warning(f"[CLIMA - OpenMeteo] Ele acordará e continuará o download automaticamente. Você NÃO precisa aprovar nada.")
     time.sleep(sleep_seconds)
 
-def fetch_clima(lat, lon, geocode, start_year=2015, end_year=2025):
+def fetch_clima(lat, lon, geocode, start_year=2015, end_year=2025, start_date=None, end_date=None):
     daily_vars = "temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,windgusts_10m_max,soil_temperature_0_to_7cm_mean"
-    url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_year}-01-01&end_date={end_year}-12-31&daily={daily_vars}&timezone=America%2FSao_Paulo"
+    start_date = start_date or f"{start_year}-01-01"
+    end_date = end_date or f"{end_year}-12-31"
+    url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date}&end_date={end_date}&daily={daily_vars}&timezone=America%2FSao_Paulo"
     
     while True:
         try:
