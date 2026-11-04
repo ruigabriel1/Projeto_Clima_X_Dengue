@@ -1,4 +1,4 @@
-"""Schemas Pydantic de entrada e saída da API de previsão."""
+"""Schemas Pydantic de entrada e saída da API de previsão (v5: alerta de risco)."""
 from __future__ import annotations
 
 from typing import Literal, Optional
@@ -31,9 +31,16 @@ class PredictResponse(BaseModel):
     horizonte_meses: int
     mes_alvo: Optional[str] = None
     ultimo_mes_observado: Optional[str] = None
+    # ---- produto principal: risco relativo à própria cidade
+    probabilidade_risco_alto: Optional[float] = Field(
+        None, description="P(incidência do mês-alvo > P75 histórico da própria cidade), calibrada")
+    nivel_risco: Optional[NivelRisco] = None
+    limiar_risco_incidencia_100k: Optional[float] = None
+    alerta_infodengue_ultimo: Optional[int] = Field(
+        None, description="Nível de alerta oficial do InfoDengue (1–4) no último mês observado")
+    # ---- informação secundária: magnitude
     casos_previstos: Optional[int] = None
     intervalo_confianca: Optional[list[int]] = Field(None, description="Intervalo de 90% [inferior, superior]")
-    nivel_risco: Optional[NivelRisco] = None
     incidencia_prevista_100k: Optional[float] = None
     modelo_usado: Optional[str] = None
     confiabilidade: Optional[Literal["normal", "baixa"]] = None

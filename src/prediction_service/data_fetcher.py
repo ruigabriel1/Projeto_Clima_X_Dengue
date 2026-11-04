@@ -64,6 +64,15 @@ class FonteDados:
         ult = s.sort_values(["year", "month"]).iloc[-1]
         return int(ult["year"]), int(ult["month"])
 
+    def alerta_infodengue(self, code: str, doenca: str, ano_mes: tuple[int, int] | None) -> int | None:
+        """Nível de alerta oficial do InfoDengue (1–4) no mês informado, se disponível."""
+        col = {"dengue": "NIVEL_DENGUE", "chikungunya": "NIVEL_CHIKUNGUNYA"}.get(doenca)
+        p = self.panel
+        if not ano_mes or col not in p.columns:
+            return None
+        v = p.loc[(p["code"] == code) & (p["year"] == ano_mes[0]) & (p["month"] == ano_mes[1]), col]
+        return int(v.iloc[0]) if len(v) and pd.notna(v.iloc[0]) else None
+
     # ------------------------------------------------------------------ features
     def _com_linhas_futuras(self, doenca: str, h: int) -> pd.DataFrame:
         """Painel + h meses futuros por cidade (após o último mês com alvo observado)."""

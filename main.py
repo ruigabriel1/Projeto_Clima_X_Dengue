@@ -74,10 +74,10 @@ def command_teste_final(args):
     tf_main((["--confirmar"] if args.confirmar else []) + (["--forcar"] if args.forcar else []))
 
 
-def command_modelo_final(args):
-    """Fase 4.1: retreino final 2015–2025 para produção."""
-    from src.ml_pipeline.modelo_final import main as mf_main
-    mf_main(["--sem-teste"] if args.sem_teste else [])
+def command_teste_prospectivo(args):
+    """Protocolo v5: teste prospectivo único em jan–ago/2026."""
+    from src.ml_pipeline.teste_prospectivo import main as tp_main
+    tp_main((["--confirmar"] if args.confirmar else []) + (["--forcar"] if args.forcar else []))
 
 
 def command_atualizar_dados(args):
@@ -90,6 +90,18 @@ def command_experimento_v5(args):
     """Protocolo v5: clima parcimonioso × suscetibilidade, alvo de risco, 2025 como 2ª validação."""
     from src.ml_pipeline.experimento_v5 import main as v5_main
     v5_main(["--doenca", args.doenca])
+
+
+def command_modelo_risco(args):
+    """Protocolo v5: benchmark InfoDengue + modelos de produção de alerta de risco."""
+    from src.ml_pipeline.alerta_risco import benchmark_infodengue, treinar_modelos_risco
+    from src.ml_pipeline.data_ingestion import build_base_panel
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    configurar_log()
+    if not args.sem_benchmark:
+        print(benchmark_infodengue().round(3).to_string(index=False))
+    treinar_modelos_risco(build_base_panel(Path(__file__).resolve().parent), ano_max=args.ano_max)
+    print("Modelos de risco em output/models/final_v5/")
 
 
 def command_dlnm(args):
@@ -165,9 +177,10 @@ def main():
     p_tf.add_argument("--forcar", action="store_true", help="Reexecuta apesar da trava (fica registrado)")
     p_tf.set_defaults(func=command_teste_final)
 
-    p_mf = subparsers.add_parser("modelo-final", help="Fase 4.1: retreino 2015–2025 para produção.")
-    p_mf.add_argument("--sem-teste", action="store_true", help="Permite treinar antes do teste 2025")
-    p_mf.set_defaults(func=command_modelo_final)
+    p_tp = subparsers.add_parser("teste-prospectivo", help="v5: teste ÚNICO em jan–ago/2026 (trava após rodar).")
+    p_tp.add_argument("--confirmar", action="store_true")
+    p_tp.add_argument("--forcar", action="store_true")
+    p_tp.set_defaults(func=command_teste_prospectivo)
 
     # ---------- Protocolo v5 (docs/PROTOCOLO_V5.md) ----------
     p_at = subparsers.add_parser("atualizar-dados", help="Atualização incremental idempotente do banco.")
@@ -178,6 +191,11 @@ def main():
     p_v5 = subparsers.add_parser("experimento-v5", help="Experimento v5: clima × suscetibilidade, risco.")
     p_v5.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
     p_v5.set_defaults(func=command_experimento_v5)
+
+    p_mr = subparsers.add_parser("modelo-risco", help="Benchmark InfoDengue + modelos de alerta de risco (produção).")
+    p_mr.add_argument("--ano-max", type=int, default=2025, help="Último ano de treino (2025 até o teste prospectivo)")
+    p_mr.add_argument("--sem-benchmark", action="store_true")
+    p_mr.set_defaults(func=command_modelo_risco)
 
     p_dl = subparsers.add_parser("dlnm", help="Efeito do clima por DLNM (Poisson condicional).")
     p_dl.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")

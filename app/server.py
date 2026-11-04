@@ -131,15 +131,17 @@ def api_modelo_info():
     for d in p.doencas_disponiveis():
         m = p.metadata(d)
         info[d] = {
-            "config": m["config"],
+            "versao": m["versao"],
+            "modelo": m["modelo"],
+            "clima": m["clima"],
+            "suscetibilidade": m["suscetibilidade"],
             "treinado_em": m["treinado_em"],
             "anos_treino": m["anos_treino"],
-            "retreinar_ate": m["retreinar_ate"],
             "horizontes": {
                 h: {
-                    "modelo": x["variantes"]["principal"]["modelo"],
-                    "metricas_validacao": x["variantes"]["principal"]["metricas_validacao"],
-                    "metricas_teste_2025": x.get("metricas_teste_2025"),
+                    "metricas": x["metricas"],
+                    "benchmark_infodengue": x["benchmark_infodengue"],
+                    "teste_prospectivo_2026": x["teste_prospectivo_2026"],
                 }
                 for h, x in m["horizontes"].items()
             },
