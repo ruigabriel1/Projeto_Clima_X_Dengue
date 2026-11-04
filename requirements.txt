@@ -25,7 +25,13 @@ tqdm>=4.60.0
 # Web server (dashboard)
 fastapi>=0.95.0
 uvicorn>=0.20.0
+jinja2>=3.1.0
+pydantic>=2.0
 
 # Imagens e Excel
 Pillow>=9.0.0
 openpyxl>=3.0.0
+
+# Testes
+pytest>=7.0
+httpx>=0.27

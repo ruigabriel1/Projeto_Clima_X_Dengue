@@ -177,10 +177,25 @@ def _prefixo_doenca(col: str):
     return None
 
 
+# Prefixos de features derivadas de clima (inclui ENSO e a receptividade do InfoDengue,
+# que é um índice calculado a partir de temperatura/umidade). Usado no experimento
+# "com vs. sem clima": sem clima = só histórico de casos + sazonalidade + geografia.
+_PREFIXOS_CLIMA = (
+    "temp_", "prec_", "umid_", "tmax_", "tmin_", "tsolo_", "vento_",
+    "amplitude_", "graus_dia_18", "enso_", "receptivo_",
+)
+
+
+def is_climate_feature(col: str) -> bool:
+    """True se a feature é derivada de variáveis climáticas/ENSO."""
+    return col.startswith(_PREFIXOS_CLIMA)
+
+
 def get_feature_columns(
     df: pd.DataFrame,
     forecast: bool = True,
     doenca: str = "dengue",
+    usar_clima: bool = True,
 ) -> list[str]:
     """
     Features do Modelo A (previsão).
@@ -190,6 +205,7 @@ def get_feature_columns(
       apenas o lag mais recente e a média de 3 meses. Zika só entra como feature
       no modelo da própria zika (a série termina em 2024).
     - forecast=True remove variáveis do mês corrente (desconhecidas na previsão).
+    - usar_clima=False remove todas as features climáticas (ver is_climate_feature).
     """
     p_alvo = PREFIXOS[DOENCA_PARA_COL[doenca]]
     excluir = set(_META) | set(PREFIXOS.keys())
@@ -199,6 +215,7 @@ def get_feature_columns(
     candidatas = [
         c for c in df.columns
         if c not in excluir and pd.api.types.is_numeric_dtype(df[c])
+        and (usar_clima or not is_climate_feature(c))
     ]
 
     # Menor lag disponível por doença (depende do horizonte)

@@ -1,19 +1,48 @@
 """
 server.py — FastAPI backend para a interface Prodígia.
-Rotas: status do banco, lista de cidades, resultados (v4 multi-doença).
+Rotas: status do banco, lista de cidades, resultados (v4 multi-doença) e
+API de previsão (POST /api/predict, documentação em /docs).
 """
 import json
+import logging
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from src.prediction_service.schemas import PredictRequest, PredictResponse
+
 APP_DIR = Path(__file__).resolve().parent
 ROOT_DIR = APP_DIR.parent
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Prodígia", docs_url=None, redoc_url=None)
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Aquece o preditor (painel + features de previsão) em segundo plano, sem bloquear o servidor."""
+    from src.prediction_service.predictor import get_preditor
+
+    def _run():
+        try:
+            get_preditor().aquecer()
+        except Exception as e:  # modelos ainda não treinados: a rota responde 503
+            logger.warning(f"Aquecimento do preditor ignorado: {e}")
+
+    threading.Thread(target=_run, daemon=True).start()
+    yield
+
+
+app = FastAPI(
+    title="Prodígia — Previsão de Arboviroses (Região Sul)",
+    description="Previsão de casos de dengue e chikungunya por município, 1 a 3 meses à frente.",
+    docs_url="/docs",
+    redoc_url=None,
+    lifespan=lifespan,
+)
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 
 # Mount output directory for downloading exports
@@ -73,3 +102,46 @@ async def api_resultados(doenca: str = Query("dengue")):
                  f"  python main.py train --doenca {doenca}\n"
                  f"  python main.py export-dashboard --doenca {doenca}"
     }
+
+
+# ---------------------------------------------------------------- previsão (Fase 4)
+@app.post("/api/predict", response_model=PredictResponse)
+def api_predict(req: PredictRequest):
+    """
+    Previsão de casos para um município, doença e horizonte (1–3 meses).
+    Rota síncrona: o FastAPI a executa em threadpool (o cálculo de features é CPU-bound).
+    """
+    from src.prediction_service.predictor import CidadeNaoEncontrada, ModeloIndisponivel, get_preditor
+
+    try:
+        return get_preditor().prever(req.codigo_ibge, req.doenca, req.meses_a_frente)
+    except CidadeNaoEncontrada as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ModeloIndisponivel as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/api/modelo/info")
+def api_modelo_info():
+    """Resumo dos modelos de produção carregados (config, métricas, data de retreino)."""
+    from src.prediction_service.predictor import get_preditor
+
+    p = get_preditor()
+    info = {}
+    for d in p.doencas_disponiveis():
+        m = p.metadata(d)
+        info[d] = {
+            "config": m["config"],
+            "treinado_em": m["treinado_em"],
+            "anos_treino": m["anos_treino"],
+            "retreinar_ate": m["retreinar_ate"],
+            "horizontes": {
+                h: {
+                    "modelo": x["variantes"]["principal"]["modelo"],
+                    "metricas_validacao": x["variantes"]["principal"]["metricas_validacao"],
+                    "metricas_teste_2025": x.get("metricas_teste_2025"),
+                }
+                for h, x in m["horizontes"].items()
+            },
+        }
+    return info

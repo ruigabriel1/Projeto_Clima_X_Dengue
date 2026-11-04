@@ -30,10 +30,13 @@ def _lag_col_name(target_col: str, lag: int) -> str:
 
 
 class PersistenciaBaseline:
-    """Prever = valor do mês anterior (<doença>_lag1)."""
+    """
+    Prever = último valor conhecido no momento da previsão (<doença>_lag<h>).
+    No horizonte h, o mês t-1 ainda não foi observado: usar lag1 seria vazamento.
+    """
 
-    def __init__(self, target_col: str = "dengue_cases"):
-        self.lag_col = _lag_col_name(target_col, 1)
+    def __init__(self, target_col: str = "dengue_cases", horizonte: int = 1):
+        self.lag_col = _lag_col_name(target_col, horizonte)
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
         if self.lag_col not in df.columns:

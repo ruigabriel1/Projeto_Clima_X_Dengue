@@ -27,7 +27,8 @@ Sempre use o Python do venv: `.venv/Scripts/python.exe` (Windows, Python 3.12).
 
 ```
 data/processed/dengue_analytics.db   SQLite (gitignored): ingestao_saude, ingestao_clima,
-                                     ingestao_enso, ingestao_populacao, ref_municipios
+                                     ingestao_enso, ingestao_populacao (texto em UTF-8; o console
+                                     cp1252 do Windows exibe acentos como "�" — não é corrupção)
 src/processamento/                   Robôs de ingestão (InfoDengue, Open-Meteo, NOAA, IBGE)
 src/ml_pipeline/
   data_ingestion.py      SQLite → painel (code, year, month, casos, clima, pop). Códigos IBGE de 6 dígitos.

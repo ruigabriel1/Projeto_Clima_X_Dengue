@@ -1,0 +1,101 @@
+"""
+Fonte de dados do serviço de previsão.
+
+A fonte de verdade é o SQLite (data/processed/dengue_analytics.db), alimentado pelos robôs
+de ingestão das APIs públicas (InfoDengue, Open-Meteo, NOAA, IBGE):
+
+    python -m src.processamento.ingestor_api_sul --alvo infodengue
+    python -m src.processamento.ingestor_api_sul --alvo openmeteo
+    python -m src.processamento.ingestor_api_sul --alvo noaa
+
+Depois de atualizar o banco, chame FonteDados.recarregar() (ou reinicie o servidor).
+
+Para prever o mês T = último observado + h, acrescentamos h linhas "futuras" (casos e clima
+desconhecidos) a cada cidade e reconstruímos as features EXATAMENTE como no treino
+(build_ml_features). Como toda feature usa lags ≥ h, a linha T só depende de dados observados.
+"""
+from __future__ import annotations
+
+import logging
+import threading
+
+import numpy as np
+import pandas as pd
+
+from src.config import BASE_DIR
+from src.ml_pipeline.feature_engineering import DOENCA_PARA_COL, build_ml_features
+
+logger = logging.getLogger(__name__)
+
+_COLS_ESTATICAS = ["city_name", "latitude", "longitude", "lat_faixa_id", "populacao", "log_pop"]
+
+
+class FonteDados:
+    def __init__(self, panel: pd.DataFrame | None = None):
+        self._panel = panel
+        self._cache: dict[tuple[str, int], pd.DataFrame] = {}
+        self._lock = threading.Lock()
+
+    # ------------------------------------------------------------------ painel
+    @property
+    def panel(self) -> pd.DataFrame:
+        if self._panel is None:
+            with self._lock:
+                if self._panel is None:
+                    from src.ml_pipeline.data_ingestion import build_base_panel
+                    self._panel = build_base_panel(BASE_DIR)
+                    logger.info(f"Painel carregado: {len(self._panel)} linhas")
+        return self._panel
+
+    def recarregar(self):
+        with self._lock:
+            self._panel = None
+            self._cache.clear()
+
+    def tem_cidade(self, code: str) -> bool:
+        return code in set(self.panel["code"].unique())
+
+    def ultimo_mes_observado(self, code: str, doenca: str) -> tuple[int, int] | None:
+        alvo = DOENCA_PARA_COL[doenca]
+        p = self.panel
+        s = p[(p["code"] == code) & p[alvo].notna()]
+        if s.empty:
+            return None
+        ult = s.sort_values(["year", "month"]).iloc[-1]
+        return int(ult["year"]), int(ult["month"])
+
+    # ------------------------------------------------------------------ features
+    def _com_linhas_futuras(self, doenca: str, h: int) -> pd.DataFrame:
+        """Painel + h meses futuros por cidade (após o último mês com alvo observado)."""
+        alvo = DOENCA_PARA_COL[doenca]
+        p = self.panel
+        obs = p[p[alvo].notna()]
+        ultimos = obs.sort_values(["year", "month"]).groupby("code").tail(1)
+        estaticas = [c for c in _COLS_ESTATICAS if c in p.columns]
+        futuras = []
+        for k in range(1, h + 1):
+            idx = ultimos["year"] * 12 + (ultimos["month"] - 1) + k
+            f = ultimos[["code"] + estaticas].copy()
+            f["year"] = (idx // 12).astype(int).values
+            f["month"] = (idx % 12 + 1).astype(int).values
+            futuras.append(f)
+        fut = pd.concat(futuras, ignore_index=True)
+        # Remove do painel linhas sem alvo após o último observado (evita duplicar chaves)
+        chave = p["year"] * 12 + p["month"]
+        lim = p["code"].map(ultimos.set_index("code").eval("year * 12 + month"))
+        base = p[chave <= lim.fillna(np.inf)]
+        return pd.concat([base, fut], ignore_index=True, sort=False)
+
+    def features_previsao(self, doenca: str, h: int) -> pd.DataFrame:
+        """Linhas de features do mês-alvo (último observado + h) de todas as cidades. Com cache."""
+        chave = (doenca, h)
+        if chave not in self._cache:
+            alvo = DOENCA_PARA_COL[doenca]
+            ext = self._com_linhas_futuras(doenca, h)
+            feats = build_ml_features(ext, doenca=doenca, horizonte=h)
+            alvo_rows = feats[feats[alvo].isna()]
+            # Mantém só o mês T (o h-ésimo futuro) de cada cidade
+            alvo_rows = alvo_rows.sort_values(["code", "year", "month"]).groupby("code").tail(1)
+            self._cache[chave] = alvo_rows.set_index("code")
+            logger.info(f"Features de previsão {chave}: {len(alvo_rows)} cidades")
+        return self._cache[chave]

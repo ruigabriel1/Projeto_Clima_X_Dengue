@@ -30,6 +30,16 @@ ANO_FIM_HISTORICO = 2024
 ANO_INICIO_PROJECAO = 2025
 ANO_FIM_PROJECAO = 2040
 
+# ---------- Experimento final (docs/PLANO_EXPERIMENTO_FINAL.md) ----------
+# 2025 é o holdout: não entra em nenhuma decisão de desenvolvimento.
+ANO_HOLDOUT = 2025
+ANO_PRIMEIRO_TESTE_DEV = 2018          # folds de desenvolvimento: 2018..2024
+HORIZONTES = (1, 2, 3)
+DOENCAS_EXPERIMENTO = ("dengue", "chikungunya")   # zika fica fora (dados insuficientes)
+OUTPUT_EXPERIMENTO = OUTPUT_DIR / "experimento"
+OUTPUT_MODELOS_FINAIS = OUTPUT_DIR / "models" / "final"
+DB_PATH = DATA_PROCESSED_DIR / "dengue_analytics.db"
+
 # Garantir que todos os diretórios essenciais existam ao importar as configurações
 dirs_to_create = [
     DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_GEODADOS_DIR,

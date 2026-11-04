@@ -22,6 +22,7 @@ import sys
 
 import pandas as pd
 
+from src.config import ANO_HOLDOUT
 from src.ml_pipeline.data_ingestion import build_base_panel, validate_panel, DOENCAS
 from src.ml_pipeline.feature_engineering import (
     build_ml_features, get_feature_columns, get_climate_feature_columns, DOENCA_PARA_COL,
@@ -97,6 +98,7 @@ def _run_single_disease(
         tune_hyperparams=tune_hyperparams,
         save_path=model_path,
         return_oof=True,
+        max_test_year=ANO_HOLDOUT - 1,   # 2025 é holdout do experimento final: não validar nele
     )
     backtest_dir = root_dir / "output" / "backtest"
     backtest_dir.mkdir(parents=True, exist_ok=True)
@@ -145,6 +147,7 @@ def _run_single_disease(
             save_path=root_dir / "output" / "models" / f"xgboost_poisson_{doenca}_modeloB_v4.joblib",
             use_pop_offset=True,
             return_oof=True,
+            max_test_year=ANO_HOLDOUT - 1,
         )
         oof_b.to_csv(backtest_dir / f"oof_modeloB_{doenca}.csv", index=False)
         proj = predict_scenarios(

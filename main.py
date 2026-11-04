@@ -55,6 +55,36 @@ def command_export_dashboard(args):
         raise
 
 
+def command_experimento(args):
+    """Fase 1: 24 rodadas (doença × horizonte × clima × corte) + baselines."""
+    from src.ml_pipeline.experimento_horizontes import main as exp_main
+    argv = ["--doenca", args.doenca]
+    if args.amostra:
+        argv += ["--amostra", str(args.amostra)]
+    exp_main(argv)
+
+
+def command_analise(args):
+    """Fase 2: tabela comparativa, efeito do clima, SHAP e configuração sugerida."""
+    from src.ml_pipeline.analise_experimento import run_analise
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    configurar_log()
+    run_analise(com_shap=not args.sem_shap, diagnostico=args.diagnostico)
+    print("Relatório: output/experimento/analise.md")
+
+
+def command_teste_final(args):
+    """Fase 3: teste único no holdout 2025."""
+    from src.ml_pipeline.teste_final import main as tf_main
+    tf_main((["--confirmar"] if args.confirmar else []) + (["--forcar"] if args.forcar else []))
+
+
+def command_modelo_final(args):
+    """Fase 4.1: retreino final 2015–2025 para produção."""
+    from src.ml_pipeline.modelo_final import main as mf_main
+    mf_main(["--sem-teste"] if args.sem_teste else [])
+
+
 def command_serve(args):
     """Sobe o servidor do Dashboard."""
     try:
@@ -108,6 +138,27 @@ def main():
         help="Código IBGE (6 dígitos) para filtrar uma cidade."
     )
     parser_export.set_defaults(func=command_export_dashboard)
+
+    # ---------- Experimento final (docs/PLANO_EXPERIMENTO_FINAL.md) ----------
+    p_exp = subparsers.add_parser("experimento", help="Fase 1: experimento horizontes × clima × corte P99.")
+    p_exp.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
+    p_exp.add_argument("--amostra", type=int, default=None, help="N cidades (teste rápido)")
+    p_exp.set_defaults(func=command_experimento)
+
+    p_an = subparsers.add_parser("analise", help="Fase 2: análise e configuração sugerida.")
+    p_an.add_argument("--sem-shap", action="store_true")
+    p_an.add_argument("--diagnostico", action="store_true",
+                      help="Inclui o diagnóstico exploratório por grupo de clima (≈3 min)")
+    p_an.set_defaults(func=command_analise)
+
+    p_tf = subparsers.add_parser("teste-final", help="Fase 3: teste ÚNICO no holdout 2025.")
+    p_tf.add_argument("--confirmar", action="store_true", help="Confirma a configuração revisada")
+    p_tf.add_argument("--forcar", action="store_true", help="Reexecuta apesar da trava (fica registrado)")
+    p_tf.set_defaults(func=command_teste_final)
+
+    p_mf = subparsers.add_parser("modelo-final", help="Fase 4.1: retreino 2015–2025 para produção.")
+    p_mf.add_argument("--sem-teste", action="store_true", help="Permite treinar antes do teste 2025")
+    p_mf.set_defaults(func=command_modelo_final)
 
     # Comando serve
     parser_serve = subparsers.add_parser(
