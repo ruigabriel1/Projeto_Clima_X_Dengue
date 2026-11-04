@@ -78,6 +78,17 @@ POST /api/predict
 
 Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez de previsão (dados insuficientes).
 
+## Engenharia de dados
+
+| Etapa | Como foi feito |
+|---|---|
+| **Ingestão** | 4 APIs públicas (InfoDengue, Open-Meteo, NOAA, IBGE) para 1.190 municípios; semanas e dias agregados em meses |
+| **Carga** | Incremental e **idempotente** no SQLite: upsert por município × ano × mês, índice único, retomada após falha ou limite de requisições |
+| **Histórico imutável** | Meses já usados em análises nunca são sobrescritos; o ano corrente só entra com meses fechados e consolidados |
+| **Qualidade** | Checagem de duplicatas, faixas físicas, cobertura e colunas que vazariam o alvo; 2015–2025 conferido contra a fonte (totais idênticos) |
+| **Features** | Lags, médias móveis, incidência acumulada e clima defasado, todos calculados só com informação até t − h |
+| **Testes** | 62 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API |
+
 ## Como a IA foi usada, e onde ela foi barrada
 
 O projeto foi desenvolvido com apoio de um agente de IA (Claude Code) para código, revisão e análise.
