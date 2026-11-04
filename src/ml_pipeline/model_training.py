@@ -21,12 +21,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 logger = logging.getLogger(__name__)
 
-# Mapa de doença → prefixo (consistente com feature_engineering)
-_PREFIXOS = {
-    "dengue_cases": "dengue",
-    "chik_cases": "chik",
-    "zika_cases": "zika",
-}
+from src.ml_pipeline.feature_engineering import PREFIXOS as _PREFIXOS
 
 # Hiperparâmetros FIXOS do XGBoost Poisson. O experimento final mede o efeito de
 # horizonte e clima, não otimiza o algoritmo: não alterar sem registrar no artigo.
@@ -148,7 +143,6 @@ def train_model(
     df: pd.DataFrame,
     feature_cols: list[str],
     target_col: str = "dengue_cases",
-    tune_hyperparams: bool = False,
     save_path: Path | None = None,
     clip_percentile: float | None = None,
     use_pop_offset: bool = False,
@@ -163,7 +157,6 @@ def train_model(
       df            — DataFrame já com features, incluindo 'year' e 'code'.
       feature_cols  — lista de colunas X.
       target_col    — nome da coluna alvo.
-      tune_hyperparams — se True, faz RandomizedSearchCV (NÃO usar no experimento final).
       save_path     — se fornecido, salva o modelo .joblib.
       clip_percentile — corte por cidade no alvo de treino (None = sem corte).
       horizonte     — h usado nas features; define a coluna do baseline de persistência.
@@ -179,31 +172,9 @@ def train_model(
     y_raw = df[target_col]
     years = df["year"]
 
-    # ---------- Hiperparâmetros ----------
-    if tune_hyperparams:
-        logger.info("Tuning hyperparams com RandomizedSearchCV...")
-        from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
-
-        base = xgb.XGBRegressor(objective="count:poisson", eval_metric="poisson-nloglik", random_state=42)
-        param_grid = {
-            "max_depth": [3, 4, 5, 6, 7],
-            "learning_rate": [0.01, 0.03, 0.05, 0.1],
-            "n_estimators": [100, 200, 300, 500],
-            "subsample": [0.7, 0.8, 0.9],
-            "colsample_bytree": [0.6, 0.7, 0.8, 0.9],
-            "min_child_weight": [3, 5, 10, 20],
-            "reg_alpha": [0, 0.1, 1.0],
-            "reg_lambda": [1, 5, 10],
-        }
-        search = RandomizedSearchCV(
-            base, param_grid, n_iter=30, cv=TimeSeriesSplit(n_splits=4),
-            scoring="neg_mean_absolute_error", random_state=42, n_jobs=-1,
-        )
-        search.fit(X, alvo_treino(df, target_col, clip_percentile))
-        best_params = search.best_estimator_.get_params()
-        logger.info(f"Best Params: {search.best_params_}")
-    else:
-        best_params = dict(XGB_PARAMS)
+    # Hiperparâmetros fixos (protocolo: sem grid search — com ~10 anos de informação
+    # interanual, otimizar hiperparâmetros só aumenta o sobreajuste à validação).
+    best_params = dict(XGB_PARAMS)
 
     # ---------- Expanding Window CV ----------
     metrics = []

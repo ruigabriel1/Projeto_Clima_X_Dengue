@@ -43,7 +43,6 @@ def _run_single_disease(
     doenca: str,
     root_dir: Path,
     modo: str,
-    tune_hyperparams: bool,
     validation_report: dict,
 ):
     """Executa o pipeline para uma doença específica."""
@@ -95,7 +94,6 @@ def _run_single_disease(
         df=df_train,
         feature_cols=feature_cols,
         target_col=target_col,
-        tune_hyperparams=tune_hyperparams,
         save_path=model_path,
         return_oof=True,
         max_test_year=ANO_HOLDOUT - 1,   # 2025 é holdout do experimento final: não validar nele
@@ -169,16 +167,14 @@ def _run_single_disease(
 def run_pipeline(
     root_dir: Path,
     modo: str = "regional",
-    tune_hyperparams: bool = False,
     doenca: str = "dengue",
 ):
     """
-    Executa o pipeline completo de ML.
+    Executa o pipeline completo de ML (hiperparâmetros fixos, sem tunagem).
 
     Args:
         root_dir: raiz do projeto.
         modo: "regional" (completo) ou "rapido" (1 cidade para debug).
-        tune_hyperparams: se True, faz RandomizedSearchCV.
         doenca: "dengue" | "chikungunya" | "zika" | "todas".
 
     Returns:
@@ -233,7 +229,6 @@ def run_pipeline(
             doenca=d,
             root_dir=root_dir,
             modo=modo,
-            tune_hyperparams=tune_hyperparams,
             validation_report=validation_report,
         )
         if model is not None:
@@ -251,7 +246,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Pipeline ML v4 - Arboviroses × Clima")
     parser.add_argument("--modo", default="regional", choices=["regional", "rapido"])
-    parser.add_argument("--tune", action="store_true", help="Tunar hiperparâmetros")
     parser.add_argument(
         "--doenca",
         default="dengue",
@@ -261,4 +255,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent.parent
-    run_pipeline(root, modo=args.modo, tune_hyperparams=args.tune, doenca=args.doenca)
+    run_pipeline(root, modo=args.modo, doenca=args.doenca)

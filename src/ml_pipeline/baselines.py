@@ -15,12 +15,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# Mapa de doença → prefixo (consistente com feature_engineering)
-_PREFIXOS = {
-    "dengue_cases": "dengue",
-    "chik_cases": "chik",
-    "zika_cases": "zika",
-}
+from src.ml_pipeline.feature_engineering import PREFIXOS as _PREFIXOS
 
 
 def _lag_col_name(target_col: str, lag: int) -> str:

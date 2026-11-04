@@ -22,7 +22,6 @@ def command_train(args):
         results = run_pipeline(
             root,
             modo=args.modo,
-            tune_hyperparams=args.tune,
             doenca=args.doenca,
         )
         if results:
@@ -98,7 +97,7 @@ def main():
     # Comando train
     parser_train = subparsers.add_parser(
         "train",
-        help="Treina o modelo ML v4.1 (XGBoost Poisson + Expanding Window + Model B SSP)."
+        help="Treina o modelo do dashboard (XGBoost Poisson, hiperparâmetros fixos, Expanding Window)."
     )
     parser_train.add_argument(
         "--modo", type=str,
@@ -111,10 +110,6 @@ def main():
         choices=["dengue", "chikungunya", "zika", "todas"],
         default="dengue",
         help="Doença-alvo ou 'todas' para loop."
-    )
-    parser_train.add_argument(
-        "--tune", action="store_true",
-        help="Tunar hiperparâmetros com RandomizedSearchCV."
     )
     parser_train.set_defaults(func=command_train)
 
