@@ -31,9 +31,10 @@ export function renderChartCenarios(data) {
   const cenarioBase = data.ssp126 || data.ssp245 || Object.values(data)[0];
   if (!cenarioBase) return;
   
-  const anos = cenarioBase.anos;
-  const filterIdx = anos.map((a, i) => (a >= 2026 && a <= 2030) ? i : -1).filter(i => i !== -1);
-  const xLabels = filterIdx.map(i => anos[i]);
+  // v4: períodos categóricos ("Baseline", "2025-2030", ...)
+  const anos = cenarioBase.anos.map(String);
+  const filterIdx = anos.map((_, i) => i);
+  const xLabels = anos;
 
   const traces = [];
   
@@ -57,7 +58,16 @@ export function renderChartCenarios(data) {
     traces.push({ x: xLabels, y: filterIdx.map(i => data.ssp585.casos[i]), type: "scatter", mode: "lines+markers", name: "SSP5-8.5 (Pessimista)", line: { color: "#ef4444", width: 4, dash: "dashdot" } });
   }
 
-  const layout = getPlotlyLayout("Evolução dos Cenários Climáticos (2026-2030)", "Casos Anuais Projetados");
+  // Faixa de erro empírico (fora-da-amostra) do cenário intermediário
+  if (data.ssp245 && data.ssp245.low && data.ssp245.high) {
+    traces.unshift(
+      { x: xLabels, y: data.ssp245.high, type: "scatter", mode: "lines", line: { width: 0 }, showlegend: false, hoverinfo: "skip" },
+      { x: xLabels, y: data.ssp245.low, type: "scatter", mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: "rgba(245,158,11,0.15)", name: "Erro empírico (SSP2-4.5)" }
+    );
+  }
+
+  const layout = getPlotlyLayout("Cenários Climáticos por Período (média anual)", "Casos Anuais Projetados");
+  layout.xaxis.type = "category";
   layout.legend = { orientation: "h", y: -0.2 };
   
   Plotly.react("chartCenarios", traces, layout, getPlotlyConfig());
@@ -75,7 +85,7 @@ export function renderChartSazonal(data) {
       x: mesNomes, 
       y: data.casos_mean, 
       type: "bar", 
-      name: "Casos Projetados", 
+      name: "Casos Médios (histórico)", 
       marker: { color: colors },
       yaxis: "y"
     },
@@ -107,17 +117,16 @@ export function renderChartHeatmap(data) {
   if (!data || !data.heatmap) return;
   
   const matriz = data.heatmap;
-  let anosSet = new Set();
-  matriz.forEach(item => { if(item.ano >= 2026 && item.ano <= 2030) anosSet.add(item.ano); });
-  
-  const anosArr = Array.from(anosSet).sort();
+  // v4: períodos categóricos, preservando a ordem de exportação
+  const anosArr = [];
+  matriz.forEach(item => { const a = String(item.ano); if (!anosArr.includes(a)) anosArr.push(a); });
   const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   
   let zData = [];
   for (let m = 1; m <= 12; m++) {
     let row = [];
     for (let ano of anosArr) {
-      const match = matriz.find(i => i.ano === ano && i.mes === m);
+      const match = matriz.find(i => String(i.ano) === ano && i.mes === m);
       row.push(match ? match.casos : null);
     }
     zData.push(row);
@@ -133,8 +142,7 @@ export function renderChartHeatmap(data) {
   }];
 
   const layout = getPlotlyLayout("", "Mês");
-  layout.xaxis.tickmode = "array";
-  layout.xaxis.tickvals = anosArr;
+  layout.xaxis.type = "category";
   
   Plotly.react("chartHeatmap", traces, layout, getPlotlyConfig());
 }

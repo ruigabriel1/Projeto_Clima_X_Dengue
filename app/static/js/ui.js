@@ -15,22 +15,23 @@ export function updateStats(data) {
   const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   
   setEl("totalMunicipios", data.n_cidades || "1");
-  setEl("periodoDados", "2015 a 2025");
-  setEl("projecaoAte", "2030");
+  setEl("periodoDados", data.periodo || "-");
+  setEl("projecaoAte", data.projecao_ate || "-");
   
-  // Métricas LOYO
+  // Métricas fora-da-amostra (expanding window)
   if (data.metricas) {
-    setEl("metricR2", data.metricas.r2 ? data.metricas.r2.toFixed(3) : "-");
-    setEl("metricMAE", data.metricas.mae ? data.metricas.mae.toFixed(1) : "-");
+    setEl("metricR2", data.metricas.r2 != null ? data.metricas.r2.toFixed(3) : "-");
+    setEl("metricMAE", data.metricas.mae != null ? data.metricas.mae.toFixed(1) : "-");
   }
 
-  // Calcular totais de casos projetados (SSP245)
-  let totalSSP245 = 0;
-  if (data.projecao_cenarios && data.projecao_cenarios.ssp245) {
-    const d = data.projecao_cenarios.ssp245;
-    totalSSP245 = d.casos.reduce((a,b) => a+b, 0);
+  // Variação relativa do último período SSP2-4.5 vs baseline
+  let txt = "-";
+  const d = data.projecao_cenarios && data.projecao_cenarios.ssp245;
+  if (d && d.delta_pct && d.delta_pct.length) {
+    const v = d.delta_pct[d.delta_pct.length - 1];
+    if (v != null) txt = `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
   }
-  setEl("totalCasosProjetados", totalSSP245.toLocaleString('pt-BR', {maximumFractionDigits: 0}));
+  setEl("totalCasosProjetados", txt);
 }
 
 export function populateTable(data) {
@@ -40,22 +41,23 @@ export function populateTable(data) {
   tbody.innerHTML = "";
   if (!data.projecao_cenarios || !data.projecao_cenarios.ssp126) return;
 
-  const anos = data.projecao_cenarios.ssp126.anos;
+  const pc = data.projecao_cenarios;
+  const anos = pc.ssp126.anos;
+  const fmt = (sc, i) => {
+    if (!pc[sc]) return "-";
+    const c = pc[sc].casos[i];
+    const dp = pc[sc].delta_pct ? pc[sc].delta_pct[i] : null;
+    const casos = c != null ? Number(c).toLocaleString("pt-BR") : "-";
+    return (dp != null && i > 0) ? `${casos} <small>(${dp > 0 ? "+" : ""}${dp.toFixed(1)}%)</small>` : casos;
+  };
   
   for (let i = 0; i < anos.length; i++) {
-    const ano = anos[i];
-    if (ano < 2026 || ano > 2030) continue;
-
-    const val126 = data.projecao_cenarios.ssp126.casos[i] || 0;
-    const val245 = data.projecao_cenarios.ssp245 ? data.projecao_cenarios.ssp245.casos[i] : 0;
-    const val585 = data.projecao_cenarios.ssp585 ? data.projecao_cenarios.ssp585.casos[i] : 0;
-
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${ano}</td>
-      <td class="text-ssp126">${val126.toFixed(0)}</td>
-      <td class="text-ssp245">${val245.toFixed(0)}</td>
-      <td class="text-ssp585">${val585.toFixed(0)}</td>
+      <td>${anos[i]}</td>
+      <td class="text-ssp126">${fmt("ssp126", i)}</td>
+      <td class="text-ssp245">${fmt("ssp245", i)}</td>
+      <td class="text-ssp585">${fmt("ssp585", i)}</td>
     `;
     tbody.appendChild(tr);
   }

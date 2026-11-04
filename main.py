@@ -14,8 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 def command_train(args):
-    """Executa o pipeline ML v4 (multi-doença)."""
-    print(f"🚀 Pipeline ML v4 — doença={args.doenca}, modo={args.modo}")
+    """Executa o pipeline ML v4.1 (multi-doença)."""
+    print(f"🚀 Pipeline ML v4.1 — doença={args.doenca}, modo={args.modo}")
     try:
         from src.ml_pipeline.ml_orchestrator import run_pipeline
         root = Path(__file__).resolve().parent
@@ -31,7 +31,11 @@ def command_train(args):
                 feats = log.get("n_features", 0)
                 metrics = log.get("metrics_por_ano", [])
                 avg_r2 = sum(m["r2"] for m in metrics) / len(metrics) if metrics else 0
-                print(f"  ✅ {d}: {n} amostras, {feats} features, R² médio={avg_r2:.3f}")
+                mb = log.get("modelo_b", {})
+                mb_r2 = mb.get("metrics_por_ano", [{}])
+                mb_avg = sum(m.get("r2", 0) for m in mb_r2) / len(mb_r2) if mb_r2 else 0
+                print(f"  ✅ {d}: {n} amostras, {feats} features")
+                print(f"      Modelo A R²={avg_r2:.3f}  |  Modelo B R²={mb_avg:.3f}")
         else:
             print("⚠️ Nenhum modelo treinado.")
     except Exception as e:
@@ -39,36 +43,36 @@ def command_train(args):
         raise
 
 
-def command_run_model(args):
-    """Executa o motor legado de projeções SSP (mantido para retrocompatibilidade)."""
-    print(f"Iniciando motor de modelagem (Projeções até 2040) no modo {args.modo.upper()}...")
-    try:
-        from src.processamento import motor_lote_modelagem_v2_por_latitude as motor
-        motor.main(modo=args.modo)
-        print("Modelagem e predições concluídas com sucesso!")
-    except Exception as e:
-        print(f"Erro ao rodar o modelo: {e}")
-
-
 def command_export_dashboard(args):
-    """Exporta dados e gráficos para o Dashboard."""
-    print("Exportando dados e gráficos para o Dashboard...")
+    """Exporta resultados v4 para JSON consumido pelo Dashboard."""
+    print(f"📊 Exportando dashboard — doença={args.doenca}")
     try:
         from src.ml_pipeline.export_dashboard import exportar_dados_dashboard
-        exportar_dados_dashboard(modo=args.modo, codigo_ibge=args.codigo_ibge)
-        print("Exportação concluída! JSON salvo em output/prodigia_resultados_v2.json")
+        exportar_dados_dashboard(doenca=args.doenca, codigo_ibge=args.codigo_ibge)
+        print("Exportação concluída! JSONs em output/dashboard/")
     except Exception as e:
-        print(f"Erro na exportação: {e}")
+        print(f"❌ Erro na exportação: {e}")
+        raise
+
+
+def command_serve(args):
+    """Sobe o servidor do Dashboard."""
+    try:
+        import uvicorn
+        print(f"🌐 Iniciando dashboard em http://localhost:{args.port}")
+        uvicorn.run("app.server:app", host="0.0.0.0", port=args.port, reload=args.reload)
+    except ImportError:
+        print("❌ uvicorn não instalado. Rode: pip install uvicorn")
 
 
 def main():
     parser = argparse.ArgumentParser(description="CLI Principal do Projeto Clima x Arboviroses")
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
 
-    # Comando train (NOVO v4)
+    # Comando train
     parser_train = subparsers.add_parser(
         "train",
-        help="Treina o modelo ML v4 (XGBoost Poisson + Expanding Window)."
+        help="Treina o modelo ML v4.1 (XGBoost Poisson + Expanding Window + Model B SSP)."
     )
     parser_train.add_argument(
         "--modo", type=str,
@@ -88,33 +92,31 @@ def main():
     )
     parser_train.set_defaults(func=command_train)
 
-    # Comando run-model (legado)
-    parser_model = subparsers.add_parser(
-        "run-model",
-        help="[Legado] Executa projeções SSP com o motor antigo."
-    )
-    parser_model.add_argument(
-        "--modo", type=str,
-        choices=["rapido", "regional", "completo"],
-        default="regional",
-        help="Escopo de processamento."
-    )
-    parser_model.set_defaults(func=command_run_model)
-
     # Comando export-dashboard
     parser_export = subparsers.add_parser(
         "export-dashboard",
-        help="Exporta o JSON e PNGs para o Dashboard."
+        help="Exporta JSONs de resultados v4 para o dashboard."
     )
     parser_export.add_argument(
-        "--modo", type=str,
-        choices=["rapido", "regional", "completo"],
-        default="rapido"
+        "--doenca", type=str,
+        choices=["dengue", "chikungunya", "zika", "todas"],
+        default="todas",
+        help="Doença ou 'todas'."
     )
     parser_export.add_argument(
-        "--codigo_ibge", type=str, default=None
+        "--codigo_ibge", type=str, default=None,
+        help="Código IBGE (6 dígitos) para filtrar uma cidade."
     )
     parser_export.set_defaults(func=command_export_dashboard)
+
+    # Comando serve
+    parser_serve = subparsers.add_parser(
+        "serve",
+        help="Inicia o servidor do dashboard (FastAPI + Uvicorn)."
+    )
+    parser_serve.add_argument("--port", type=int, default=8000)
+    parser_serve.add_argument("--reload", action="store_true")
+    parser_serve.set_defaults(func=command_serve)
 
     args = parser.parse_args()
 
