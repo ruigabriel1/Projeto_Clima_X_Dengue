@@ -1,0 +1,2 @@
+# Hooks do git precisam de LF para rodar no shell do Git
+.githooks/* text eol=lf

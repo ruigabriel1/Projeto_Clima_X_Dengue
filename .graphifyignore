@@ -1,1 +1,18 @@
+# O grafo cobre só código e documentação de referência. Fica de fora o que é gerado,
+# grande ou histórico (reproduzível por comandos), para não poluir as consultas.
 legacy/
+.venv/
+output/
+data/
+graphify-out/
+.pytest_cache/
+__pycache__/
+docs/resultados_experimento/
+docs/resultados_v5/
+docs/artigo/
+*.db
+*.csv
+*.csv.gz
+*.png
+*.docx
+*.joblib

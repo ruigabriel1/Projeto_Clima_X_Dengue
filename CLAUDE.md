@@ -51,6 +51,26 @@ app/server.py            FastAPI: dashboard + POST /api/predict + GET /api/model
 tests/                   pytest, só dados sintéticos
 ```
 
+## Grafo do código (graphify): consulte antes de abrir arquivos
+
+`graphify-out/graph.json` é um grafo de todo o código e dos docs de referência (~560 nós), atualizado
+automaticamente a cada commit pelo hook `.githooks/pre-commit` (ativar uma vez por clone:
+`git config core.hooksPath .githooks`). Para economizar contexto, **antes de ler arquivos ou fazer
+buscas amplas**, pergunte ao grafo:
+
+```bash
+G=.venv/Scripts/graphify.exe
+$G explain "Preditor"                      # o que é, arquivo:linha e todas as conexões
+$G affected "build_ml_features"            # o que pode quebrar ao mexer nisso (use ANTES de editar)
+$G query "como a API calcula o risco" --budget 1500   # mapa do caminho, com limite de tokens
+$G path "PredictRequest" "fit_predict_fold"           # rota entre dois pontos
+$G god-nodes --top 15                      # hubs da arquitetura
+```
+
+Visão geral pronta em `graphify-out/GRAPH_REPORT.md` (comunidades, hubs, conexões). Depois do grafo,
+abra só os trechos indicados (arquivo e linha). O grafo é de código: para decisões e resultados, a
+fonte é `docs/PROTOCOLO_V5.md` e `docs/resultados_*`.
+
 ## Regras metodológicas (não violar)
 
 - **Sem vazamento.** Feature da linha t usa só informação até t−h. Persistência no horizonte h = casos[t−h].

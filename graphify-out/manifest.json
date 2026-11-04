@@ -113,12 +113,6 @@
     "ast_hash": "b5088c95e251e9288f6e4d342be17bb2",
     "semantic_hash": ""
   },
-  "data/README.md": {
-    "mtime": 1793819180.8795986,
-    "seen": 1793819820.3750954,
-    "ast_hash": "291c411df8d319295fbe3ddfc30aa7bf",
-    "semantic_hash": ""
-  },
   "docs/ARQUITETURA_DE_DADOS.md": {
     "mtime": 1793810533.9235194,
     "seen": 1793819820.3750954,
@@ -147,36 +141,6 @@
     "mtime": 1793806811.7169447,
     "seen": 1793819820.3750954,
     "ast_hash": "d1f45f71f4094619eb115c19fc6ce301",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/config_escolhida.json": {
-    "mtime": 1793807519.198385,
-    "seen": 1793819820.3750954,
-    "ast_hash": "2015d4e4dd8b54a5e69c17b39c590dd9",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/experimento_meta.json": {
-    "mtime": 1793807519.203401,
-    "seen": 1793819820.3750954,
-    "ast_hash": "a6e3e010ffee579d75eb2f53d7cf5bce",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/teste_final_2025.json": {
-    "mtime": 1793807519.170072,
-    "seen": 1793819820.3750954,
-    "ast_hash": "2071a1b9f8664129c334d7a6ba6dc661",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/decisao.json": {
-    "mtime": 1793819189.9008498,
-    "seen": 1793819820.3750954,
-    "ast_hash": "d4b5ce380769c98b2dadeb6fca3e4fab",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/meta.json": {
-    "mtime": 1793819189.9307718,
-    "seen": 1793819820.3750954,
-    "ast_hash": "a748f5be96a97657f9b0c83479e8427e",
     "semantic_hash": ""
   },
   "src/analise_efeito/__init__.py": {
@@ -306,9 +270,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793810501.0462837,
-    "seen": 1793819820.3750954,
-    "ast_hash": "04ba86d2520f67742ea64be212101e72",
+    "mtime": 1793820170.7100968,
+    "seen": 1793820182.2634587,
+    "ast_hash": "de5f15113773b4b7847e1f11b55c8b82",
     "semantic_hash": ""
   },
   "docs/PLANO_EXPERIMENTO_FINAL.md": {
@@ -329,58 +293,10 @@
     "ast_hash": "1bde6d0328a14822052f7c3f55abaa02",
     "semantic_hash": ""
   },
-  "docs/resultados_experimento/analise.md": {
-    "mtime": 1793807519.157071,
-    "seen": 1793819820.3750954,
-    "ast_hash": "993f5f5366c9665b86dd8384006c36f1",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/teste_final_2025.md": {
-    "mtime": 1793807519.164072,
-    "seen": 1793819820.3750954,
-    "ast_hash": "dafda5ab0e9e8966dae81bcc0117d33c",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/dlnm_relatorio.md": {
-    "mtime": 1793819189.8347857,
-    "seen": 1793819820.3750954,
-    "ast_hash": "098e03428a38bc7b82c34fb9ee26b8c8",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/experimento_v5_relatorio.md": {
-    "mtime": 1793819189.9096882,
-    "seen": 1793819820.3750954,
-    "ast_hash": "277b275bb682abf4e7e3a606f39e65d9",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/sanidade_clima.png": {
-    "mtime": 1793807519.2124014,
-    "seen": 1793819820.3750954,
-    "ast_hash": "864107e8cec884a7526a4adff84c571b",
-    "semantic_hash": ""
-  },
-  "docs/resultados_experimento/skill_por_horizonte.png": {
-    "mtime": 1793807519.2084036,
-    "seen": 1793819820.3750954,
-    "ast_hash": "f2a25dc91c97d2224c275dac0b16cf6f",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/calibracao_risco.png": {
-    "mtime": 1793819189.924769,
-    "seen": 1793819820.3750954,
-    "ast_hash": "5a78324a82363a48dc3ffc3a4c5ae003",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/dlnm_chikungunya.png": {
-    "mtime": 1793819189.82271,
-    "seen": 1793819820.3750954,
-    "ast_hash": "ee8b0bd1722d6e82162a3659d367854a",
-    "semantic_hash": ""
-  },
-  "docs/resultados_v5/dlnm_dengue.png": {
-    "mtime": 1793819189.8167107,
-    "seen": 1793819820.3750954,
-    "ast_hash": "424612741dc9924923b902d7b49bdb5b",
+  ".githooks/pre-commit": {
+    "mtime": 1793820101.373129,
+    "seen": 1793820182.2634587,
+    "ast_hash": "309a690823d7e5cb9d7db565b770e901",
     "semantic_hash": ""
   }
 }

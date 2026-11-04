@@ -127,3 +127,8 @@ output/projecoes_regionais/*
 output/csvs_latitude/
 output/csvs_latitude/**
 output/**/*.csv
+
+# graphify: cache e backups datados são locais e regeneráveis
+graphify-out/cache/
+graphify-out/20*/
+graphify-out/memory/

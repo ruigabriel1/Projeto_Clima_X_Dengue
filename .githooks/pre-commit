@@ -1,0 +1,18 @@
+#!/bin/sh
+# Atualiza o grafo de código (graphify) e o inclui no mesmo commit. ~3 s, sem LLM.
+# Ativação (uma vez por clone):  git config core.hooksPath .githooks
+# Nunca bloqueia o commit: se o graphify não estiver instalado ou falhar, só avisa.
+
+G=".venv/Scripts/graphify.exe"
+[ -x "$G" ] || G=".venv/bin/graphify"
+[ -x "$G" ] || G="$(command -v graphify 2>/dev/null)"
+[ -n "$G" ] || exit 0
+
+if GRAPHIFY_FORCE=1 PYTHONIOENCODING=utf-8 "$G" update . >/dev/null 2>&1; then
+    git add graphify-out/graph.json graphify-out/graph.html graphify-out/GRAPH_REPORT.md \
+            graphify-out/manifest.json graphify-out/.graphify_labels.json \
+            graphify-out/.graphify_labels.json.sig 2>/dev/null
+else
+    echo "graphify: não consegui atualizar o grafo; o commit segue sem ele." >&2
+fi
+exit 0
