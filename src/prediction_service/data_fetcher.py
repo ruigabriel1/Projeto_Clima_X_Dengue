@@ -30,6 +30,24 @@ logger = logging.getLogger(__name__)
 _COLS_ESTATICAS = ["city_name", "latitude", "longitude", "lat_faixa_id", "populacao", "log_pop"]
 
 
+DIAS_MIN_CONSOLIDACAO = 28
+
+
+def remover_meses_nao_consolidados(panel: pd.DataFrame, dias: int = DIAS_MIN_CONSOLIDACAO) -> pd.DataFrame:
+    """
+    Remove meses ingeridos menos de `dias` após o fim do mês: o InfoDengue ainda acrescenta notificações
+    a eles, e usá-los como "último mês observado" subestimaria a previsão.
+    """
+    if "INGERIDO_EM" not in panel.columns:
+        return panel
+    ing = pd.to_datetime(panel["INGERIDO_EM"], errors="coerce")
+    fim_mes = pd.to_datetime(dict(year=panel["year"], month=panel["month"], day=1)) + pd.offsets.MonthEnd(0)
+    recente = ing.notna() & ((ing - fim_mes).dt.days < dias)
+    if recente.any():
+        logger.info(f"Removidos {int(recente.sum())} registros de meses não consolidados (< {dias} dias).")
+    return panel[~recente].copy()
+
+
 class FonteDados:
     def __init__(self, panel: pd.DataFrame | None = None):
         self._panel = panel
@@ -43,7 +61,7 @@ class FonteDados:
             with self._lock:
                 if self._panel is None:
                     from src.ml_pipeline.data_ingestion import build_base_panel
-                    self._panel = build_base_panel(BASE_DIR)
+                    self._panel = remover_meses_nao_consolidados(build_base_panel(BASE_DIR))
                     logger.info(f"Painel carregado: {len(self._panel)} linhas")
         return self._panel
 

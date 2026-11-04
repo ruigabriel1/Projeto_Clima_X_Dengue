@@ -105,6 +105,14 @@ class TestPreditor:
             Preditor(model_dir=tmp_path).prever("100001", "chikungunya", 1)
 
 
+def test_remove_meses_nao_consolidados():
+    from src.prediction_service.data_fetcher import remover_meses_nao_consolidados
+    p = pd.DataFrame({"year": [2026, 2026, 2025], "month": [9, 10, 12],
+                      "INGERIDO_EM": ["2026-11-04T10:00:00", "2026-11-04T10:00:00", None]})
+    out = remover_meses_nao_consolidados(p)
+    assert list(zip(out.year, out.month)) == [(2026, 9), (2025, 12)]   # out/2026: só 4 dias após o fim
+
+
 class TestAPI:
     def test_rota_predict(self, artefatos, monkeypatch):
         pytest.importorskip("httpx")
