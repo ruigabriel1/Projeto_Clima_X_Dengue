@@ -74,6 +74,47 @@ class TestSemVazamento:
         assert "dengue_lag1" in sem and "month_sin" in sem
 
 
+class TestFeaturesV5:
+    def test_alerta_infodengue_nunca_e_feature(self, mini_panel):
+        p = mini_panel.assign(NIVEL_DENGUE=1.0, NIVEL_CHIKUNGUNYA=2.0, NIVEL_ZIKA=1.0)
+        df = build_ml_features(p, doenca="dengue")
+        for kw in ({}, {"clima": "parcimonioso", "suscetibilidade": True}):
+            assert not any(c.startswith("NIVEL_") for c in get_feature_columns(df, doenca="dengue", **kw))
+
+    @pytest.mark.parametrize("h", [1, 3])
+    def test_suscetibilidade_usa_so_ate_t_menos_h(self, mini_panel, h):
+        df = build_ml_features(mini_panel, doenca="dengue", horizonte=h)
+        c = df[df["code"] == "100001"].sort_values(["year", "month"]).reset_index(drop=True)
+        base = mini_panel[mini_panel["code"] == "100001"].sort_values(["year", "month"]).reset_index(drop=True)
+        incid = base["dengue_cases"] / base["populacao"] * 1e5
+        linha = c.iloc[-1]                                     # último mês (dez/2023)
+        pos = len(base) - 1
+        esperado = incid.iloc[pos - h - 11: pos - h + 1].sum()  # 12 meses terminando em t−h
+        assert linha[f"dengue_susc_acum12_lag{h}"] == pytest.approx(esperado)
+
+    def test_meses_desde_surto(self):
+        from src.ml_pipeline.feature_engineering import LIMIAR_SURTO_100K
+        rows = []
+        for i in range(24):
+            casos = 200 if i == 5 else 1          # surto só no mês 6 (incidência 200/100 mil)
+            rows.append({"code": "A", "year": 2020 + i // 12, "month": i % 12 + 1, "dengue_cases": casos,
+                         "chik_cases": 0, "populacao": 100_000})
+        df = build_ml_features(pd.DataFrame(rows), doenca="dengue", horizonte=2)
+        x = df.set_index(["year", "month"])["dengue_susc_meses_desde_surto_lag2"]
+        assert LIMIAR_SURTO_100K < 200
+        assert np.isnan(x.loc[(2020, 7)])          # em jul, o último mês conhecido (mai) é antes do surto
+        assert x.loc[(2020, 8)] == 2               # em ago, o surto de jun é conhecido: 2 meses atrás
+        assert x.loc[(2021, 6)] == 12
+
+    def test_grupos_v5(self, mini_panel):
+        from src.ml_pipeline.feature_engineering import grupos_de_features
+        g = grupos_de_features(build_ml_features(mini_panel, doenca="dengue"), "dengue")
+        assert sorted(g["clima_parcimonioso"]) == sorted(
+            [f"temp_lag{k}" for k in (1, 2, 3)] + [f"prec_lag{k}" for k in (1, 2, 3)])
+        assert len(g["suscetibilidade"]) == 4
+        assert not any("enso" in c or "receptivo" in c for c in sum(g.values(), []))
+
+
 class TestExperimentoPontaAPonta:
     def test_fases_1_e_2(self, mini_panel, tmp_path):
         from src.ml_pipeline.analise_experimento import run_analise

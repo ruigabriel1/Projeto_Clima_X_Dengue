@@ -30,6 +30,9 @@ PREFIXOS = {
 }
 DOENCA_PARA_COL = {"dengue": "dengue_cases", "chikungunya": "chik_cases", "zika": "zika_cases"}
 
+# Limiar fixo de "mês epidêmico" para as features de suscetibilidade (casos por 100 mil hab./mês)
+LIMIAR_SURTO_100K = 100.0
+
 # Variáveis observadas NO PRÓPRIO mês-alvo: desconhecidas no momento da previsão.
 _VARS_MES_CORRENTE = {
     "umidmed", "umidmax", "umidmin", "temp_media", "temp_maxima", "temp_minima",
@@ -40,6 +43,8 @@ _VARS_MES_CORRENTE = {
 _META = {
     "code", "city_name", "year", "month", "populacao", "latitude", "lat_faixa_id",
     "receptivo",  # versão bruta; usamos receptivo_num
+    # Alerta oficial do InfoDengue do PRÓPRIO mês: benchmark, nunca feature (seria vazamento).
+    "NIVEL_DENGUE", "NIVEL_CHIKUNGUNYA", "NIVEL_ZIKA",
 }
 
 
@@ -154,6 +159,26 @@ def build_ml_features(panel: pd.DataFrame, doenca: str = "dengue", horizonte: in
         d["receptivo_num"] = pd.to_numeric(d["receptivo"], errors="coerce").astype(float)
         d[f"receptivo_lag{h}"] = d.groupby("code", sort=False)["receptivo_num"].shift(h)
 
+    # ---------- 6b. Suscetibilidade (proxy de imunidade de rebanho), protocolo v5 ----------
+    # Incidência acumulada em 12/24/36 meses terminando em t−h e meses desde o último mês
+    # com incidência ≥ LIMIAR_SURTO_100K (limiar fixo: não usa quantis, logo não vaza).
+    if has_pop:
+        p_alvo = PREFIXOS[alvo]
+        d["_incid"] = d[alvo] / pop * 100_000
+        for janela in (12, 24, 36):
+            d[f"{p_alvo}_susc_acum{janela}_lag{h}"] = _roll_shifted(
+                d, "_incid", h, janela, max(3, janela // 2), how="sum"
+            )
+        surto = (d["_incid"] >= LIMIAR_SURTO_100K).astype(float).where(d["_incid"].notna())
+        # índice do mês (contínuo) e índice do último surto até o mês corrente
+        idx = (d["year"] * 12 + d["month"]).astype(float)
+        ultimo = idx.where(surto == 1.0).groupby(d["code"], sort=False).ffill()
+        meses_desde = (idx - ultimo)          # 0 no próprio mês do surto, NaN se nunca houve
+        d[f"{p_alvo}_susc_meses_desde_surto_lag{h}"] = (
+            meses_desde.groupby(d["code"], sort=False).shift(h) + h
+        ).clip(upper=60)
+        d = d.drop(columns=["_incid"])
+
     # ---------- 7. Estáticas da cidade ----------
     if has_pop:
         d["log_pop"] = np.log1p(d["populacao"].fillna(0))
@@ -189,11 +214,22 @@ def is_climate_feature(col: str) -> bool:
     return col.startswith(_PREFIXOS_CLIMA)
 
 
+def is_clima_parcimonioso(col: str) -> bool:
+    """Conjunto climático a priori do protocolo v5: só temp média e precipitação defasadas."""
+    return re.fullmatch(r"(temp|prec)_lag\d+", col) is not None
+
+
+def is_suscetibilidade(col: str) -> bool:
+    return "_susc_" in col
+
+
 def get_feature_columns(
     df: pd.DataFrame,
     forecast: bool = True,
     doenca: str = "dengue",
     usar_clima: bool = True,
+    clima: str | None = None,
+    suscetibilidade: bool = False,
 ) -> list[str]:
     """
     Features do Modelo A (previsão).
@@ -203,8 +239,21 @@ def get_feature_columns(
       apenas o lag mais recente e a média de 3 meses. Zika só entra como feature
       no modelo da própria zika (a série termina em 2024).
     - forecast=True remove variáveis do mês corrente (desconhecidas na previsão).
-    - usar_clima=False remove todas as features climáticas (ver is_climate_feature).
+    - clima: "completo" (todas as climáticas, experimento v4), "parcimonioso" (protocolo v5:
+      temp_lag*, prec_lag*) ou "nenhum". Se None, deriva de usar_clima (compatível com a v4).
+    - suscetibilidade=True inclui as features *_susc_* (protocolo v5). Padrão False preserva
+      exatamente os conjuntos do experimento v4.
     """
+    if clima is None:
+        clima = "completo" if usar_clima else "nenhum"
+    if clima not in ("completo", "parcimonioso", "nenhum"):
+        raise ValueError(f"clima inválido: {clima}")
+
+    def _clima_ok(c: str) -> bool:
+        if not is_climate_feature(c):
+            return True
+        return clima == "completo" or (clima == "parcimonioso" and is_clima_parcimonioso(c))
+
     p_alvo = PREFIXOS[DOENCA_PARA_COL[doenca]]
     excluir = set(_META) | set(PREFIXOS.keys())
     if forecast:
@@ -213,7 +262,7 @@ def get_feature_columns(
     candidatas = [
         c for c in df.columns
         if c not in excluir and pd.api.types.is_numeric_dtype(df[c])
-        and (usar_clima or not is_climate_feature(c))
+        and _clima_ok(c) and (suscetibilidade or not is_suscetibilidade(c))
     ]
 
     # Menor lag disponível por doença (depende do horizonte)
@@ -234,3 +283,15 @@ def get_feature_columns(
         elif c in (f"{p}_rolling_3", f"{p}_lag{menor_lag.get(p)}"):
             out.append(c)
     return out
+
+
+def grupos_de_features(df: pd.DataFrame, doenca: str) -> dict[str, list[str]]:
+    """Grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade."""
+    base = get_feature_columns(df, doenca=doenca, clima="nenhum")
+    com_clima = get_feature_columns(df, doenca=doenca, clima="parcimonioso")
+    com_susc = get_feature_columns(df, doenca=doenca, clima="nenhum", suscetibilidade=True)
+    return {
+        "casos": base,
+        "clima_parcimonioso": [c for c in com_clima if c not in base],
+        "suscetibilidade": [c for c in com_susc if c not in base],
+    }
