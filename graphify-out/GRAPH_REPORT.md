@@ -1,183 +1,227 @@
-# Graph Report - Projeto_Clima_X_Dengue  (2026-10-25)
+# Graph Report - Projeto_Clima_X_Dengue  (2026-11-04)
 
 ## Corpus Check
-- 33 files · ~82,989 words
+- 57 files · ~63,631 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 478 nodes · 693 edges · 26 communities
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 15 edges (avg confidence: 0.86)
+- 591 nodes · 1189 edges · 36 communities (31 shown, 3 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 35 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5d04e880`
+- Built from commit: `582cf0a0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- motor_lote_modelagem_v2_por_latitude.py
+- experimento_v5.py
 - build_ml_features
 - main.js
 - server.py
 - ingestor_api_sul.py
-- 📊 Guia de Interpretação dos Resultados
-- 🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior
-- Arquitetura de Dados — Pipeline Medallion (Evolução API/SQLite)
-- 📊 Mapas de Faixas de Latitude - Incidência de Dengue
-- prediction.py
-- GUIA DE EXECUÇÃO DAS ANÁLISES URGENTES
-- Plano de Correção: ML + Aplicação Prodígia
-- 2. Correlação de Spearman (ρ)
-- test_ml_pipeline.py
-- C.2 Algoritmos Recomendados para Este Problema
-- Como obter os dados
+- dlnm.py
+- atualizacao_incremental.py
+- 🦟 Clima × Arboviroses
+- Plano de Experimento Final — Clima × Arboviroses
+- Preditor
+- analise_experimento.py
+- teste_prospectivo.py
+- Plano v5 — Limpeza e Resultado Publicável
+- predictor.py
+- test_experimento.py
+- Fase 2 — Análise do experimento (OOF 2018–2024, holdout 2025 intocado)
+- data/README.md
 - main.py
-- ml_orchestrator.py
+- experimento_horizontes.py
 - run_interpretability
-- evaluate_baselines
+- data_fetcher.py
 - GLMBinomialNegativa
-- TestMultiDoenca
+- PredictRequest
+- test_prediction_service.py
+- .prever
+- ingestor_ibge_populacao.py
+- CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)
+- Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão
+- Experimento v5 — clima parcimonioso × suscetibilidade (protocolo v5)
 - mini_panel
+- Fase 3 — Teste final em 2025 (executado 2026-11-04 12:46:18)
+- risk_classifier.py
+- dlnm_relatorio.md
+- analise_efeito/__init__.py
 
 ## God Nodes (most connected - your core abstractions)
-1. `build_ml_features()` - 23 edges
-2. `📊 Mapas de Faixas de Latitude - Incidência de Dengue` - 15 edges
-3. `train_model()` - 14 edges
-4. `get_feature_columns()` - 13 edges
-5. `run_interpretability()` - 12 edges
-6. `📊 Guia de Interpretação dos Resultados` - 12 edges
-7. `🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior` - 12 edges
-8. `main()` - 11 edges
-9. `evaluate_baselines()` - 10 edges
-10. `_run_single_disease()` - 10 edges
+1. `build_ml_features()` - 36 edges
+2. `get_feature_columns()` - 33 edges
+3. `build_base_panel()` - 24 edges
+4. `fit_predict_fold()` - 21 edges
+5. `Preditor` - 20 edges
+6. `FonteDados` - 19 edges
+7. `configurar_log()` - 17 edges
+8. `limiares_por_cidade()` - 16 edges
+9. `_expanding_window_splits()` - 16 edges
+10. `run_teste_final()` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `TestMultiDoenca` --uses--> `PersistenciaBaseline`  [INFERRED]
-  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
-- `TestMultiDoenca` --uses--> `NaiveSazonalBaseline`  [INFERRED]
-  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
-- `api_status()` --calls--> `get_db_status()`  [INFERRED]
-  app/server.py → src/ml_pipeline/export_dashboard.py
-- `api_cidades()` --calls--> `get_cidades()`  [INFERRED]
-  app/server.py → src/ml_pipeline/export_dashboard.py
-- `command_train()` --calls--> `run_pipeline()`  [EXTRACTED]
-  main.py → src/ml_pipeline/ml_orchestrator.py
+- `api_predict()` --uses--> `ModeloIndisponivel`  [INFERRED]
+  app/server.py → src/prediction_service/predictor.py
+- `api_predict()` --uses--> `PredictRequest`  [INFERRED]
+  app/server.py → src/prediction_service/schemas.py
+- `TestPreditor` --uses--> `ModeloIndisponivel`  [INFERRED]
+  tests/test_prediction_service.py → src/prediction_service/predictor.py
+- `TestPreditor` --uses--> `CidadeNaoEncontrada`  [INFERRED]
+  tests/test_prediction_service.py → src/prediction_service/predictor.py
+- `api_predict()` --uses--> `CidadeNaoEncontrada`  [INFERRED]
+  app/server.py → src/prediction_service/predictor.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (26 total, 0 thin omitted)
+## Communities (36 total, 3 thin omitted)
 
-### Community 0 - "motor_lote_modelagem_v2_por_latitude.py"
+### Community 0 - "experimento_v5.py"
 Cohesion: 0.10
-Nodes (44): ml_runner.py — Wrapper leve do motor ML para a interface Prodígia. Encapsula…, build_base_panel(), build_code_lookup_from_latitude_files(), _build_ml_features(), build_monthly_climatology(), build_yearly_templates(), calibrate_region(), CalibrationBundle (+36 more)
+Nodes (34): command_modelo_risco(), Protocolo v5: benchmark InfoDengue + modelos de produção de alerta de risco., benchmark_infodengue(), niveis_infodengue(), DataFrame, Path, Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():…, Curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, OOF… (+26 more)
 
 ### Community 1 - "build_ml_features"
-Cohesion: 0.11
-Nodes (20): Experimento: efeito do clipping e das features do mês corrente no R² v3., _anomalia_expanding(), build_ml_features(), get_feature_columns(), _prefixo_doenca(), DataFrame, Series, Módulo de Feature Engineering v4 (multi-doença, multi-horizonte). Princípios: -… (+12 more)
+Cohesion: 0.06
+Nodes (34): _anomalia_expanding(), build_ml_features(), get_feature_columns(), grupos_de_features(), is_clima_parcimonioso(), is_climate_feature(), is_suscetibilidade(), _prefixo_doenca() (+26 more)
 
 ### Community 2 - "main.js"
 Cohesion: 0.31
-Nodes (12): fetchResultados(), fetchStatus(), getPlotlyConfig(), getPlotlyLayout(), renderChartCenarios(), renderChartHeatmap(), renderChartSazonal(), loadAndRender() (+4 more)
+Nodes (12): fetchResultados(), fetchStatus(), getPlotlyConfig(), getPlotlyLayout(), renderChartBacktest(), renderChartHeatmap(), renderChartSazonal(), loadAndRender() (+4 more)
 
 ### Community 3 - "server.py"
-Cohesion: 0.21
-Nodes (11): api_cidades(), api_resultados(), api_status(), index(), server.py — FastAPI backend para a interface Prodígia. Rotas: status do banco,…, get, Request, get_cidades() (+3 more)
+Cohesion: 0.17
+Nodes (17): api_cidades(), api_doencas(), api_resultados(), api_status(), index(), lifespan(), server.py — FastAPI backend para a interface Prodígia. Rotas: status do banco,…, Aquece o preditor (painel + features de previsão) em segundo plano, sem… (+9 more)
 
 ### Community 4 - "ingestor_api_sul.py"
-Cohesion: 0.14
-Nodes (17): fetch_clima(), fetch_infodengue(), get_ibge_7(), ingest_noaa_enso(), main(), obter_faixa_latitude(), process_clima(), process_saude() (+9 more)
-
-### Community 5 - "📊 Guia de Interpretação dos Resultados"
-Cohesion: 0.05
-Nodes (38): 1. Correlação ≠ Causalidade, 1. Teste de Normalidade, 2. Significância ≠ Importância Prática, 3. Considere o Contexto, 3. Teste Mann-Whitney U, 4. Outliers, 4. Teste Kruskal-Wallis, 5. Teste de Levene (+30 more)
-
-### Community 6 - "🏗️ Mentoria: Projeto Clima × Dengue — Engenharia de Dados Sênior"
-Cohesion: 0.05
-Nodes (42): 1. Caminhos Absolutos Hardcoded — **Severidade: CRÍTICA**, 1. Tratamento de Anomalias Climáticas (INMET), 2. Duplicação da Lógica Wide→Long — **Severidade: ALTA**, 2. Tratamento Epidemiológico de Lacunas (SINAN), 3. Overhaul do Geoprocessamento Visual (Mapas), 3. Pipeline sem Orquestração de Dependências — **Severidade: ALTA**, 4. Nomenclatura Inconsistente de Colunas — **Severidade: MÉDIA**, 5. Sem Testes Unitários — **Severidade: MÉDIA** (+34 more)
-
-### Community 7 - "Arquitetura de Dados — Pipeline Medallion (Evolução API/SQLite)"
-Cohesion: 0.06
-Nodes (28): 1. Camada Bronze — Ingestão via API e SQLite, 2. Camada Silver — Merge & Transformação Mensal, 3. Camada Gold — Feature Store e Machine Learning, 4. Evolução Histórica (O Nosso Legado), A Arquitetura Antiga (v1 - Baseada em CSVs), Arquitetura de Dados — Pipeline Medallion (Evolução API/SQLite), Por que Evoluímos para a v2 (APIs + Banco)?, Visão Geral do Pipeline (Atual) (+20 more)
-
-### Community 8 - "📊 Mapas de Faixas de Latitude - Incidência de Dengue"
-Cohesion: 0.06
-Nodes (30): Ajuste de faixas de latitude:, 📈 Análise dos Resultados (2015-2023), 🎨 Classificação de Cores, 🚀 Como Executar, Cálculo da Média por Faixa, Descrição, Entrada, Erro: "Nenhum arquivo CSV encontrado" (+22 more)
-
-### Community 9 - "prediction.py"
-Cohesion: 0.21
-Nodes (13): get_climate_feature_columns(), Features do Modelo B (clima → risco). Requer build_ml_features(...,…, _apply_ssp_deltas(), bootstrap_uncertainty(), _compute_city_climatology(), predict_scenarios(), DataFrame, Path (+5 more)
-
-### Community 10 - "GUIA DE EXECUÇÃO DAS ANÁLISES URGENTES"
-Cohesion: 0.07
-Nodes (28): 📦 ARQUIVOS DE SAÍDA ESPERADOS, Dados de entrada:, 📊 DADOS NECESSÁRIOS, Dados Processados:, ✨ DESTAQUES DOS RESULTADOS, 📧 ENTREGA, Erro: "Arquivo não encontrado", Erro: "ModuleNotFoundError" (+20 more)
-
-### Community 11 - "Plano de Correção: ML + Aplicação Prodígia"
-Cohesion: 0.08
-Nodes (25): Automated Tests, Diagnóstico Resumido, Eliminar o Botão "Treinar Modelo", Estratégia: Treinar com TODOS os dados + Projeção por Climatologia, Fase 1 — Corrigir o Machine Learning (Prioridade MÁXIMA), Fase 2 — Gráficos Profissionais com Plotly, Fase 3 — Redesign do Fluxo da Aplicação, 🔴 Feedback Brutal (como pedido) (+17 more)
-
-### Community 12 - "2. Correlação de Spearman (ρ)"
-Cohesion: 0.18
-Nodes (11): 2. Correlação de Spearman (ρ), Como Interpretar:, Direção:, Exemplo 1: Temperatura Média, Exemplo 2: Temperatura Mínima, Exemplo 3: Precipitação, Exemplo de Resultado:, Exemplos Práticos: (+3 more)
-
-### Community 16 - "test_ml_pipeline.py"
-Cohesion: 0.14
-Nodes (20): _build_base_margin(), clip_outliers_per_city(), _detect_persist_col(), _expanding_window_splits(), DataFrame, ndarray, Path, Series (+12 more)
-
-### Community 17 - "C.2 Algoritmos Recomendados para Este Problema"
-Cohesion: 0.22
-Nodes (9): C.1 Análise do Seu Modelo Atual, C.2 Algoritmos Recomendados para Este Problema, C.3 Fontes de Dados ENSO para Ingestão Contínua, C.4 Integração do ML na Camada Gold, C. Estratégia de Machine Learning e Projeção, Tier 1 — Modelo Principal: **Prophet + Regressores Exógenos**, Tier 2 — Modelo Complementar: **LightGBM com TimeSeriesSplit**, Tier 3 — Validação e Ensemble (+1 more)
-
-### Community 18 - "Como obter os dados"
 Cohesion: 0.29
-Nodes (6): 1. Dados Meteorológicos (INMET), 2. Dados Epidemiológicos (DataSUS/SINAN), 3. Dados ENSO (NOAA), 4. Recurso Gráfico, Como obter os dados, Estrutura esperada
+Nodes (10): fetch_clima(), fetch_infodengue(), get_ibge_7(), ingest_noaa_enso(), main(), obter_faixa_latitude(), process_clima(), process_saude() (+2 more)
+
+### Community 5 - "dlnm.py"
+Cohesion: 0.16
+Nodes (21): ajustar(), _coef_cov(), cross_basis(), plotar(), preparar(), DataFrame, ndarray, Path (+13 more)
+
+### Community 6 - "atualizacao_incremental.py"
+Cohesion: 0.17
+Nodes (21): Connection, date, atualizar(), atualizar_enso(), cidades_do_banco(), coletar_clima(), coletar_saude(), main() (+13 more)
+
+### Community 7 - "🦟 Clima × Arboviroses"
+Cohesion: 0.09
+Nodes (20): Análise de efeito (DLNM) — responde H1, Desvios, Experimento preditivo — responde H2 e H3, Hipóteses, Holdout prospectivo, Protocolo v5 — Pré-registro (fixado antes de ingerir dados de 2026), Regra de decisão (fixa), Arquitetura (+12 more)
+
+### Community 8 - "Plano de Experimento Final — Clima × Arboviroses"
+Cohesion: 0.10
+Nodes (19): 1.1 Variáveis do experimento, 1.2 O que muda em cada horizonte, 1.3 Métricas (fixadas agora, antes de rodar), 1.4 Validação, 1.5 Implementação, 4.1 Retreinar no painel completo (2015–2025), 4.2 Empacotar, 4.3 API de previsão (+11 more)
+
+### Community 9 - "Preditor"
+Cohesion: 0.21
+Nodes (6): FonteDados, Nível de alerta oficial do InfoDengue (1–4) no mês informado, se disponível., Preditor, Path, TestAPI, TestPreditor
+
+### Community 10 - "analise_experimento.py"
+Cohesion: 0.28
+Nodes (14): bootstrap_delta_mae(), decidir_config(), _fmt(), plot_skill(), DataFrame, Path, Fase 2 — Análise e decisão (docs/PLANO_EXPERIMENTO_FINAL.md). Lê…, Treina o modelo COM clima em 2015–2024 e devolve o ranking SHAP (média |SHAP|). (+6 more)
+
+### Community 11 - "teste_prospectivo.py"
+Cohesion: 0.24
+Nodes (12): avaliar(), HoldoutJaUsado, markdown(), meses_consolidados(), _metricas(), DataFrame, Path, RuntimeError (+4 more)
+
+### Community 12 - "Plano v5 — Limpeza e Resultado Publicável"
+Cohesion: 0.15
+Nodes (12): Plano v5 — Limpeza e Resultado Publicável, Step 0 — Pré-registro do protocolo v5, Step 10 — Revisão final, Step 1 — Podar o Modelo B, as projeções SSP e o que o dashboard mostra delas, Step 2 — Remover o código legado e consolidar a estrutura, Step 3 — Ingestão idempotente de 2026, Step 4 — Ajustes de modelagem v5 (features e alvo), Step 5 — Experimento v5 (desenvolvimento 2018–2024) (+4 more)
+
+### Community 14 - "predictor.py"
+Cohesion: 0.20
+Nodes (10): api_modelo_info(), api_predict(), Previsão de casos para um município, doença e horizonte (1–3 meses). Rota…, Resumo dos modelos de produção carregados (config, métricas, data de retreino)., LookupError, post, Serviço de previsão de arboviroses (Fase 4 do plano do experimento final)., CidadeNaoEncontrada (+2 more)
+
+### Community 16 - "test_experimento.py"
+Cohesion: 0.06
+Nodes (49): diagnostico_grupos_clima(), EXPLORATÓRIO — não entra na regra de decisão. Mede qual grupo de variáveis…, evaluate_baselines(), _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, Avalia persistência, naive sazonal e GLM NB com Expanding Window. Retorna lista… (+41 more)
+
+### Community 17 - "Fase 2 — Análise do experimento (OOF 2018–2024, holdout 2025 intocado)"
+Cohesion: 0.17
+Nodes (11): Chikungunya, Configuração sugerida pela regra pré-registrada, Configuração sugerida pela regra pré-registrada, Dengue, Diagnóstico exploratório: qual grupo de clima move o erro? (NÃO usado na decisão), Efeito do clima (ΔMAE = com clima − sem clima; negativo = clima ajuda), Efeito do clima (ΔMAE = com clima − sem clima; negativo = clima ajuda), Fase 2 — Análise do experimento (OOF 2018–2024, holdout 2025 intocado) (+3 more)
+
+### Community 18 - "data/README.md"
+Cohesion: 0.50
+Nodes (3): Cobertura atual, Estrutura, Fontes
 
 ### Community 19 - "main.py"
-Cohesion: 0.29
-Nodes (9): command_export_dashboard(), command_run_model(), command_train(), main(), Executa o pipeline ML v4 (multi-doença)., Executa o motor legado de projeções SSP (mantido para retrocompatibilidade)., Exporta dados e gráficos para o Dashboard., exportar_dados_dashboard() (+1 more)
+Cohesion: 0.08
+Nodes (38): command_analise(), command_atualizar_dados(), command_dlnm(), command_experimento(), command_experimento_v5(), command_export_dashboard(), command_serve(), command_teste_final() (+30 more)
 
-### Community 20 - "ml_orchestrator.py"
-Cohesion: 0.16
-Nodes (15): Compara o modelo v3 contra baseline de persistência (y_hat = lag1) e lista FI., build_base_panel(), DataFrame, Path, Módulo responsável por construir o painel base a partir do banco de dados…, Valida o painel base e retorna um dicionário-relatório de qualidade. Levanta…, Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto…, validate_panel() (+7 more)
+### Community 20 - "experimento_horizontes.py"
+Cohesion: 0.06
+Nodes (49): Caminhos e constantes do projeto. Nenhum efeito colateral além de criar os…, build_base_panel(), DataFrame, Path, Módulo responsável por construir o painel base a partir do banco de dados…, Valida o painel base e retorna um dicionário-relatório de qualidade. Levanta…, Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto…, validate_panel() (+41 more)
 
 ### Community 21 - "run_interpretability"
 Cohesion: 0.25
 Nodes (17): compute_shap_values(), plot_partial_dependence(), plot_shap_importance(), plot_top_pdps(), DataFrame, ndarray, Path, Módulo de interpretabilidade do modelo XGBoost (v4 multi-doença). Fornece: -… (+9 more)
 
-### Community 22 - "evaluate_baselines"
-Cohesion: 0.21
-Nodes (10): evaluate_baselines(), _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, Avalia persistência, naive sazonal e GLM NB com Expanding Window. Retorna lista…, Constrói o nome da coluna de lag para a doença-alvo., Prever = valor do mês anterior (<doença>_lag1). (+2 more)
+### Community 22 - "data_fetcher.py"
+Cohesion: 0.20
+Nodes (7): DataFrame, Fonte de dados do serviço de previsão. A fonte de verdade é o SQLite…, Linhas de features do mês-alvo (último observado + h) de todas as cidades. Com…, Remove meses ingeridos menos de `dias` após o fim do mês: o InfoDengue ainda…, Painel + h meses futuros por cidade (após o último mês com alvo observado)., remover_meses_nao_consolidados(), test_remove_meses_nao_consolidados()
 
 ### Community 23 - "GLMBinomialNegativa"
 Cohesion: 0.22
 Nodes (7): GLMBinomialNegativa, DataFrame, ndarray, Prediz casos a partir do GLM ajustado., GLM Binomial Negativa com offset log(população). Usa variáveis climáticas +…, Seleciona features do Modelo B (sem lags de dengue)., Ajusta o GLM NB com offset log(pop).
 
-### Community 24 - "TestMultiDoenca"
-Cohesion: 0.18
-Nodes (8): parametrize, Testa que o pipeline funciona para cada doença suportada., build_ml_features roda sem erro para cada doença., Features de uma doença NÃO devem incluir a coluna-alvo de outra., Verifica que os lags de chikungunya são criados quando solicitado., Testa o fluxo completo: features → treino → predição, por doença., TestIntegration, TestMultiDoenca
+### Community 24 - "PredictRequest"
+Cohesion: 0.24
+Nodes (7): BaseModel, field_validator, PredictRequest, PredictResponse, Schemas Pydantic de entrada e saída da API de previsão (v5: alerta de risco)., parametrize, TestSchemas
 
-### Community 25 - "mini_panel"
-Cohesion: 0.67
-Nodes (3): fixture, mini_panel(), Cria um painel sintético com 2 cidades × 72 meses (6 anos) e 3 doenças.
+### Community 25 - "test_prediction_service.py"
+Cohesion: 0.28
+Nodes (6): nivel_por_probabilidade(), aplicar_intervalo(), Intervalo de 90% a partir dos quantis de resíduo log1p calibrados no OOF., Testes do serviço de previsão v5 (alerta de risco): schemas, níveis, intervalo,…, TestIntervalo, TestNiveis
+
+### Community 26 - ".prever"
+Cohesion: 0.29
+Nodes (3): _fmt_mes(), ModeloIndisponivel, RuntimeError
+
+### Community 27 - "ingestor_ibge_populacao.py"
+Cohesion: 0.32
+Nodes (7): fetch_populacao_ibge(), get_ibge_7(), main(), DataFrame, ingestor_ibge_populacao.py — Busca estimativas populacionais do IBGE (API…, Busca população estimada do IBGE via API SIDRA (tabela 6579)., Calcula o dígito verificador IBGE para transformar código de 6 em 7 dígitos.
+
+### Community 28 - "CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)"
+Cohesion: 0.33
+Nodes (5): Arquitetura, CLAUDE.md — Projeto Clima × Arboviroses (Região Sul), Comandos, Convenções, Regras metodológicas (não violar)
+
+### Community 29 - "Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão"
+Cohesion: 0.33
+Nodes (5): 1. Bronze — ingestão, 2. Silver — painel, 3. Gold — duas análises separadas, 4. Evolução histórica, Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão
+
+### Community 30 - "Experimento v5 — clima parcimonioso × suscetibilidade (protocolo v5)"
+Cohesion: 0.33
+Nodes (5): Chikungunya, Dengue, Efeitos (ΔMAE com − sem, IC 95% bootstrap por município), Efeitos (ΔMAE com − sem, IC 95% bootstrap por município), Experimento v5 — clima parcimonioso × suscetibilidade (protocolo v5)
+
+### Community 31 - "mini_panel"
+Cohesion: 0.40
+Nodes (4): mini_panel(), fixture, Fixtures compartilhados: painel sintético (não depende do banco)., Cria um painel sintético com 2 cidades × 72 meses (6 anos) e 3 doenças.
+
+### Community 32 - "Fase 3 — Teste final em 2025 (executado 2026-11-04 12:46:18)"
+Cohesion: 0.50
+Nodes (3): Chikungunya — xgb_clima_p99, Dengue — xgb_semclima_semcorte, Fase 3 — Teste final em 2025 (executado 2026-11-04 12:46:18)
 
 ## Knowledge Gaps
-- **165 isolated node(s):** `Resultado Principal`, `Estrutura do Repositório`, `Como Rodar`, `Documentação`, `Fontes de Dados` (+160 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 262 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **68 isolated node(s):** `Comandos`, `Arquitetura`, `Regras metodológicas (não violar)`, `Convenções`, `O calor aumenta a dengue no Sul do Brasil. Mas isso ajuda a prever o próximo surto?` (+63 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 240 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `run_pipeline()` connect `ml_orchestrator.py` to `main.py`?**
-  _High betweenness centrality (0.114) - this node is a cross-community bridge._
-- **Why does `exportar_dados_dashboard()` connect `main.py` to `motor_lote_modelagem_v2_por_latitude.py`?**
-  _High betweenness centrality (0.108) - this node is a cross-community bridge._
-- **Why does `build_base_panel()` connect `motor_lote_modelagem_v2_por_latitude.py` to `main.py`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
-- **What connects `Resultado Principal`, `Estrutura do Repositório`, `Como Rodar` to the rest of the system?**
-  _165 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `motor_lote_modelagem_v2_por_latitude.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.1036077705827937 - nodes in this community are weakly interconnected._
+- **Why does `build_ml_features()` connect `build_ml_features` to `experimento_v5.py`, `teste_prospectivo.py`, `test_experimento.py`, `experimento_horizontes.py`, `data_fetcher.py`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
+- **Why does `build_base_panel()` connect `experimento_horizontes.py` to `experimento_v5.py`, `dlnm.py`, `analise_experimento.py`, `teste_prospectivo.py`, `test_experimento.py`, `main.py`, `data_fetcher.py`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `get_feature_columns()` connect `build_ml_features` to `experimento_v5.py`, `analise_experimento.py`, `teste_prospectivo.py`, `test_experimento.py`, `experimento_horizontes.py`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Are the 4 inferred relationships involving `Preditor` (e.g. with `FonteDados` and `PredictResponse`) actually correct?**
+  _`Preditor` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Comandos`, `Arquitetura`, `Regras metodológicas (não violar)` to the rest of the system?**
+  _68 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `experimento_v5.py` be split into smaller, more focused modules?**
+  _Cohesion score 0.10099573257467995 - nodes in this community are weakly interconnected._
 - **Should `build_ml_features` be split into smaller, more focused modules?**
-  _Cohesion score 0.11375661375661375 - nodes in this community are weakly interconnected._
-- **Should `ingestor_api_sul.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.14210526315789473 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06274509803921569 - nodes in this community are weakly interconnected._
