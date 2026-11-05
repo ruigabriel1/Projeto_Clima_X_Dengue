@@ -71,6 +71,19 @@ Qualquer desvio deste protocolo é registrado aqui, com data e motivo, antes de 
   percentis 10/50/90)" é inconsistente: 3 nós internos + fronteiras no mínimo/máximo geram 4 funções de
   base (convenção de `ns()` no R, usada pelo pacote `dlnm`). Adota-se a especificação pelos nós
   (P10/P50/P90 internos, fronteiras no mín./máx.) → 4 g.l. por variável. Registrado antes de rodar o DLNM.
+- **2026-11-04 (noite) — Combinação modelo + persistência e contagem como métrica co-primária.**
+  Registrado ANTES de qualquer teste em 2026 e antes de calcular qualquer resultado da combinação.
+  Motivo: no desenvolvimento, a persistência empatou ou venceu o modelo na dengue a 1–2 meses, e o
+  objetivo do projeto é prever casos o mais perto possível da realidade.
+  - Combinação: `casos_comb = w · casos_modelo + (1 − w) · casos[t−h]` por doença × horizonte, com
+    `w ∈ {0,0; 0,1; …; 1,0}` escolhido por menor MAE. Na validação, `w` do ano Y é escolhido só com
+    os anos < Y (cross-fitting temporal; 2018 usa w = 1). Para o teste de 2026, `w` final usa 2018–2025.
+  - O escore de risco passa a vir da incidência combinada (mesma calibração isotônica temporal).
+  - Regra: a combinação substitui o modelo puro (na contagem e no risco) se reduzir o MAE com IC 95%
+    por bootstrap de municípios abaixo de zero em ≥ 2 dos 3 horizontes (OOF 2018–2024), por doença.
+  - No teste de 2026 a contagem (MAE, Skill, MAE de incidência por cidade) passa a ser reportada como
+    resultado co-primário, ao lado do risco (AUC, Brier). Modelo puro, combinação, persistência e
+    alerta do InfoDengue são todos reportados.
 - **2026-11-04 — Suscetibilidade, "meses desde o último surto".** Quando a cidade nunca teve mês
   ≥ 100/100 mil até t−h, a feature fica ausente (NaN, tratado nativamente pelo XGBoost), em vez de
   truncada em 60 (o truncamento em 60 vale para quem já teve surto). Implementado assim no código antes da
