@@ -1,0 +1,337 @@
+{
+  "executado_em": "2026-11-04 22:52:02",
+  "git_commit": "00f2017",
+  "reexecucao_forcada": true,
+  "meses_2026": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "chikungunya": {
+    "h1": {
+      "modelo": "semclima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 0.2990609219208173,
+      "mae_persistencia": 0.21574620573355818,
+      "skill": -0.3861700181654687,
+      "mae_incid_mediana_cidades": 0.5352410434165669,
+      "prevalencia_risco": 0.05807335581787521,
+      "auc": 0.7955249155867642,
+      "brier": 0.05282756863323448,
+      "brier_climatologia": 0.05470084116192567,
+      "brier_skill": 0.03424577189125699,
+      "persistencia": {
+        "n": 9488,
+        "mae": 0.21574620573355818,
+        "mae_persistencia": 0.21574620573355818,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 0.0,
+        "prevalencia_risco": 0.05807335581787521,
+        "auc": 0.6924535470820447,
+        "brier": 0.047880640203184374,
+        "brier_climatologia": 0.05470084116192567,
+        "brier_skill": 0.12468182963680763
+      },
+      "combinacao": {
+        "peso_modelo": 0.6,
+        "n": 9488,
+        "mae": 0.2593032011316502,
+        "mae_persistencia": 0.21574620573355818,
+        "skill": -0.20188997183053092,
+        "mae_incid_mediana_cidades": 0.34647937350304825,
+        "prevalencia_risco": 0.05807335581787521,
+        "auc": 0.8062531692405418,
+        "brier": 0.052168121300214566,
+        "brier_climatologia": 0.05470084116192567,
+        "brier_skill": 0.04630129643187264
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.5428025417689911,
+        "brier": 0.05210952058203988
+      }
+    },
+    "h2": {
+      "modelo": "semclima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 0.5042008960807087,
+      "mae_persistencia": 0.28962900505902195,
+      "skill": -0.7408508377051543,
+      "mae_incid_mediana_cidades": 0.9153128992044071,
+      "prevalencia_risco": 0.05849494097807757,
+      "auc": 0.7703207965605816,
+      "brier": 0.06291796612998057,
+      "brier_climatologia": 0.05507328285804879,
+      "brier_skill": -0.14244081458066393,
+      "persistencia": {
+        "n": 9488,
+        "mae": 0.28962900505902195,
+        "mae_persistencia": 0.28962900505902195,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 0.0,
+        "prevalencia_risco": 0.05849494097807757,
+        "auc": 0.6829798005774721,
+        "brier": 0.04951832298983014,
+        "brier_climatologia": 0.05507328285804879,
+        "brier_skill": 0.10086487639635622
+      },
+      "combinacao": {
+        "peso_modelo": 0.9,
+        "n": 9488,
+        "mae": 0.4763696306958435,
+        "mae_persistencia": 0.28962900505902195,
+        "skill": -0.6447580262162164,
+        "mae_incid_mediana_cidades": 0.8420342966201879,
+        "prevalencia_risco": 0.05849494097807757,
+        "auc": 0.7732928719607326,
+        "brier": 0.05795777380057328,
+        "brier_climatologia": 0.05507328285804879,
+        "brier_skill": -0.05237550392554691
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.5366337791950688,
+        "brier": 0.05318468757526407
+      }
+    },
+    "h3": {
+      "modelo": "semclima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 0.6775348270976849,
+      "mae_persistencia": 0.3255691399662732,
+      "skill": -1.0810781610562752,
+      "mae_incid_mediana_cidades": 1.1954089197030746,
+      "prevalencia_risco": 0.05849494097807757,
+      "auc": 0.7413729636946922,
+      "brier": 0.07138716008866289,
+      "brier_climatologia": 0.05507328285804879,
+      "brier_skill": -0.29622125981963077,
+      "persistencia": {
+        "n": 9488,
+        "mae": 0.3255691399662732,
+        "mae_persistencia": 0.3255691399662732,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 0.0,
+        "prevalencia_risco": 0.05849494097807757,
+        "auc": 0.6667348418607792,
+        "brier": 0.05085217457837512,
+        "brier_climatologia": 0.05507328285804879,
+        "brier_skill": 0.07664529987350799
+      },
+      "combinacao": {
+        "peso_modelo": 1.0,
+        "n": 9488,
+        "mae": 0.6775348270976849,
+        "mae_persistencia": 0.3255691399662732,
+        "skill": -1.0810781610562752,
+        "mae_incid_mediana_cidades": 1.1954089197030746,
+        "prevalencia_risco": 0.05849494097807757,
+        "auc": 0.7413729636946922,
+        "brier": 0.06288668079188568,
+        "brier_climatologia": 0.05507328285804879,
+        "brier_skill": -0.14187274715356812
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.5318037280535881,
+        "brier": 0.05351462410189092
+      }
+    }
+  },
+  "dengue": {
+    "h1": {
+      "modelo": "clima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 8.41378183260542,
+      "mae_persistencia": 5.760223440134907,
+      "skill": -0.4606693507723313,
+      "mae_incid_mediana_cidades": 20.129592042103518,
+      "prevalencia_risco": 0.21911888701517707,
+      "auc": 0.7268015298788683,
+      "brier": 0.1721027804766706,
+      "brier_climatologia": 0.17110580036840714,
+      "brier_skill": -0.005826687968010891,
+      "persistencia": {
+        "n": 9488,
+        "mae": 5.760223440134907,
+        "mae_persistencia": 5.760223440134907,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 10.615150238095776,
+        "prevalencia_risco": 0.21911888701517707,
+        "auc": 0.772680334766986,
+        "brier": 0.13369398667544047,
+        "brier_climatologia": 0.17110580036840714,
+        "brier_skill": 0.2186472557471194
+      },
+      "combinacao": {
+        "peso_modelo": 0.6,
+        "n": 9488,
+        "mae": 6.635587724124342,
+        "mae_persistencia": 5.760223440134907,
+        "skill": -0.15196707091086964,
+        "mae_incid_mediana_cidades": 15.1960176567449,
+        "prevalencia_risco": 0.21911888701517707,
+        "auc": 0.7464649645780702,
+        "brier": 0.1666564264256171,
+        "brier_climatologia": 0.17110580036840714,
+        "brier_skill": 0.026003641800629307
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.6038647794620261,
+        "brier": 0.1736636402931383
+      }
+    },
+    "h2": {
+      "modelo": "clima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 23.12781491662307,
+      "mae_persistencia": 8.697618043844857,
+      "skill": -1.6590975598187132,
+      "mae_incid_mediana_cidades": 55.64513663707229,
+      "prevalencia_risco": 0.22006745362563238,
+      "auc": 0.6946238156259708,
+      "brier": 0.19191593019533637,
+      "brier_climatologia": 0.1716377694803625,
+      "brier_skill": -0.11814509578146182,
+      "persistencia": {
+        "n": 9488,
+        "mae": 8.697618043844857,
+        "mae_persistencia": 8.697618043844857,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 13.161717616837986,
+        "prevalencia_risco": 0.22006745362563238,
+        "auc": 0.7160995909702805,
+        "brier": 0.16147890385617916,
+        "brier_climatologia": 0.1716377694803625,
+        "brier_skill": 0.059187821275815566
+      },
+      "combinacao": {
+        "peso_modelo": 0.9,
+        "n": 9488,
+        "mae": 21.284468030048558,
+        "mae_persistencia": 8.697618043844857,
+        "skill": -1.4471605815239474,
+        "mae_incid_mediana_cidades": 50.77440500711478,
+        "prevalencia_risco": 0.22006745362563238,
+        "auc": 0.6963763979496738,
+        "brier": 0.19086247714521548,
+        "brier_climatologia": 0.1716377694803625,
+        "brier_skill": -0.1120074429017357
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.5615792624521073,
+        "brier": 0.19196275287739722
+      }
+    },
+    "h3": {
+      "modelo": "clima_susc",
+      "meses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 9488,
+      "mae": 32.96453020775715,
+      "mae_persistencia": 10.800695615514334,
+      "skill": -2.0520747349278357,
+      "mae_incid_mediana_cidades": 92.32825491375164,
+      "prevalencia_risco": 0.22038364249578415,
+      "auc": 0.6177718719190708,
+      "brier": 0.21671225594006732,
+      "brier_climatologia": 0.17181469261607454,
+      "brier_skill": -0.26131387624874325,
+      "persistencia": {
+        "n": 9488,
+        "mae": 10.800695615514334,
+        "mae_persistencia": 10.800695615514334,
+        "skill": 0.0,
+        "mae_incid_mediana_cidades": 15.461594985933125,
+        "prevalencia_risco": 0.22038364249578415,
+        "auc": 0.6752443100777539,
+        "brier": 0.17968612721307461,
+        "brier_climatologia": 0.17181469261607454,
+        "brier_skill": -0.04581351266965883
+      },
+      "combinacao": {
+        "peso_modelo": 1.0,
+        "n": 9488,
+        "mae": 32.96453020775715,
+        "mae_persistencia": 10.800695615514334,
+        "skill": -2.0520747349278357,
+        "mae_incid_mediana_cidades": 92.32825491375164,
+        "prevalencia_risco": 0.22038364249578415,
+        "auc": 0.6177718719190708,
+        "brier": 0.21670266182255632,
+        "brier_climatologia": 0.17181469261607454,
+        "brier_skill": -0.2612580363356083
+      },
+      "infodengue": {
+        "n": 9488,
+        "auc": 0.5266558553505121,
+        "brier": 0.19999116967643793
+      }
+    }
+  }
+}
