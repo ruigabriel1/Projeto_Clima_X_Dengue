@@ -94,6 +94,18 @@ def avaliar(panel: pd.DataFrame, doenca: str, h: int, info: dict, meses: list[in
            **_metricas(y, pred, persist, risco, esc_m, iso_m.predict(esc_m), pop, te["code"]),
            "persistencia": _metricas(y, np.nan_to_num(persist), persist, risco, esc_p, iso_p.predict(esc_p), pop, te["code"])}
 
+    # Combinação modelo + persistência (desvio pré-registrado): peso final escolhido com 2018–2025
+    comb_path = exp_dir / "combinacao.json"
+    if comb_path.exists() and "escore_comb" in oof_dev.columns:
+        from src.ml_pipeline.combinacao import combinar
+        w = json.loads(comb_path.read_text(encoding="utf-8"))[doenca]["horizontes"][f"h{h}"]["peso_final"]
+        pred_c = combinar(pred, persist, w)
+        esc_c = (pred_c / pop * 1e5) / (p75 + EPS_INCID)
+        iso_c = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(
+            oof_dev["escore_comb"].fillna(0), oof_dev["risco_alto"])
+        res["combinacao"] = {"peso_modelo": w,
+                             **_metricas(y, pred_c, persist, risco, esc_c, iso_c.predict(esc_c), pop, te["code"])}
+
     if COL_NIVEL[doenca] in panel.columns:
         nv = panel[["code", "year", "month", COL_NIVEL[doenca]]].rename(columns={COL_NIVEL[doenca]: "nivel"})
         idx = nv.year * 12 + nv.month - 1 + h
@@ -152,12 +164,17 @@ def markdown(rel: dict) -> str:
         md.append("> ⚠️ Reexecução forçada: o holdout já tinha sido usado.\n")
     for d in [k for k in rel if isinstance(rel[k], dict) and k not in ("meses_2026",)]:
         md += [f"\n## {d.capitalize()}\n",
-               "| h | modelo | MAE | Skill | AUC modelo | AUC persist. | AUC InfoDengue | Brier skill modelo | Brier skill persist. |",
-               "|---|---|---|---|---|---|---|---|---|"]
+               "| h | previsor | MAE | Skill | MAE incid. (mediana cidades) | AUC | Brier skill |",
+               "|---|---|---|---|---|---|---|"]
         for h, r in rel[d].items():
-            pe, nv = r["persistencia"], r.get("infodengue", {})
-            md.append(f"| {h[1:]} | {r['modelo']} | {f(r['mae'], 2)} | {f(r['skill'])} | {f(r.get('auc'))} | "
-                      f"{f(pe.get('auc'))} | {f(nv.get('auc'))} | {f(r.get('brier_skill'))} | {f(pe.get('brier_skill'))} |")
+            linhas = [(f"modelo ({r['modelo']})", r), ("persistência", r["persistencia"])]
+            if "combinacao" in r:
+                linhas.append((f"combinação (peso modelo {r['combinacao']['peso_modelo']:.1f})", r["combinacao"]))
+            for nome_, x in linhas:
+                md.append(f"| {h[1:]} | {nome_} | {f(x['mae'], 2)} | {f(x['skill'])} | "
+                          f"{f(x['mae_incid_mediana_cidades'], 1)} | {f(x.get('auc'))} | {f(x.get('brier_skill'))} |")
+            nv = r.get("infodengue", {})
+            md.append(f"| {h[1:]} | alerta InfoDengue | — | — | — | {f(nv.get('auc'))} | — |")
     return "\n".join(md)
 
 

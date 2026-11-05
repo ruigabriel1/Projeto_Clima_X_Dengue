@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/teste_prospectivo.py": {
-    "mtime": 1793810421.8101308,
-    "seen": 1793819820.3750954,
-    "ast_hash": "5c7a59af3ed8da15524c7038b53cdba5",
+    "mtime": 1793843137.5593624,
+    "seen": 1793843176.1892028,
+    "ast_hash": "2c0cc23c68f78e7e37d8123406a66513",
     "semantic_hash": ""
   },
   "src/prediction_service/__init__.py": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "tests/test_experimento.py": {
-    "mtime": 1793809994.8635917,
-    "seen": 1793819820.3750954,
-    "ast_hash": "775eeabc2d18926c67699896d7b447a5",
+    "mtime": 1793843060.8395903,
+    "seen": 1793843176.1892028,
+    "ast_hash": "bebaec766d9e7f897276e1a5d717b50e",
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
@@ -297,6 +297,12 @@
     "mtime": 1793820101.373129,
     "seen": 1793820182.2634587,
     "ast_hash": "309a690823d7e5cb9d7db565b770e901",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/combinacao.py": {
+    "mtime": 1793843038.850531,
+    "seen": 1793843176.1892028,
+    "ast_hash": "9ceec103da7d155e03f33c2242b80b9e",
     "semantic_hash": ""
   }
 }

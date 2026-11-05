@@ -168,6 +168,29 @@ class TestExperimentoV5:
         assert list(p[oof.year == 2021]) == [0, 0, 1, 1]        # aprendeu só com 2020
 
 
+class TestCombinacao:
+    def test_peso_escolhe_o_melhor_previsor(self):
+        from src.ml_pipeline.combinacao import combinar, escolher_peso
+        y = np.array([10, 20, 30, 40.0])
+        assert escolher_peso(y, y, y * 0) == 1.0                    # modelo perfeito → só modelo
+        assert escolher_peso(y, y * 0, y) == 0.0                    # persistência perfeita → só persistência
+        assert list(combinar([10, 10], [np.nan, 20], 0.5)) == [5.0, 15.0]   # persistência ausente = 0
+
+    def test_peso_do_ano_so_usa_anos_anteriores(self):
+        from src.ml_pipeline.combinacao import pesos_cross_fit
+        y = np.array([10.0, 20.0])
+        # 2018–2019: persistência perfeita; 2020: modelo perfeito (não pode influenciar o peso de 2020)
+        oof = pd.DataFrame({
+            "year": [2018, 2018, 2019, 2019, 2020, 2020],
+            "y_true": np.tile(y, 3),
+            "pred": np.concatenate([y * 0, y * 0, y]),
+            "y_persistencia": np.concatenate([y, y, y * 0]),
+        })
+        p = pesos_cross_fit(oof, "pred")
+        assert p[2018] == 1.0          # sem passado: modelo puro
+        assert p[2019] == 0.0 and p[2020] == 0.0
+
+
 class TestTravaHoldout:
     def test_trava_impede_reuso(self, tmp_path):
         from src.ml_pipeline.teste_final import LOCK_NAME, HoldoutJaUsado, run_teste_final
