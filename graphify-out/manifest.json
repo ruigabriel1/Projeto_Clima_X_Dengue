@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/feature_engineering.py": {
-    "mtime": 1793809757.3310025,
-    "seen": 1793819820.3750954,
-    "ast_hash": "3682a585cd809541bb09035269a84af3",
+    "mtime": 1793843357.0151546,
+    "seen": 1793843481.8528726,
+    "ast_hash": "8d2d103fe177fed071f7b4b3125bc7c0",
     "semantic_hash": ""
   },
   "src/ml_pipeline/ml_orchestrator.py": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/teste_prospectivo.py": {
-    "mtime": 1793843137.5593624,
-    "seen": 1793843176.1892028,
-    "ast_hash": "2c0cc23c68f78e7e37d8123406a66513",
+    "mtime": 1793843374.4705756,
+    "seen": 1793843481.8528726,
+    "ast_hash": "bb0a16c24fa62a487b26c9081a30acc1",
     "semantic_hash": ""
   },
   "src/prediction_service/__init__.py": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "tests/test_experimento.py": {
-    "mtime": 1793843060.8395903,
-    "seen": 1793843176.1892028,
-    "ast_hash": "bebaec766d9e7f897276e1a5d717b50e",
+    "mtime": 1793843375.260576,
+    "seen": 1793843481.8528726,
+    "ast_hash": "ce88d0ffc2e8ab7ecabcb038a1cd7b7c",
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "docs/PROTOCOLO_V5.md": {
-    "mtime": 1793842963.6371953,
-    "seen": 1793842969.348757,
-    "ast_hash": "22f05536ff22a6e34a3dc36d9068bc86",
+    "mtime": 1793843475.0008936,
+    "seen": 1793843481.8528726,
+    "ast_hash": "abd2c948c30a85b7b42e6a5d85a076be",
     "semantic_hash": ""
   },
   ".githooks/pre-commit": {

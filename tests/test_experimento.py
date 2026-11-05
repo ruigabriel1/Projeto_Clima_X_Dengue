@@ -81,6 +81,12 @@ class TestFeaturesV5:
         for kw in ({}, {"clima": "parcimonioso", "suscetibilidade": True}):
             assert not any(c.startswith("NIVEL_") for c in get_feature_columns(df, doenca="dengue", **kw))
 
+    def test_coluna_auxiliar_derivada_do_alvo_nunca_e_feature(self, mini_panel):
+        # Regressão do bug da 1ª execução do teste de 2026: _incid (alvo / pop) entrou como feature
+        df = build_ml_features(mini_panel, doenca="dengue").assign(_incid=lambda x: x["dengue_cases"] / x["populacao"])
+        for kw in ({}, {"clima": "parcimonioso", "suscetibilidade": True}):
+            assert not any(c.startswith("_") for c in get_feature_columns(df, doenca="dengue", **kw))
+
     @pytest.mark.parametrize("h", [1, 3])
     def test_suscetibilidade_usa_so_ate_t_menos_h(self, mini_panel, h):
         df = build_ml_features(mini_panel, doenca="dengue", horizonte=h)

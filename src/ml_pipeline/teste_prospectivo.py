@@ -73,9 +73,16 @@ def avaliar(panel: pd.DataFrame, doenca: str, h: int, info: dict, meses: list[in
     mod = nome(clima, info["suscetibilidade"])
     base = panel[(panel.year < ANO_TESTE) | ((panel.year == ANO_TESTE) & panel.month.isin(meses))]
     df = build_ml_features(base, doenca=doenca, horizonte=h).dropna(subset=[alvo])
-    df = df[df["populacao"] > 0].assign(_incid=lambda x: x[alvo] / x["populacao"] * 1e5)
-    tr, te = df[df.year < ANO_TESTE], df[df.year == ANO_TESTE]
+    df = df[df["populacao"] > 0]
+    # Seleção ANTES de criar colunas auxiliares derivadas do alvo (o bug da 1ª execução: _incid virou feature)
     feats = get_feature_columns(df, doenca=doenca, clima=clima, suscetibilidade=info["suscetibilidade"])
+    meta_path = exp_dir / "meta.json"
+    if meta_path.exists():   # as features do teste têm de ser exatamente as do desenvolvimento
+        esperadas = json.loads(meta_path.read_text(encoding="utf-8"))["features"][f"{doenca}_h{h}"][mod]
+        if sorted(feats) != sorted(esperadas):
+            raise RuntimeError(f"Features do teste diferem do desenvolvimento: {sorted(set(feats) ^ set(esperadas))}")
+    df = df.assign(_incid=lambda x: x[alvo] / x["populacao"] * 1e5)
+    tr, te = df[df.year < ANO_TESTE], df[df.year == ANO_TESTE]
     _, pred = fit_predict_fold(tr, te, feats, alvo, use_pop_offset=True)
 
     oof_dev = pd.read_csv(exp_dir / f"oof_{doenca}_h{h}.csv.gz", dtype={"code": str})

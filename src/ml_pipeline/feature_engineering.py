@@ -261,7 +261,8 @@ def get_feature_columns(
 
     candidatas = [
         c for c in df.columns
-        if c not in excluir and pd.api.types.is_numeric_dtype(df[c])
+        if c not in excluir and not c.startswith("_")   # "_" = coluna auxiliar (ex.: _incid do alvo), nunca feature
+        and pd.api.types.is_numeric_dtype(df[c])
         and _clima_ok(c) and (suscetibilidade or not is_suscetibilidade(c))
     ]
 

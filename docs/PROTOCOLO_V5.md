@@ -71,6 +71,16 @@ Qualquer desvio deste protocolo é registrado aqui, com data e motivo, antes de 
   percentis 10/50/90)" é inconsistente: 3 nós internos + fronteiras no mínimo/máximo geram 4 funções de
   base (convenção de `ns()` no R, usada pelo pacote `dlnm`). Adota-se a especificação pelos nós
   (P10/P50/P90 internos, fronteiras no mín./máx.) → 4 g.l. por variável. Registrado antes de rodar o DLNM.
+- **2026-11-04 22:46 — 1ª execução do teste de 2026 invalidada por vazamento no código do teste.**
+  Em `teste_prospectivo.avaliar`, a coluna auxiliar `_incid` (casos do mês-alvo ÷ população) foi criada
+  antes da seleção de features e entrou como variável. Resultado impossível (AUC 0,998–1,000; correlação
+  previsto × real 0,997) denunciou o erro. Experimento v5, DLNM e modelos de produção não tinham o bug
+  (features conferidas idênticas ao `meta.json`). Correção: seleção de features antes de qualquer coluna
+  auxiliar, colunas com prefixo `_` nunca são features, e o teste agora aborta se as features divergirem
+  das do desenvolvimento. O que a execução inválida expôs: totais de casos de 2026 e as métricas da
+  persistência e do alerta InfoDengue (que não dependem do modelo); nada sobre o modelo. **Nenhuma
+  configuração, peso ou regra foi alterada.** O teste é reexecutado uma vez com `--forcar`; os arquivos da
+  execução inválida ficam em `output/experimento_v5/teste_2026_invalido/`.
 - **2026-11-04 (noite) — Combinação modelo + persistência e contagem como métrica co-primária.**
   Registrado ANTES de qualquer teste em 2026 e antes de calcular qualquer resultado da combinação.
   Motivo: no desenvolvimento, a persistência empatou ou venceu o modelo na dengue a 1–2 meses, e o
