@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "main.py": {
-    "mtime": 1793985713.891674,
-    "seen": 1793986054.421719,
-    "ast_hash": "05117524fd6d81f86ea179f1adb94b66",
+    "mtime": 1793987253.4480765,
+    "seen": 1793987567.2056117,
+    "ast_hash": "ec074b48fdc4422b40ef511c2e511d1e",
     "semantic_hash": ""
   },
   "src/config.py": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793819564.4165926,
-    "seen": 1793819820.3750954,
-    "ast_hash": "3b0730ad22dfa60f75f3c7831f2af138",
+    "mtime": 1793987507.4843996,
+    "seen": 1793987567.2056117,
+    "ast_hash": "fc79fa6b8f858da35d9e15f3e4ff60c6",
     "semantic_hash": ""
   },
   "app/templates/index.html": {
@@ -258,15 +258,15 @@
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
-    "mtime": 1793986515.5635493,
-    "seen": 1793986547.029418,
-    "ast_hash": "842f67c0ac8a05df3c536d0ff852ddb1",
+    "mtime": 1793987414.9584434,
+    "seen": 1793987567.2056117,
+    "ast_hash": "9a9b2a60da32952f96b6e3e36500a2c7",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793820170.7100968,
-    "seen": 1793820182.2634587,
-    "ast_hash": "de5f15113773b4b7847e1f11b55c8b82",
+    "mtime": 1793987557.435598,
+    "seen": 1793987567.2056117,
+    "ast_hash": "32c442c8b88b6175243f0c3452d818e9",
     "semantic_hash": ""
   },
   "docs/PLANO_EXPERIMENTO_FINAL.md": {
@@ -315,6 +315,30 @@
     "mtime": 1793987039.5641356,
     "seen": 1793987179.8073764,
     "ast_hash": "64c6d31bf3c7a8ae1ad4d7b739e0b9bf",
+    "semantic_hash": ""
+  },
+  "src/prediction_service/artefatos.py": {
+    "mtime": 1793987404.351566,
+    "seen": 1793987567.2056117,
+    "ast_hash": "c2d33ad0b6ad74823dfb5d21ceadd168",
+    "semantic_hash": ""
+  },
+  "src/prediction_service/rotina_mensal.py": {
+    "mtime": 1793987251.1983967,
+    "seen": 1793987567.2056117,
+    "ast_hash": "8fe88a860b520ffd5e58a976275cf307",
+    "semantic_hash": ""
+  },
+  "deploy/hf_space/README.md": {
+    "mtime": 1793987465.8075325,
+    "seen": 1793987567.2056117,
+    "ast_hash": "8c935a5221b0b667e8a9a931fc6ad564",
+    "semantic_hash": ""
+  },
+  "requirements-api.txt": {
+    "mtime": 1793987383.2739582,
+    "seen": 1793987567.2056117,
+    "ast_hash": "a8cdbd05892b480e8da4e762db22b356",
     "semantic_hash": ""
   }
 }

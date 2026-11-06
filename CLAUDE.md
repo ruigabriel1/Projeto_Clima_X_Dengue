@@ -22,6 +22,10 @@ Sempre use o Python do venv: `.venv/Scripts/python.exe` (Windows, Python 3.12).
 .venv/Scripts/python.exe main.py dlnm                    # H1: efeito do clima (output/dlnm/)
 .venv/Scripts/python.exe main.py experimento-v5          # H2/H3: clima parcimonioso × suscetibilidade (output/experimento_v5/)
 .venv/Scripts/python.exe main.py modelo-risco            # benchmark InfoDengue + modelos de alerta (output/models/final_v5/)
+.venv/Scripts/python.exe main.py modelo-risco --sem-benchmark --producao   # PRODUÇÃO v5.1: todos os meses consolidados
+.venv/Scripts/python.exe main.py atualizar-mensal        # ingestão + monitoramento ao vivo + previsões do mês (output/monitoramento/)
+.venv/Scripts/python.exe main.py empacotar               # dist/artefatos_v5.1.zip (modelos + banco, SHA-256) para a Release
+docker build -t prodigia . && docker run -p 8000:8000 prodigia   # serviço empacotado (requirements-api.txt, versões fixas)
 .venv/Scripts/python.exe main.py teste-prospectivo --confirmar   # teste ÚNICO jan–ago/2026 (trava)
 .venv/Scripts/python.exe main.py serve                   # dashboard + API em http://localhost:8000 (/docs)
 .venv/Scripts/python.exe main.py train / export-dashboard        # modelo e JSON do dashboard
@@ -46,8 +50,12 @@ src/ml_pipeline/
   teste_prospectivo.py    teste único 2026 com trava
   experimento_horizontes / analise_experimento / teste_final / metricas / modelo_final   (v4)
   ml_orchestrator.py, export_dashboard.py, interpretability.py, baselines.py   (dashboard)
-src/prediction_service/  predictor (risco v5), data_fetcher, risk_classifier, schemas
-app/server.py            FastAPI: dashboard + POST /api/predict + GET /api/modelo/info
+src/prediction_service/  predictor (risco; prever_mes: h≤3 modelo, h>3 faixa histórica; prever_lote = ranking),
+                         data_fetcher (só meses consolidados ≥28 dias), cenarios (faixa P10–P90 + fator DLNM, só
+                         parte quente/monotônica da curva), monitoramento (1ª emissão vale), rotina_mensal, artefatos, schemas
+app/server.py            FastAPI: aplicação (5 abas, app/static/js/app.js) + /api/previsao, /api/ranking, /api/cenario,
+                         /api/confiabilidade, /api/historico, /api/municipios, POST /api/predict, /api/modelo/info
+Dockerfile, deploy/hf_space/   imagem do serviço e Space do Hugging Face (baixam artefatos da Release modelo-v5.1)
 tests/                   pytest, só dados sintéticos
 ```
 
@@ -79,6 +87,8 @@ fonte é `docs/PROTOCOLO_V5.md` e `docs/resultados_*`.
 - **Holdouts são de uso único.** 2025 já foi usado (v4). 2026 (jan–ago) é o holdout da v5; nada de 2026 entra
   em desenvolvimento, DLNM ou decisão. `teste-prospectivo` exige `--confirmar` e grava trava.
 - **Histórico imutável.** A ingestão incremental não sobrescreve casos/clima < 2026 (só acrescenta NIVEL_*).
+- **Produção ≠ teste.** O modelo v5.1 da aplicação usa 2015–2026 (holdout de 2026 já gasto); o desempenho
+  reportado continua sendo o do teste de 2026 + monitoramento ao vivo. Além de 3 meses: só cenário, nunca "previsão".
 - **Hiperparâmetros fixos** (`XGB_PARAMS`). Sem grid search, sem trocar algoritmo para "melhorar" métrica.
 - **Clima sem ENSO cru nas features de previsão**: ENSO é um valor por mês para todas as cidades e vira
   identificador de ano (memorização de surtos). No DLNM, o EF UF×ano absorve choques interanuais.

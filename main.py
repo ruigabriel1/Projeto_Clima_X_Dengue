@@ -105,6 +105,22 @@ def command_modelo_risco(args):
     print("Modelos de risco em output/models/final_v5/" + (" (produção v5.1: todos os meses consolidados)" if args.producao else ""))
 
 
+def command_atualizar_mensal(args):
+    """Produção v5.1: atualiza dados, avalia previsões passadas e emite/registra as novas."""
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    from src.prediction_service.rotina_mensal import executar
+    configurar_log()
+    executar(atualizar_dados=not args.sem_ingestao)
+
+
+def command_empacotar(args):
+    """Gera dist/artefatos_v5.1.zip (modelos + banco + painel, com manifesto SHA-256)."""
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    from src.prediction_service.artefatos import empacotar
+    configurar_log()
+    print(empacotar())
+
+
 def command_dlnm(args):
     """Protocolo v5 (H1): efeito defasado do clima por DLNM (Poisson condicional)."""
     from src.analise_efeito.dlnm import main as dlnm_main
@@ -199,6 +215,13 @@ def main():
     p_mr.add_argument("--producao", action="store_true",
                       help="v5.1: treina com todos os meses consolidados e calibra com OOF + teste 2026")
     p_mr.set_defaults(func=command_modelo_risco)
+
+    p_am = subparsers.add_parser("atualizar-mensal", help="v5.1: ingestão + monitoramento + previsões do mês.")
+    p_am.add_argument("--sem-ingestao", action="store_true", help="Não baixa dados novos (só emite e avalia)")
+    p_am.set_defaults(func=command_atualizar_mensal)
+
+    p_em = subparsers.add_parser("empacotar", help="v5.1: zip de modelos + banco para a Release / Docker.")
+    p_em.set_defaults(func=command_empacotar)
 
     p_dl = subparsers.add_parser("dlnm", help="Efeito do clima por DLNM (Poisson condicional).")
     p_dl.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")

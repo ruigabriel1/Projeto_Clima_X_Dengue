@@ -5,13 +5,15 @@
 ### O calor aumenta a dengue no Sul do Brasil. Mas isso ajuda a prever o próximo surto?
 
 Dados públicos de **1.190 municípios** (PR, SC, RS), **2015–2026**, um protocolo pré-registrado
-e uma API que entrega **alerta de risco** por município, de 1 a 3 meses à frente.
+e uma aplicação web + API que entrega **alerta de risco** e casos previstos por município, de 1 a 3 meses
+à frente, sempre com a margem de erro e o desempenho real medido em 2026.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-Poisson-EB5E28)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20de%20previsão-009688?logo=fastapi&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-ingestão%20idempotente-003B57?logo=sqlite&logoColor=white)
-![Testes](https://img.shields.io/badge/pytest-62%20testes-0A9EDC?logo=pytest&logoColor=white)
+![Testes](https://img.shields.io/badge/pytest-74%20testes-0A9EDC?logo=pytest&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-pronto-2496ED?logo=docker&logoColor=white)
 ![Protocolo](https://img.shields.io/badge/protocolo-pré--registrado-6f42c1)
 
 </div>
@@ -26,7 +28,8 @@ e uma API que entrega **alerta de risco** por município, de 1 a 3 meses à fren
 | **O clima ajuda a prever?** | **Pouco.** Melhora a previsão de dengue em ~1% e a de chikungunya em 0% | Experimento controlado, IC por bootstrap |
 | **O que ajuda de verdade?** | O histórico de casos e a **imunidade acumulada** da população (−1% a −3,5% de erro) | Mesmo experimento |
 | **O alerta funciona?** | **Supera o alerta oficial do InfoDengue** em todas as combinações (AUC 0,76–0,82 contra 0,52–0,68) | Validação 2018–2024 |
-| **Onde ele perde?** | Na dengue a 1 mês, repetir o último valor empata com o modelo. E nenhum modelo acerta o **tamanho** dos surtos | Teste único em 2025 |
+| **E no futuro de verdade?** | No teste único de 2026 (meses nunca vistos), ainda supera o InfoDengue (AUC 0,62–0,80 contra 0,53–0,60), mas **perde para "repetir o último mês"** na dengue e superestimou o ano de baixa em 1,5× a 3,5× | Teste prospectivo jan–ago/2026 |
+| **Onde ele perde?** | Depois de um ano epidêmico, espera outra temporada grande: errou do mesmo jeito em 2025 e 2026. Nenhum modelo acerta o **tamanho** dos surtos | Dois testes únicos fora da amostra |
 
 > **Tese:** o clima tem efeito mensurável sobre as arboviroses, mas acrescenta pouco à previsão de curto
 > prazo além do histórico de casos. A previsão útil é de **risco relativo**, não de magnitude.
@@ -61,9 +64,28 @@ do mosquito somado à incubação e à notificação.
 - **Versão atual:** só 2 variáveis de clima escolhidas antes de ver os dados, imunidade acumulada como
   feature e foco em risco relativo. O ganho do clima ficou pequeno mas real; o do El Niño era ilusão.
 
+## A aplicação
+
+Aplicação web (FastAPI + Plotly) servida pelo mesmo processo da API, com o modelo de produção **v5.1**
+(treinado com todos os meses consolidados, 2015-01 a 2026-09):
+
+| Aba | Pergunta | O que responde |
+|---|---|---|
+| **Previsão por mês** | "Quantos casos em dezembro em Curitiba?" | Até 3 meses à frente: casos com intervalo de 90%, risco relativo, a persistência ao lado e como o modelo se saiu naquele horizonte em 2026. Além disso: a faixa histórica do mês e a data em que a previsão passa a existir |
+| **Ranking de risco** | "Onde o risco está mais alto no mês que vem?" | Cidades ordenadas pela probabilidade de ficar acima do próprio padrão, com filtro por UF e população |
+| **Próximos 5 anos** | "O que esperar nos próximos anos?" | **Cenário, não previsão:** faixa P10–P90 de cada mês e o efeito de +1/+2 °C pela curva do DLNM (só na parte quente e monotônica da curva) |
+| **Quão confiável é** | "Posso confiar?" | AUC, erro, cobertura do intervalo e total previsto ÷ real no teste de 2026, contra persistência e InfoDengue, e o desempenho ao vivo das previsões registradas |
+
+Por que não há previsão para 5 anos: o modelo depende dos casos dos últimos meses; encadear previsões
+multiplicaria o erro (a 3 meses ele já superestimou 2026 em 3,5×). Mostrar isso como previsão seria decorar.
+
 ## O que a API entrega
 
 ```http
+GET  /api/previsao?codigo=4106902&doenca=dengue&ano=2026&mes=12   # previsão, faixa ou valor real
+GET  /api/ranking?doenca=dengue&h=1&pop_min=10000                 # ranking de risco
+GET  /api/cenario?codigo=sul&doenca=dengue&delta_temp=1           # cenário de 5 anos
+GET  /api/confiabilidade?doenca=dengue                            # desempenho por horizonte
 POST /api/predict
 {"codigo_ibge": "4106902", "doenca": "dengue", "meses_a_frente": 2}
 ```
@@ -87,7 +109,9 @@ Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez 
 | **Histórico imutável** | Meses já usados em análises nunca são sobrescritos; o ano corrente só entra com meses fechados e consolidados |
 | **Qualidade** | Checagem de duplicatas, faixas físicas, cobertura e colunas que vazariam o alvo; 2015–2025 conferido contra a fonte (totais idênticos) |
 | **Features** | Lags, médias móveis, incidência acumulada e clima defasado, todos calculados só com informação até t − h |
-| **Testes** | 62 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API |
+| **Monitoramento** | Toda previsão mensal é registrada **antes** de o mês acontecer e comparada com o real quando os dados consolidam; só a primeira emissão conta |
+| **Empacotamento** | Docker com dependências fixas; modelos e snapshot do banco publicados como Release e conferidos por SHA-256 na inicialização |
+| **Testes** | 74 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API, cenários, artefatos |
 
 ## Como a IA foi usada, e onde ela foi barrada
 
@@ -111,10 +135,20 @@ flowchart LR
     C --> E[Features sem vazamento<br/>lags ≥ horizonte]
     E --> F[XGBoost Poisson<br/>offset populacional]
     F --> G[Calibração isotônica<br/>risco relativo]
-    G --> H[FastAPI /api/predict]
+    G --> H[FastAPI + aplicação web]
+    H --> I[Monitoramento<br/>previsto × real]
 ```
 
 ## Rodando
+
+**Com Docker** (baixa os modelos e o banco da Release na primeira execução):
+
+```bash
+docker build -t prodigia .
+docker run -p 8000:8000 prodigia          # http://localhost:8000  ·  API em /docs
+```
+
+**Com Python** (pipeline completo):
 
 ```bash
 python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
@@ -122,9 +156,11 @@ python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
 python main.py atualizar-dados          # baixa/atualiza os dados públicos
 python main.py dlnm                     # efeito do clima
 python main.py experimento-v5           # clima × imunidade acumulada
-python main.py modelo-risco             # benchmark + modelos de alerta
-python main.py serve                    # dashboard + API em http://localhost:8000/docs
-python -m pytest -q                     # 62 testes, só com dados sintéticos
+python main.py modelo-risco --producao  # modelos de produção v5.1 (todos os meses consolidados)
+python main.py atualizar-mensal         # rotina mensal: dados novos + monitoramento + previsões
+python main.py serve                    # aplicação + API em http://localhost:8000
+python main.py empacotar                # zip de modelos + banco para a Release
+python -m pytest -q                     # 74 testes, só com dados sintéticos
 ```
 
 ## Estrutura
@@ -133,16 +169,19 @@ python -m pytest -q                     # 62 testes, só com dados sintéticos
 src/processamento/       ingestão das APIs públicas
 src/analise_efeito/      DLNM
 src/ml_pipeline/         features, experimentos, alerta de risco, testes únicos
-src/prediction_service/  preditor da API
-app/                     FastAPI + dashboard
+src/prediction_service/  preditor, cenários, monitoramento, rotina mensal, artefatos
+app/                     FastAPI + aplicação web
+deploy/hf_space/         Dockerfile e cartão do Hugging Face Space
 docs/                    protocolo, arquitetura, resultados versionados
 tests/                   pytest
 ```
 
 ## Próximos passos
 
-- [ ] Teste prospectivo **único** em jan–ago/2026 (pré-registrado, aguardando o fim da ingestão do clima)
-- [ ] Combinar modelo e persistência para a contagem de casos
+- [x] Teste prospectivo **único** em jan–ago/2026 (resultado em [`docs/resultados_v5/`](docs/resultados_v5/teste_prospectivo_2026.md))
+- [x] Combinação modelo + persistência (ajuda a 1 mês; não passou na regra pré-registrada)
+- [x] Aplicação web, monitoramento ao vivo e empacotamento Docker
+- [ ] Corrigir o viés pós-epidemia (v6, com novo pré-registro e teste em 2027)
 - [ ] Correção de atraso de notificação (nowcasting) nos meses recentes
 - [ ] Artigo científico com os resultados
 

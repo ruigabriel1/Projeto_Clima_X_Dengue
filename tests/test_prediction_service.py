@@ -225,6 +225,36 @@ class TestAplicacaoV51:
         assert c.post("/api/recarregar").status_code == 403
 
 
+class TestArtefatos:
+    def _zip(self, tmp_path, arquivos: dict, manifesto: dict):
+        import zipfile
+        z = tmp_path / "a.zip"
+        with zipfile.ZipFile(z, "w") as f:
+            for nome, dados in arquivos.items():
+                f.writestr(nome, dados)
+            f.writestr("manifesto.json", json.dumps({"versao": "t", "arquivos": manifesto}))
+        return z
+
+    def test_extrai_e_confere_hash(self, tmp_path):
+        import hashlib
+        from src.prediction_service.artefatos import extrair
+        dados = b"modelo"
+        z = self._zip(tmp_path, {"output/m.bin": dados}, {"output/m.bin": hashlib.sha256(dados).hexdigest()})
+        extrair(z, tmp_path / "raiz")
+        assert (tmp_path / "raiz" / "output" / "m.bin").read_bytes() == dados
+
+    def test_recusa_hash_errado_e_caminho_fora(self, tmp_path):
+        import hashlib
+        from src.prediction_service.artefatos import extrair
+        z = self._zip(tmp_path, {"output/m.bin": b"adulterado"}, {"output/m.bin": hashlib.sha256(b"original").hexdigest()})
+        with pytest.raises(ValueError, match="Hash"):
+            extrair(z, tmp_path / "raiz")
+        z = self._zip(tmp_path, {"../fora.bin": b"x"}, {"../fora.bin": hashlib.sha256(b"x").hexdigest()})
+        with pytest.raises(ValueError, match="inválido"):
+            extrair(z, tmp_path / "raiz")
+        assert not (tmp_path / "fora.bin").exists()
+
+
 class TestTesteProspectivo:
     def test_exige_confirmacao_e_trava(self, tmp_path):
         from src.ml_pipeline.teste_prospectivo import LOCK, HoldoutJaUsado, run
