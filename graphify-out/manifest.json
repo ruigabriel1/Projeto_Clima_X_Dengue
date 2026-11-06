@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/templates/index.html": {
-    "mtime": 1793986645.4788804,
-    "seen": 1793987179.8083754,
-    "ast_hash": "495a02fe1c9db7127a8d100cd92d98c0",
+    "mtime": 1794004411.730719,
+    "seen": 1794004427.235832,
+    "ast_hash": "575dc787b22147212aacc2705bf4d7f6",
     "semantic_hash": ""
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "app/static/js/app.js": {
-    "mtime": 1793987039.5641356,
-    "seen": 1793987179.8073764,
-    "ast_hash": "64c6d31bf3c7a8ae1ad4d7b739e0b9bf",
+    "mtime": 1794004391.0115993,
+    "seen": 1794004427.235832,
+    "ast_hash": "d21e4cce388870a5c19d00496a27abf7",
     "semantic_hash": ""
   },
   "src/prediction_service/artefatos.py": {

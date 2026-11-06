@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.1.2">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
@@ -141,9 +141,35 @@
           e o <em>alerta oficial do InfoDengue</em>.
         </div>
         <div id="cfResumo" class="cards-3"></div>
-        <div class="chart-card"><div id="cfGrafico" style="width:100%; height:380px;"></div></div>
+        <div class="chart-card">
+          <div id="cfGrafico" style="width:100%; height:380px;"></div>
+          <details class="como-ler" open>
+            <summary>Como ler este gráfico</summary>
+            <p><strong>Persistência</strong> é a previsão mais simples possível: "o próximo mês vai ser igual ao último
+              mês conhecido". Não usa clima nem modelo. É a régua mínima: um modelo de IA só se justifica se ganhar dela.</p>
+            <p><strong>AUC</strong>: sorteie uma cidade que teve risco alto (acima do normal <em>dela</em>) e outra que não
+              teve. A AUC é a chance de o previsor ter dado nota maior à cidade certa. <strong>0,5 = cara ou coroa</strong>
+              (linha pontilhada), <strong>1 = acerta sempre</strong>.</p>
+            <p><strong>Resultado:</strong> o modelo ordena as cidades melhor que o alerta oficial do InfoDengue, mas em 2026
+              repetir o último mês foi um pouco melhor. 2026 foi um ano de baixa e estável, em que "nada muda" acerta muito;
+              o modelo, que aprendeu com anos epidêmicos, esperou uma alta que não veio.</p>
+          </details>
+        </div>
         <div class="chart-card">
           <div class="table-responsive"><table class="data-table" id="cfTabela"><thead></thead><tbody></tbody></table></div>
+          <details class="como-ler">
+            <summary>O que significa cada linha da tabela</summary>
+            <ul>
+              <li><strong>Erro médio por cidade-mês:</strong> quantos casos, em média, a previsão errou em cada cidade a cada mês. Menor é melhor.</li>
+              <li><strong>Skill vs persistência:</strong> 0 = igual a repetir o último mês; positivo = melhor; negativo = pior.
+                Ex.: −0,46 significa 46% mais erro que a persistência.</li>
+              <li><strong>Brier skill:</strong> se a probabilidade de risco alto ("22% de chance") é melhor do que usar sempre a
+                frequência histórica. 0 = igual; positivo = melhor; negativo = pior.</li>
+              <li><strong>Total previsto ÷ real:</strong> 1,0 = acertou o tamanho do ano; acima de 1 = superestimou.</li>
+              <li><strong>Real dentro do intervalo de 90%:</strong> com que frequência o valor real caiu dentro da margem de erro
+                mostrada. O ideal é perto de 90%.</li>
+            </ul>
+          </details>
         </div>
         <div id="cfAoVivo" class="result-area"></div>
       </section>
@@ -197,7 +223,7 @@
     </main>
   </div>
 
-  <script type="module" src="/static/js/main.js"></script>
-  <script type="module" src="/static/js/app.js"></script>
+  <script type="module" src="/static/js/main.js?v=5.1.2"></script>
+  <script type="module" src="/static/js/app.js?v=5.1.2"></script>
 </body>
 </html>

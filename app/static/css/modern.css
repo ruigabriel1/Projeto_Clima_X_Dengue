@@ -455,6 +455,10 @@ details ul { margin: 0.4rem 0 0 1.2rem; }
 .cards-3 .stat-value { font-size: 1.5rem; }
 
 .chart-card { margin-bottom: 1.5rem; }
+.como-ler { margin-top: 1rem; padding: 0.8rem 1rem; background: var(--bg-primary); border-radius: 10px; font-size: 0.9rem; line-height: 1.55; }
+.como-ler summary { font-weight: 700; color: var(--accent-hover); }
+.como-ler p, .como-ler ul { margin-top: 0.5rem; }
+.como-ler li { margin-bottom: 0.3rem; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 
 @media (max-width: 760px) {
