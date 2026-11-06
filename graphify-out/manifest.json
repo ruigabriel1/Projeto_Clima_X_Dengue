@@ -352,5 +352,23 @@
     "seen": 1794008401.41391,
     "ast_hash": "84f04926daf916c6f7b6f5e548a35b01",
     "semantic_hash": ""
+  },
+  "docs/resultados_v6/decisao.json": {
+    "mtime": 1794009254.8892412,
+    "seen": 1794009267.8357923,
+    "ast_hash": "456d218b2f470861a88a45c3cf67e81c",
+    "semantic_hash": ""
+  },
+  "docs/resultados_v6/meta.json": {
+    "mtime": 1794009254.904701,
+    "seen": 1794009267.8357923,
+    "ast_hash": "b96769a070fb4a5b367df5eea2b169c4",
+    "semantic_hash": ""
+  },
+  "docs/resultados_v6/relatorio.md": {
+    "mtime": 1794009254.862656,
+    "seen": 1794009267.8357923,
+    "ast_hash": "070ce50b97c9a4c85ce2c57f36a95aa4",
+    "semantic_hash": ""
   }
 }

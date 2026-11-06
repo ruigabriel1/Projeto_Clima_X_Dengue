@@ -1,0 +1,16 @@
+{
+  "dengue": {
+    "formulacao": "A",
+    "offset": "persistencia",
+    "vizinhos": false,
+    "imunidade_longa": false,
+    "modelo": "A"
+  },
+  "chikungunya": {
+    "formulacao": "B0",
+    "offset": "pop",
+    "vizinhos": false,
+    "imunidade_longa": false,
+    "modelo": "B0"
+  }
+}
