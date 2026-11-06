@@ -7957,7 +7957,7 @@
       "label": "PROTOCOLO_V6.md",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "protocolo_v6.md",
@@ -7969,70 +7969,70 @@
       "label": "Desvios",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "desvios",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L75"
+      "source_location": "L76"
     },
     {
       "id": "docs_protocolo_v6_explorat\u00f3rio_n\u00e3o_entra_na_decis\u00e3o",
       "label": "Explorat\u00f3rio (n\u00e3o entra na decis\u00e3o)",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "exploratorio (nao entra na decisao)",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L68"
+      "source_location": "L69"
     },
     {
       "id": "docs_protocolo_v6_hip\u00f3teses",
       "label": "Hip\u00f3teses",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "hipoteses",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L13"
+      "source_location": "L14"
     },
     {
       "id": "docs_protocolo_v6_motiva\u00e7\u00e3o_o_que_a_v5_errou",
       "label": "Motiva\u00e7\u00e3o (o que a v5 errou)",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "motivacao (o que a v5 errou)",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L6"
+      "source_location": "L7"
     },
     {
       "id": "docs_protocolo_v6_mudan\u00e7as_candidatas_fixas",
       "label": "Mudan\u00e7as candidatas (fixas)",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "mudancas candidatas (fixas)",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
-      "id": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
-      "label": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "id": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
+      "label": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "protocolo v6 \u2014 pre-registro (rascunho; vale a partir do commit que o registra)",
+      "norm_label": "protocolo v6 \u2014 pre-registro",
       "source_file": "docs/PROTOCOLO_V6.md",
       "source_location": "L1"
     },
@@ -8041,36 +8041,36 @@
       "label": "Regra de decis\u00e3o (sequencial, fixa)",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "regra de decisao (sequencial, fixa)",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L46"
+      "source_location": "L47"
     },
     {
       "id": "docs_protocolo_v6_teste_modo_sombra_prospectivo_uso_\u00fanico",
       "label": "Teste: modo sombra prospectivo (uso \u00fanico)",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "teste: modo sombra prospectivo (uso unico)",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L57"
+      "source_location": "L58"
     },
     {
       "id": "docs_protocolo_v6_valida\u00e7\u00e3o_de_desenvolvimento",
       "label": "Valida\u00e7\u00e3o de desenvolvimento",
       "_origin": "ast",
       "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro (rascunho; vale a partir do commit que o registra)",
+      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "validacao de desenvolvimento",
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L37"
+      "source_location": "L38"
     },
     {
       "id": "src_analise_efeito_dlnm",
@@ -21863,7 +21863,7 @@
     },
     {
       "source": "docs_protocolo_v6",
-      "target": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "target": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -21873,91 +21873,91 @@
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_hip\u00f3teses",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_mudan\u00e7as_candidatas_fixas",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_valida\u00e7\u00e3o_de_desenvolvimento",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L37",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_regra_de_decis\u00e3o_sequencial_fixa",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L46",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_teste_modo_sombra_prospectivo_uso_\u00fanico",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L57",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
-      "target": "docs_protocolo_v6_motiva\u00e7\u00e3o_o_que_a_v5_errou",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_explorat\u00f3rio_n\u00e3o_entra_na_decis\u00e3o",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
-      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro_rascunho_vale_a_partir_do_commit_que_o_registra",
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
+      "target": "docs_protocolo_v6_motiva\u00e7\u00e3o_o_que_a_v5_errou",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROTOCOLO_V6.md",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_protocolo_v6_protocolo_v6_pr\u00e9_registro",
       "target": "docs_protocolo_v6_desvios",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -28605,5 +28605,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3da1c72c6aa62e72e73f26a91f9cd929133ad03c"
+  "built_at_commit": "cd242e62a152ab757b773b2a690ebdd2087c4392"
 }

@@ -1,7 +1,7 @@
 # Graph Report - Projeto_Clima_X_Dengue  (2026-11-06)
 
 ## Corpus Check
-- 56 files · ~45,291 words
+- 56 files · ~45,312 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3da1c72c`
+- Built from commit: `cd242e62`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -56,7 +56,7 @@
 - TestFeatureEngineering
 - get_preditor
 - TestMultiDoenca
-- Protocolo v6 — Pré-registro (rascunho; vale a partir do commit que o registra)
+- Protocolo v6 — Pré-registro
 
 ## God Nodes (most connected - your core abstractions)
 1. `build_ml_features()` - 43 edges
@@ -239,9 +239,9 @@ Nodes (11): api_historico(), api_modelo_info(), api_predict(), api_recarregar(),
 Cohesion: 0.18
 Nodes (8): parametrize, Verifica que os lags de chikungunya são criados quando solicitado., Testa o fluxo completo: features → treino → predição, por doença., Testa que o pipeline funciona para cada doença suportada., build_ml_features roda sem erro para cada doença., Features de uma doença NÃO devem incluir a coluna-alvo de outra., TestIntegration, TestMultiDoenca
 
-### Community 43 - "Protocolo v6 — Pré-registro (rascunho; vale a partir do commit que o registra)"
+### Community 43 - "Protocolo v6 — Pré-registro"
 Cohesion: 0.20
-Nodes (9): Desvios, Exploratório (não entra na decisão), Hipóteses, Motivação (o que a v5 errou), Mudanças candidatas (fixas), Protocolo v6 — Pré-registro (rascunho; vale a partir do commit que o registra), Regra de decisão (sequencial, fixa), Teste: modo sombra prospectivo (uso único) (+1 more)
+Nodes (9): Desvios, Exploratório (não entra na decisão), Hipóteses, Motivação (o que a v5 errou), Mudanças candidatas (fixas), Protocolo v6 — Pré-registro, Regra de decisão (sequencial, fixa), Teste: modo sombra prospectivo (uso único) (+1 more)
 
 ## Knowledge Gaps
 - **73 isolated node(s):** `MESES_LONGO`, `NIVEIS`, `COR`, `layoutBase`, `cfgPlot` (+68 more)
