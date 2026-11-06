@@ -53,6 +53,8 @@ class FonteDados:
         self._panel = panel
         self._cache: dict[tuple[str, int], pd.DataFrame] = {}
         self._lock = threading.Lock()
+        # Uma trava por (doença, h): o aquecimento e as requisições não recalculam a mesma coisa em paralelo
+        self._locks_feat: dict[tuple[str, int], threading.Lock] = {}
 
     # ------------------------------------------------------------------ painel
     @property
@@ -116,13 +118,18 @@ class FonteDados:
     def features_previsao(self, doenca: str, h: int) -> pd.DataFrame:
         """Linhas de features do mês-alvo (último observado + h) de todas as cidades. Com cache."""
         chave = (doenca, h)
-        if chave not in self._cache:
-            alvo = DOENCA_PARA_COL[doenca]
-            ext = self._com_linhas_futuras(doenca, h)
-            feats = build_ml_features(ext, doenca=doenca, horizonte=h)
-            alvo_rows = feats[feats[alvo].isna()]
-            # Mantém só o mês T (o h-ésimo futuro) de cada cidade
-            alvo_rows = alvo_rows.sort_values(["code", "year", "month"]).groupby("code").tail(1)
-            self._cache[chave] = alvo_rows.set_index("code")
-            logger.info(f"Features de previsão {chave}: {len(alvo_rows)} cidades")
+        if chave in self._cache:
+            return self._cache[chave]
+        with self._lock:
+            trava = self._locks_feat.setdefault(chave, threading.Lock())
+        with trava:
+            if chave not in self._cache:
+                alvo = DOENCA_PARA_COL[doenca]
+                ext = self._com_linhas_futuras(doenca, h)
+                feats = build_ml_features(ext, doenca=doenca, horizonte=h)
+                alvo_rows = feats[feats[alvo].isna()]
+                # Mantém só o mês T (o h-ésimo futuro) de cada cidade
+                alvo_rows = alvo_rows.sort_values(["code", "year", "month"]).groupby("code").tail(1)
+                self._cache[chave] = alvo_rows.set_index("code")
+                logger.info(f"Features de previsão {chave}: {len(alvo_rows)} cidades")
         return self._cache[chave]

@@ -97,7 +97,7 @@ class Preditor:
         return sorted(p.parent.name for p in self.model_dir.glob("*/metadata.json"))
 
     def aquecer(self):
-        for d in self.doencas_disponiveis():
+        for d in sorted(self.doencas_disponiveis(), key=lambda x: x != "dengue"):   # dengue primeiro (padrão da página)
             for h in self.metadata(d)["horizontes"]:
                 self.fonte.features_previsao(d, int(h[1:]))
         logger.info("Cache de previsão aquecido.")

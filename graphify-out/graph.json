@@ -772,7 +772,7 @@
       "file_type": "code",
       "norm_label": ".alerta_infodengue()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L85"
+      "source_location": "L87"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_com_linhas_futuras",
@@ -784,7 +784,7 @@
       "file_type": "code",
       "norm_label": "._com_linhas_futuras()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L95"
+      "source_location": "L97"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_features_previsao",
@@ -796,7 +796,7 @@
       "file_type": "code",
       "norm_label": ".features_previsao()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L116"
+      "source_location": "L118"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_init",
@@ -820,7 +820,7 @@
       "file_type": "code",
       "norm_label": ".panel()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L59"
+      "source_location": "L61"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_recarregar",
@@ -832,7 +832,7 @@
       "file_type": "code",
       "norm_label": ".recarregar()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L68"
+      "source_location": "L70"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_tem_cidade",
@@ -844,7 +844,7 @@
       "file_type": "code",
       "norm_label": ".tem_cidade()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L73"
+      "source_location": "L75"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_ultimo_mes_observado",
@@ -856,7 +856,7 @@
       "file_type": "code",
       "norm_label": ".ultimo_mes_observado()",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L76"
+      "source_location": "L78"
     },
     {
       "id": "src_prediction_service_predictor_preditor_init",
@@ -4427,7 +4427,7 @@
       "source_location": ""
     },
     {
-      "id": "src_prediction_service_data_fetcher_rationale_117",
+      "id": "src_prediction_service_data_fetcher_rationale_119",
       "label": "Linhas de features do m\u00eas-alvo (\u00faltimo observado + h) de todas as cidades. Com\u2026",
       "_origin": "ast",
       "community": 1,
@@ -4435,10 +4435,10 @@
       "file_type": "rationale",
       "norm_label": "linhas de features do mes-alvo (ultimo observado + h) de todas as cidades. com...",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L117"
+      "source_location": "L119"
     },
     {
-      "id": "src_prediction_service_data_fetcher_rationale_86",
+      "id": "src_prediction_service_data_fetcher_rationale_88",
       "label": "N\u00edvel de alerta oficial do InfoDengue (1\u20134) no m\u00eas informado, se dispon\u00edvel.",
       "_origin": "ast",
       "community": 1,
@@ -4446,10 +4446,10 @@
       "file_type": "rationale",
       "norm_label": "nivel de alerta oficial do infodengue (1\u20134) no mes informado, se disponivel.",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L86"
+      "source_location": "L88"
     },
     {
-      "id": "src_prediction_service_data_fetcher_rationale_96",
+      "id": "src_prediction_service_data_fetcher_rationale_98",
       "label": "Painel + h meses futuros por cidade (ap\u00f3s o \u00faltimo m\u00eas com alvo observado).",
       "_origin": "ast",
       "community": 1,
@@ -4457,7 +4457,7 @@
       "file_type": "rationale",
       "norm_label": "painel + h meses futuros por cidade (apos o ultimo mes com alvo observado).",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L96"
+      "source_location": "L98"
     },
     {
       "id": "src_ml_pipeline_alerta_risco",
@@ -11778,7 +11778,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L121",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -11790,7 +11790,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L122",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -11802,7 +11802,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L64",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -11814,7 +11814,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L64",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -15342,7 +15342,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L63",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -18546,7 +18546,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L95",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -18558,7 +18558,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L116",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -18570,7 +18570,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -22628,7 +22628,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L116",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -22650,7 +22650,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -22661,7 +22661,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L68",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -22672,7 +22672,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L73",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -22683,7 +22683,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L76",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
@@ -22694,7 +22694,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L85",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -22705,7 +22705,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L95",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -24766,14 +24766,14 @@
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_data_fetcher_rationale_117",
+      "source": "src_prediction_service_data_fetcher_rationale_119",
       "target": "src_prediction_service_data_fetcher_fontedados_features_previsao",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L117",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
@@ -24788,25 +24788,25 @@
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_data_fetcher_rationale_86",
+      "source": "src_prediction_service_data_fetcher_rationale_88",
       "target": "src_prediction_service_data_fetcher_fontedados_alerta_infodengue",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L86",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_data_fetcher_rationale_96",
+      "source": "src_prediction_service_data_fetcher_rationale_98",
       "target": "src_prediction_service_data_fetcher_fontedados_com_linhas_futuras",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -25930,5 +25930,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2affb0e52d8dce56d3a936a60aedf6de2722b291"
+  "built_at_commit": "671ae8997139072a708d664f626f65f1f4ea1d83"
 }
