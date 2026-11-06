@@ -46,3 +46,72 @@ class PredictResponse(BaseModel):
     confiabilidade: Optional[Literal["normal", "baixa"]] = None
     avisos: list[str] = []
     nota: str = ""
+
+
+# ------------------------------------------------------------------ v5.1: aplicação
+class FaixaMes(BaseModel):
+    mes_calendario: int
+    p10: float
+    p50: float
+    p90: float
+
+
+class PrevisaoMesResponse(BaseModel):
+    """Resposta para "quantos casos em <mês>?": previsão do modelo (≤ 3 meses), faixa histórica ou valor real."""
+    modo: Literal["previsao", "cenario", "observado"]
+    codigo_ibge: str
+    cidade: Optional[str] = None
+    doenca: Doenca
+    mes_alvo: str
+    ultimo_mes_observado: Optional[str] = None
+    horizonte_meses: Optional[int] = None
+    previsao: Optional[PredictResponse] = None
+    casos_persistencia: Optional[int] = Field(None, description="Referência ingênua: casos do último mês observado")
+    casos_reais: Optional[int] = None
+    faixa_historica: Optional[FaixaMes] = None
+    disponivel_a_partir_de: Optional[str] = Field(None, description="Data em que o modelo passa a prever este mês")
+    desempenho_horizonte: Optional[dict] = None
+    nota: str = ""
+
+
+class RankingItem(BaseModel):
+    codigo_ibge: str
+    cidade: Optional[str] = None
+    uf: str
+    populacao: int
+    probabilidade_risco_alto: float
+    nivel_risco: NivelRisco
+    casos_previstos: int
+    intervalo_confianca: list[int]
+    incidencia_prevista_100k: float
+    casos_persistencia: Optional[int] = None
+
+
+class RankingResponse(BaseModel):
+    doenca: Doenca
+    horizonte_meses: int
+    mes_alvo: str
+    total_previsto: int
+    total_intervalo: list[int]
+    itens: list[RankingItem]
+
+
+class PontoCenario(BaseModel):
+    mes: str
+    p10: float
+    p50: float
+    p90: float
+    fator_clima: float
+    fator_clima_lo: float
+    fator_clima_hi: float
+
+
+class CenarioResponse(BaseModel):
+    codigo_ibge: str
+    cidade: Optional[str] = None
+    doenca: Doenca
+    delta_temp: float
+    anos_historico: list[int]
+    pontos: list[PontoCenario]
+    avisos: list[str] = []
+    nota: str = ""

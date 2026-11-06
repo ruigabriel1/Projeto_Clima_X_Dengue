@@ -25,9 +25,14 @@ import numpy as np
 import pandas as pd
 
 from src.ml_pipeline.alerta_risco import OUT_MODELOS_V5, nivel_por_probabilidade
-from src.ml_pipeline.feature_engineering import is_climate_feature
-from src.prediction_service.data_fetcher import FonteDados
-from src.prediction_service.schemas import PredictResponse
+from src.ml_pipeline.feature_engineering import DOENCA_PARA_COL, PREFIXOS, is_climate_feature
+from src.prediction_service.cenarios import Cenarios
+from src.prediction_service.data_fetcher import DIAS_MIN_CONSOLIDACAO, FonteDados
+from src.prediction_service.schemas import FaixaMes, PredictResponse, PrevisaoMesResponse
+
+UF_POR_PREFIXO = {"41": "PR", "42": "SC", "43": "RS"}
+MESES_PT = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
+            "outubro", "novembro", "dezembro"]
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +70,7 @@ class Preditor:
     def __init__(self, model_dir: Path = OUT_MODELOS_V5, fonte: FonteDados | None = None):
         self.model_dir = Path(model_dir)
         self.fonte = fonte or FonteDados()
+        self.cenarios = Cenarios(self.fonte, self.model_dir)
         self._meta: dict[str, dict] = {}
         self._objs: dict[tuple, object] = {}
         self._lock = threading.Lock()
@@ -175,6 +181,93 @@ class Preditor:
             avisos=avisos,
             nota=nota,
         )
+
+
+    # ------------------------------------------------------------------ v5.1: aplicação
+    def _casos_mes(self, code: str, doenca: str, ano: int, mes: int) -> int | None:
+        p = self.fonte.panel
+        v = p.loc[(p["code"] == code) & (p["year"] == ano) & (p["month"] == mes), DOENCA_PARA_COL[doenca]].dropna()
+        return int(v.iloc[0]) if len(v) else None
+
+    def ultimo_mes_consolidado(self, doenca: str) -> tuple[int, int]:
+        p = self.fonte.panel
+        o = p.dropna(subset=[DOENCA_PARA_COL[doenca]])
+        u = o.sort_values(["year", "month"]).iloc[-1]
+        return int(u["year"]), int(u["month"])
+
+    def prever_mes(self, codigo_ibge: str, doenca: str, ano: int, mes: int) -> PrevisaoMesResponse:
+        """
+        "Quantos casos em <mês>?". Até 3 meses após o último mês consolidado: previsão do modelo. Depois disso:
+        faixa histórica do mês-calendário e a data em que a previsão passa a existir. Mês passado: valor real.
+        """
+        if doenca == "zika":
+            raise ModeloIndisponivel(MSG_ZIKA)
+        code = codigo_ibge[:6]
+        meta = self.metadata(doenca)
+        cid = meta["cidades"].get(code)
+        if cid is None or not self.fonte.tem_cidade(code):
+            raise CidadeNaoEncontrada(
+                f"Município {code} fora da área de cobertura (1.190 municípios da Região Sul: PR, SC, RS).")
+        ult = self.fonte.ultimo_mes_observado(code, doenca)
+        if ult is None:
+            raise CidadeNaoEncontrada(f"Sem histórico de {doenca} para {code}.")
+        alvo_idx = ano * 12 + mes - 1
+        h = alvo_idx - (ult[0] * 12 + ult[1] - 1)
+        base = dict(codigo_ibge=code, cidade=cid.get("nome"), doenca=doenca, mes_alvo=_fmt_mes(ano, mes),
+                    ultimo_mes_observado=_fmt_mes(*ult))
+        nome_mes = f"{MESES_PT[mes - 1]} de {ano}"
+        if h <= 0:
+            return PrevisaoMesResponse(**base, modo="observado", casos_reais=self._casos_mes(code, doenca, ano, mes),
+                                       nota=f"{nome_mes.capitalize()} já foi observado (InfoDengue/SINAN).")
+        persist = self._casos_mes(code, doenca, *ult)
+        h_max = max(int(k[1:]) for k in meta["horizontes"])
+        if h <= h_max:
+            prev = self.prever(code, doenca, h)
+            return PrevisaoMesResponse(
+                **base, modo="previsao", horizonte_meses=h, previsao=prev, casos_persistencia=persist,
+                desempenho_horizonte=meta["horizontes"][f"h{h}"].get("desempenho"),
+                nota=(f"Previsão do modelo para {nome_mes}, {h} {'mês' if h == 1 else 'meses'} após o último mês "
+                      f"consolidado ({_fmt_mes(*ult)}). O intervalo cobre 90% dos casos esperados."))
+        faixa = self.cenarios.faixa_historica(code, doenca).loc[mes]
+        y, m = divmod(alvo_idx - h_max, 12)
+        disp = (pd.Timestamp(y, m + 1, 1) + pd.offsets.MonthEnd(0) + pd.Timedelta(days=DIAS_MIN_CONSOLIDACAO)).date()
+        anos = self.cenarios.anos_historico(doenca)
+        return PrevisaoMesResponse(
+            **base, modo="cenario", horizonte_meses=h, casos_persistencia=persist,
+            faixa_historica=FaixaMes(mes_calendario=mes, **{k: round(float(faixa[k]), 1) for k in ("p10", "p50", "p90")}),
+            disponivel_a_partir_de=disp.isoformat(),
+            nota=(f"O modelo prevê até {h_max} meses à frente; {nome_mes} está a {h} meses do último dado consolidado. "
+                  f"Até lá, o que existe é a faixa histórica: em {MESES_PT[mes - 1]}, de {anos[0]} a {anos[1]}, "
+                  "80% dos anos ficaram entre P10 e P90. Isto não é previsão."))
+
+    def prever_lote(self, doenca: str, h: int) -> pd.DataFrame:
+        """Previsão de todas as cidades para o horizonte h (ranking de risco)."""
+        meta = self.metadata(doenca)
+        hm = meta["horizontes"].get(f"h{h}")
+        if hm is None:
+            raise ModeloIndisponivel(f"Sem modelo para horizonte {h}.")
+        X = self.fonte.features_previsao(doenca, h)
+        X = X[X.index.isin(list(meta["cidades"].keys())) & (X["populacao"] > 0)]
+        pop = X["populacao"].to_numpy(float)
+        pred = np.maximum(0.0, self._carregar(doenca, hm["arquivo"]).predict(
+            X[hm["features"]], base_margin=np.log(np.maximum(pop, 1.0) / 100_000.0)))
+        p75 = np.array([meta["cidades"][c]["p75_incid"] for c in X.index])
+        incid = pred / pop * 100_000
+        prob = self._carregar(doenca, hm["calibrador"]).predict(incid / (p75 + meta["eps_incid"]))
+        iv = np.array([aplicar_intervalo(float(p), hm.get("intervalo_contagem")) for p in pred])
+        col_persist = f"{PREFIXOS[DOENCA_PARA_COL[doenca]]}_lag{h}"
+        persist = X[col_persist].to_numpy(float) if col_persist in X.columns else np.full(len(X), np.nan)
+        out = pd.DataFrame({
+            "codigo_ibge": X.index.astype(str), "cidade": [meta["cidades"][c].get("nome") for c in X.index],
+            "uf": [UF_POR_PREFIXO.get(str(c)[:2], "?") for c in X.index], "populacao": pop.astype(int),
+            "probabilidade_risco_alto": np.round(prob, 3), "nivel_risco": [nivel_por_probabilidade(float(v)) for v in prob],
+            "casos_previstos": np.round(pred).astype(int), "ic_lo": iv[:, 0], "ic_hi": iv[:, 1],
+            "incidencia_prevista_100k": np.round(incid, 2), "casos_persistencia": persist,
+            "mes_alvo": [_fmt_mes(int(a), int(b)) for a, b in zip(X["year"], X["month"])],
+        })
+        # Cidades com a série parada (sem dados recentes) preveriam outro mês: ficam fora do ranking
+        out = out[out["mes_alvo"] == out["mes_alvo"].mode().iloc[0]]
+        return out.sort_values(["probabilidade_risco_alto", "incidencia_prevista_100k"], ascending=False).reset_index(drop=True)
 
 
 _PREDITOR: Preditor | None = None

@@ -6,9 +6,9 @@
     "semantic_hash": "777833a442370f8e33989ebb29ae6935"
   },
   "app/server.py": {
-    "mtime": 1793810319.3418977,
-    "seen": 1793819820.3750954,
-    "ast_hash": "21a02e698ada59772ab9ff702d76e2ac",
+    "mtime": 1793986380.243582,
+    "seen": 1793986547.029418,
+    "ast_hash": "5de50333710fc02f35de4719eb68cb96",
     "semantic_hash": ""
   },
   "app/static/js/api.js": {
@@ -216,21 +216,15 @@
     "semantic_hash": ""
   },
   "src/prediction_service/predictor.py": {
-    "mtime": 1793810297.734832,
-    "seen": 1793819820.3750954,
-    "ast_hash": "6bea2492df216a3e76c9893afc55170a",
-    "semantic_hash": ""
-  },
-  "src/prediction_service/risk_classifier.py": {
-    "mtime": 1793805914.8923602,
-    "seen": 1793819820.3750954,
-    "ast_hash": "bcf75676b0f2bad74b64b49dec25b19a",
+    "mtime": 1793986324.7883914,
+    "seen": 1793986547.029418,
+    "ast_hash": "a44244c7adad665d507e55e1e4b3414d",
     "semantic_hash": ""
   },
   "src/prediction_service/schemas.py": {
-    "mtime": 1793810296.4105363,
-    "seen": 1793819820.3750954,
-    "ast_hash": "024d8eabfd1a482f1ca341fc3c7f6897",
+    "mtime": 1793986116.570866,
+    "seen": 1793986547.029418,
+    "ast_hash": "89d8796e7fb0d8b23595dfd15fae47a7",
     "semantic_hash": ""
   },
   "src/processamento/atualizacao_incremental.py": {
@@ -264,9 +258,9 @@
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
-    "mtime": 1793814894.0103977,
-    "seen": 1793819820.3750954,
-    "ast_hash": "e6b479c369d508dc819b2f204b1cbcfc",
+    "mtime": 1793986515.5635493,
+    "seen": 1793986547.029418,
+    "ast_hash": "842f67c0ac8a05df3c536d0ff852ddb1",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -303,6 +297,18 @@
     "mtime": 1793843038.850531,
     "seen": 1793843176.1892028,
     "ast_hash": "9ceec103da7d155e03f33c2242b80b9e",
+    "semantic_hash": ""
+  },
+  "src/prediction_service/cenarios.py": {
+    "mtime": 1793986325.3444455,
+    "seen": 1793986547.029418,
+    "ast_hash": "aeff009a6dfe1e1463aa29ce3697f733",
+    "semantic_hash": ""
+  },
+  "src/prediction_service/monitoramento.py": {
+    "mtime": 1793986339.9733007,
+    "seen": 1793986547.029418,
+    "ast_hash": "6e4d1622259379991eabb3cacfb660e1",
     "semantic_hash": ""
   }
 }
