@@ -1,2 +1,7 @@
 # Hooks do git precisam de LF para rodar no shell do Git
 .githooks/* text eol=lf
+# Arquivos lidos dentro de containers Linux
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+requirements-api.txt text eol=lf
+deploy/** text eol=lf
