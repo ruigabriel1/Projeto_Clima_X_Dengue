@@ -231,6 +231,36 @@ def api_confiabilidade(doenca: Literal["dengue", "chikungunya"] = "dengue"):
             "ao_vivo": ao_vivo}
 
 
+@app.get("/api/municipios")
+def api_municipios(doenca: Literal["dengue", "chikungunya"] = "dengue"):
+    """Municípios cobertos pelo modelo (código de 6 dígitos, nome, UF, população), ordenados por nome."""
+    from src.prediction_service.predictor import UF_POR_PREFIXO, get_preditor
+    try:
+        cid = get_preditor().metadata(doenca)["cidades"]
+    except Exception as e:
+        _erro_http(e)
+    out = [{"codigo": c, "nome": v.get("nome"), "uf": UF_POR_PREFIXO.get(c[:2], "?"), "populacao": v.get("populacao")}
+           for c, v in cid.items()]
+    return sorted(out, key=lambda x: (x["nome"] or ""))
+
+
+@app.get("/api/historico")
+def api_historico(codigo: str = Query("sul"), doenca: Literal["dengue", "chikungunya"] = "dengue",
+                  meses: int = Query(36, ge=1, le=240)):
+    """Casos observados (consolidados) dos últimos `meses` de um município ou da região ('sul')."""
+    from src.ml_pipeline.feature_engineering import DOENCA_PARA_COL
+    from src.prediction_service.predictor import get_preditor
+    p = get_preditor().fonte.panel
+    alvo = DOENCA_PARA_COL[doenca]
+    o = p.dropna(subset=[alvo])
+    if codigo != "sul":
+        o = o[o["code"] == codigo[:6]]
+        if o.empty:
+            raise HTTPException(status_code=404, detail=f"Sem histórico para {codigo}.")
+    s = o.groupby(["year", "month"])[alvo].sum().reset_index().tail(meses)
+    return [{"mes": f"{int(r.year)}-{int(r.month):02d}", "casos": int(r[alvo])} for _, r in s.iterrows()]
+
+
 @app.post("/api/recarregar")
 def api_recarregar(x_token: Optional[str] = Header(None)):
     """Relê o banco depois de uma ingestão (protegido pela variável de ambiente PRODIGIA_TOKEN)."""

@@ -3,140 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prodígia | Dashboard Climático</title>
-  
-  <!-- Fontes -->
+  <title>Prodígia | Previsão de Arboviroses</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Estilos -->
   <link rel="stylesheet" href="/static/css/modern.css">
-  
-  <!-- Plotly (Apenas a biblioteca gráfica) -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
 
   <div class="app-container">
-    
-    <!-- SIDEBAR -->
+
+    <!-- SIDEBAR: navegação -->
     <aside class="sidebar">
       <div class="brand">
         <h1>Prodígia</h1>
-        <p>Previsão Climática & Saúde</p>
+        <p>Dengue e chikungunya na Região Sul</p>
       </div>
 
-      <div class="control-panel">
-        <h3>Informações</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
-          Este painel exibe resultados consolidados do modelo preditivo MLOps (XGBoost Poisson).
-          Os gráficos mostram o histórico observado e o desempenho fora da amostra do modelo
-          (previsão de 1 a 3 meses). Previsões por município: <a href="/docs">API /api/predict</a>.
-        </p>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="previsao" role="tab">🔮 Previsão por mês</button>
+        <button class="tab" data-tab="ranking" role="tab">📍 Ranking de risco</button>
+        <button class="tab" data-tab="cenario" role="tab">📈 Próximos 5 anos</button>
+        <button class="tab" data-tab="confiabilidade" role="tab">🎯 Quão confiável é</button>
+        <button class="tab" data-tab="historico" role="tab">🗂️ Histórico</button>
+      </nav>
+
+      <div class="control-panel sidebar-info">
+        <p><strong>O que o modelo faz:</strong> prevê de 1 a 3 meses à frente o risco de cada cidade ficar
+          acima do seu próprio padrão (P75 histórico) e o número de casos, com intervalo de 90%.</p>
+        <p><strong>O que ele não faz:</strong> prever anos à frente. Para isso, a aba "Próximos 5 anos" mostra
+          cenários, não previsões.</p>
+        <p class="muted" id="infoModelo">Carregando modelo…</p>
+        <p class="muted"><a href="/docs">API (/docs)</a> · <a href="https://github.com/ruigabriel1/Projeto_Clima_X_Dengue" target="_blank" rel="noopener">Código</a></p>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
-      
-      <!-- Loading Overlay -->
-      <div id="loader" class="loader-overlay active">
-        <div class="spinner"></div>
-      </div>
+      <div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 
-      <div class="top-bar">
-        <h2>Dashboard Analítico — Região Sul (PR, SC, RS)</h2>
-      </div>
-
-      <!-- STATUS CARDS -->
-      <section class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-label">Municípios</span>
-          <span class="stat-value" id="totalMunicipios">-</span>
+      <!-- ============ 1. PREVISÃO POR MÊS ============ -->
+      <section class="tab-panel active" id="tab-previsao">
+        <div class="top-bar"><h2>Quantos casos em um mês?</h2></div>
+        <div class="form-row">
+          <label>Município
+            <input id="pvCidade" list="listaCidades" placeholder="Digite o nome (ex.: Curitiba)" autocomplete="off">
+          </label>
+          <label>Doença
+            <select id="pvDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
+          </label>
+          <label>Mês
+            <select id="pvMes"></select>
+          </label>
+          <button class="btn-primary" id="pvBotao">Ver resposta</button>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Período Histórico</span>
-          <span class="stat-value" id="periodoDados">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label" id="labelUltimoAno">Casos no último ano</span>
-          <span class="stat-value" id="casosUltimoAno">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Incidência no último ano (por 100 mil)</span>
-          <span class="stat-value" id="incidenciaUltimoAno">-</span>
+        <datalist id="listaCidades"></datalist>
+        <div id="pvResultado" class="result-area"><p class="muted">Escolha um município e um mês.</p></div>
+        <div class="chart-card" id="pvGraficoCard" hidden>
+          <div id="pvGrafico" style="width:100%; height:360px;"></div>
         </div>
       </section>
 
-      <!-- CHARTS -->
-      <section id="chartsGrid" class="charts-grid">
-        
-        <!-- Métricas Principais LOYO -->
-        <div class="chart-card highlight-card" style="margin-bottom: 2rem; background: var(--surface-2); border-left: 4px solid var(--primary);">
-          <div style="display: flex; gap: 2rem; align-items: center; padding: 1rem;">
-            <div>
-              <h3 style="margin: 0; color: var(--text-color); font-size: 1.2rem;">Precisão do Modelo (Expanding Window)</h3>
-              <p style="margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Métricas de validação cruzada do pipeline MLOps</p>
-            </div>
-            <div style="display: flex; gap: 1.5rem;">
-              <div class="metric-badge">
-                <span style="font-weight: 600; color: var(--primary);">R² Médio:</span> <span id="metricR2" style="font-weight: bold;">-</span>
-              </div>
-              <div class="metric-badge">
-                <span style="font-weight: 600; color: var(--primary);">MAE Médio:</span> <span id="metricMAE" style="font-weight: bold;">-</span>
-              </div>
-            </div>
-          </div>
+      <!-- ============ 2. RANKING ============ -->
+      <section class="tab-panel" id="tab-ranking">
+        <div class="top-bar"><h2>Onde o risco está mais alto?</h2></div>
+        <div class="form-row">
+          <label>Doença
+            <select id="rkDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
+          </label>
+          <label>Horizonte
+            <select id="rkH"><option value="1">1 mês</option><option value="2">2 meses</option><option value="3">3 meses</option></select>
+          </label>
+          <label>UF
+            <select id="rkUf"><option value="">Todas</option><option>PR</option><option>SC</option><option>RS</option></select>
+          </label>
+          <label>População mínima
+            <select id="rkPop"><option value="0">Todas</option><option value="10000" selected>10 mil</option>
+              <option value="50000">50 mil</option><option value="100000">100 mil</option></select>
+          </label>
+          <button class="btn-primary" id="rkBotao">Atualizar</button>
         </div>
-
-        <!-- Linha 1 -->
-        <div class="chart-card hero-chart">
-          <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="margin: 0;"></h3>
-            <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">⬇ Baixar PNG</button>
-          </div>
-          <div id="chartBacktest" style="width:100%; height:500px;"></div>
-        </div>
-        
-        <!-- Linha 2: Lado a Lado -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-          <div class="chart-card">
-            <div id="chartSazonal" style="width:100%; height:350px;"></div>
-          </div>
-          <div class="chart-card">
-            <div id="chartHeatmap" style="width:100%; height:350px;"></div>
-          </div>
-        </div>
-
-        <!-- Linha 3 -->
+        <div id="rkResumo" class="result-area"></div>
+        <div class="chart-card"><div id="rkGrafico" style="width:100%; height:520px;"></div></div>
         <div class="chart-card">
-          <div class="chart-header">
-            <h3>Resumo Epidemiológico Anual</h3>
-          </div>
           <div class="table-responsive">
-            <table id="resumoTable" class="data-table">
-              <thead>
-                <tr>
-                  <th>Ano</th>
-                  <th>Casos</th>
-                  <th>Incidência (/100 mil)</th>
-                  <th>Pico mensal</th>
-                  <th>Variação vs ano anterior</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Preenchido via JS -->
-              </tbody>
+            <table class="data-table" id="rkTabela">
+              <thead><tr><th>#</th><th>Município</th><th>UF</th><th>Risco</th><th>Prob. risco alto</th>
+                <th>Casos previstos (IC 90%)</th><th>Último mês</th><th>Incidência /100 mil</th></tr></thead>
+              <tbody></tbody>
             </table>
           </div>
         </div>
       </section>
 
+      <!-- ============ 3. CENÁRIO 5 ANOS ============ -->
+      <section class="tab-panel" id="tab-cenario">
+        <div class="top-bar"><h2>Próximos 5 anos: cenário, não previsão</h2></div>
+        <div class="form-row">
+          <label>Local
+            <input id="ceCidade" list="listaCidadesSul" placeholder="Região Sul ou município" value="Região Sul (PR, SC, RS)" autocomplete="off">
+          </label>
+          <label>Doença
+            <select id="ceDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
+          </label>
+          <fieldset class="seg">
+            <legend>Aquecimento</legend>
+            <label><input type="radio" name="ceDelta" value="0" checked> Clima atual</label>
+            <label><input type="radio" name="ceDelta" value="1"> +1 °C</label>
+            <label><input type="radio" name="ceDelta" value="2"> +2 °C</label>
+          </fieldset>
+          <button class="btn-primary" id="ceBotao">Ver cenário</button>
+        </div>
+        <datalist id="listaCidadesSul"></datalist>
+        <div class="callout">
+          O modelo de previsão depende dos casos dos últimos meses, então só enxerga até 3 meses à frente.
+          Aqui, a faixa sombreada mostra o que <strong>costuma</strong> acontecer em cada mês (80% dos anos
+          observados ficaram dentro dela). O aquecimento aplica o efeito da temperatura estimado pelo DLNM
+          (modelo de efeito defasado) sobre essa faixa.
+        </div>
+        <div class="chart-card"><div id="ceGrafico" style="width:100%; height:460px;"></div></div>
+        <div id="ceAvisos" class="result-area"></div>
+      </section>
+
+      <!-- ============ 4. CONFIABILIDADE ============ -->
+      <section class="tab-panel" id="tab-confiabilidade">
+        <div class="top-bar"><h2>Quão confiável é a previsão?</h2></div>
+        <div class="form-row">
+          <label>Doença
+            <select id="cfDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
+          </label>
+        </div>
+        <div class="callout">
+          Os números abaixo vêm do <strong>teste prospectivo de 2026</strong> (jan–ago): o modelo foi treinado
+          até 2025 e previu meses que nunca tinha visto, uma única vez, com protocolo registrado antes.
+          A comparação é com duas referências: <em>persistência</em> (repetir os casos do último mês conhecido)
+          e o <em>alerta oficial do InfoDengue</em>.
+        </div>
+        <div id="cfResumo" class="cards-3"></div>
+        <div class="chart-card"><div id="cfGrafico" style="width:100%; height:380px;"></div></div>
+        <div class="chart-card">
+          <div class="table-responsive"><table class="data-table" id="cfTabela"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div id="cfAoVivo" class="result-area"></div>
+      </section>
+
+      <!-- ============ 5. HISTÓRICO (painel analítico) ============ -->
+      <section class="tab-panel" id="tab-historico">
+        <div class="top-bar"><h2>Histórico — Região Sul (PR, SC, RS)</h2></div>
+
+        <section class="stats-grid">
+          <div class="stat-card"><span class="stat-label">Municípios</span><span class="stat-value" id="totalMunicipios">-</span></div>
+          <div class="stat-card"><span class="stat-label">Período Histórico</span><span class="stat-value" id="periodoDados">-</span></div>
+          <div class="stat-card"><span class="stat-label" id="labelUltimoAno">Casos no último ano</span><span class="stat-value" id="casosUltimoAno">-</span></div>
+          <div class="stat-card"><span class="stat-label">Incidência no último ano (por 100 mil)</span><span class="stat-value" id="incidenciaUltimoAno">-</span></div>
+        </section>
+
+        <section id="chartsGrid" class="charts-grid">
+          <div class="chart-card highlight-card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent-primary);">
+            <div style="display: flex; gap: 2rem; align-items: center; padding: 1rem; flex-wrap: wrap;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.2rem;">Precisão do modelo do painel (expanding window)</h3>
+                <p style="margin: 0.5rem 0 0; color: var(--text-secondary); font-size: 0.9rem;">Validação fora da amostra do modelo de contagem</p>
+              </div>
+              <div style="display: flex; gap: 1.5rem;">
+                <div class="metric-badge"><span style="font-weight: 600;">R² médio:</span> <span id="metricR2" style="font-weight: bold;">-</span></div>
+                <div class="metric-badge"><span style="font-weight: 600;">MAE médio:</span> <span id="metricMAE" style="font-weight: bold;">-</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card hero-chart">
+            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin: 0;"></h3>
+              <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">⬇ Baixar PNG</button>
+            </div>
+            <div id="chartBacktest" style="width:100%; height:500px;"></div>
+          </div>
+          <div class="grid-2">
+            <div class="chart-card"><div id="chartSazonal" style="width:100%; height:350px;"></div></div>
+            <div class="chart-card"><div id="chartHeatmap" style="width:100%; height:350px;"></div></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><h3>Resumo Epidemiológico Anual</h3></div>
+            <div class="table-responsive">
+              <table id="resumoTable" class="data-table">
+                <thead><tr><th>Ano</th><th>Casos</th><th>Incidência (/100 mil)</th><th>Pico mensal</th><th>Variação vs ano anterior</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
     </main>
   </div>
 
-  <!-- App Modules -->
   <script type="module" src="/static/js/main.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
 </body>
 </html>
