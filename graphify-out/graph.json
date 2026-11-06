@@ -30,6 +30,32 @@
       "source_location": "L151"
     },
     {
+      "id": "src_ml_pipeline_baselines_naivesazonalbaseline",
+      "label": "NaiveSazonalBaseline",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "naivesazonalbaseline",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_persistenciabaseline",
+      "label": "PersistenciaBaseline",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "persistenciabaseline",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L27"
+    },
+    {
       "id": "tests_test_experimento_testfeaturesv5",
       "label": "TestFeaturesV5",
       "_callable": true,
@@ -56,65 +82,13 @@
       "source_location": "L23"
     },
     {
-      "id": "src_ml_pipeline_baselines_persistenciabaseline",
-      "label": "PersistenciaBaseline",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "ml_orchestrator.py",
-      "file_type": "code",
-      "norm_label": "persistenciabaseline",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L27"
-    },
-    {
-      "id": "src_prediction_service_schemas_predictresponse",
-      "label": "PredictResponse",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "predictor.py",
-      "file_type": "code",
-      "norm_label": "predictresponse",
-      "source_file": "src/prediction_service/schemas.py",
-      "source_location": "L26"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmodeltraining",
-      "label": "TestModelTraining",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": "testmodeltraining",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L129"
-    },
-    {
-      "id": "src_ml_pipeline_baselines_naivesazonalbaseline",
-      "label": "NaiveSazonalBaseline",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": "naivesazonalbaseline",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L43"
-    },
-    {
       "id": "tests_test_ml_pipeline_testintegration",
       "label": "TestIntegration",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
       "norm_label": "testintegration",
       "source_file": "tests/test_ml_pipeline.py",
@@ -126,12 +100,51 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
       "norm_label": "testmultidoenca",
       "source_file": "tests/test_ml_pipeline.py",
       "source_location": "L86"
+    },
+    {
+      "id": "src_prediction_service_predictor_cidadenaoencontrada",
+      "label": "CidadeNaoEncontrada",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "predictor.py",
+      "file_type": "code",
+      "norm_label": "cidadenaoencontrada",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L46"
+    },
+    {
+      "id": "tests_test_prediction_service_testintervalo",
+      "label": "TestIntervalo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "test_prediction_service.py",
+      "file_type": "code",
+      "norm_label": "testintervalo",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L40"
+    },
+    {
+      "id": "tests_test_prediction_service_testniveis",
+      "label": "TestNiveis",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "test_prediction_service.py",
+      "file_type": "code",
+      "norm_label": "testniveis",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L34"
     },
     {
       "id": "src_ml_pipeline_teste_final_holdoutjausado",
@@ -173,6 +186,19 @@
       "source_location": "L19"
     },
     {
+      "id": "tests_test_experimento_testsemvazamento",
+      "label": "TestSemVazamento",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "testsemvazamento",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L42"
+    },
+    {
       "id": "tests_test_experimento_testtravaholdout",
       "label": "TestTravaHoldout",
       "_callable": true,
@@ -186,30 +212,17 @@
       "source_location": "L200"
     },
     {
-      "id": "tests_test_prediction_service_testintervalo",
-      "label": "TestIntervalo",
+      "id": "tests_test_ml_pipeline_testmodeltraining",
+      "label": "TestModelTraining",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
       "file_type": "code",
-      "norm_label": "testintervalo",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L40"
-    },
-    {
-      "id": "tests_test_prediction_service_testniveis",
-      "label": "TestNiveis",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "testniveis",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L34"
+      "norm_label": "testmodeltraining",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L129"
     },
     {
       "id": "src_ml_pipeline_baselines_glmbinomialnegativa",
@@ -236,6 +249,19 @@
       "norm_label": "predictrequest",
       "source_file": "src/prediction_service/schemas.py",
       "source_location": "L12"
+    },
+    {
+      "id": "src_prediction_service_schemas_predictresponse",
+      "label": "PredictResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "PredictRequest",
+      "file_type": "code",
+      "norm_label": "predictresponse",
+      "source_file": "src/prediction_service/schemas.py",
+      "source_location": "L26"
     },
     {
       "id": "tests_test_prediction_service_testschemas",
@@ -277,19 +303,6 @@
       "source_location": "L138"
     },
     {
-      "id": "src_prediction_service_predictor_cidadenaoencontrada",
-      "label": "CidadeNaoEncontrada",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": ".prever",
-      "file_type": "code",
-      "norm_label": "cidadenaoencontrada",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L46"
-    },
-    {
       "id": "src_prediction_service_predictor_modeloindisponivel",
       "label": "ModeloIndisponivel",
       "_callable": true,
@@ -300,19 +313,6 @@
       "file_type": "code",
       "norm_label": "modeloindisponivel",
       "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L42"
-    },
-    {
-      "id": "tests_test_experimento_testsemvazamento",
-      "label": "TestSemVazamento",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": "testsemvazamento",
-      "source_file": "tests/test_experimento.py",
       "source_location": "L42"
     },
     {
@@ -621,6 +621,66 @@
       "source_location": "L152"
     },
     {
+      "id": "src_ml_pipeline_baselines_evaluate_baselines",
+      "label": "evaluate_baselines()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "evaluate_baselines()",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L135"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_lag_col_name",
+      "label": "_lag_col_name()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "_lag_col_name()",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_naivesazonalbaseline_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L46"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_persistenciabaseline_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L33"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_anomalia_expanding",
+      "label": "_anomalia_expanding()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "_anomalia_expanding()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L59"
+    },
+    {
       "id": "src_ml_pipeline_feature_engineering_build_ml_features",
       "label": "build_ml_features()",
       "_callable": true,
@@ -631,6 +691,90 @@
       "norm_label": "build_ml_features()",
       "source_file": "src/ml_pipeline/feature_engineering.py",
       "source_location": "L70"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_get_feature_columns",
+      "label": "get_feature_columns()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "get_feature_columns()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L226"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_grupos_de_features",
+      "label": "grupos_de_features()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "grupos_de_features()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L289"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_is_clima_parcimonioso",
+      "label": "is_clima_parcimonioso()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "is_clima_parcimonioso()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L217"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_is_suscetibilidade",
+      "label": "is_suscetibilidade()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "is_suscetibilidade()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L222"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_prefixo_doenca",
+      "label": "_prefixo_doenca()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "_prefixo_doenca()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L196"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_roll_shifted",
+      "label": "_roll_shifted()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "_roll_shifted()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L51"
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator_run_single_disease",
+      "label": "_run_single_disease()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "_run_single_disease()",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L42"
     },
     {
       "id": "tests_test_experimento_testfeaturesv5_test_alerta_infodengue_nunca_e_feature",
@@ -691,6 +835,18 @@
       "norm_label": ".test_suscetibilidade_usa_so_ate_t_menos_h()",
       "source_file": "tests/test_experimento.py",
       "source_location": "L91"
+    },
+    {
+      "id": "tests_test_experimento_testsemvazamento_test_features_respeitam_horizonte",
+      "label": ".test_features_respeitam_horizonte()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": ".test_features_respeitam_horizonte()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L61"
     },
     {
       "id": "tests_test_ml_pipeline_testfeatureengineering_test_forecast_mode_excludes_current_month",
@@ -765,64 +921,184 @@
       "source_location": "L40"
     },
     {
-      "id": "src_ml_pipeline_baselines_evaluate_baselines",
-      "label": "evaluate_baselines()",
+      "id": "tests_test_ml_pipeline_testintegration_test_pipeline_end_to_end",
+      "label": ".test_pipeline_end_to_end()",
       "_callable": true,
       "_origin": "ast",
-      "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
-      "norm_label": "evaluate_baselines()",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L135"
+      "norm_label": ".test_pipeline_end_to_end()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L162"
     },
     {
-      "id": "src_ml_pipeline_baselines_lag_col_name",
-      "label": "_lag_col_name()",
+      "id": "tests_test_ml_pipeline_testmultidoenca_test_baselines_use_correct_lag",
+      "label": ".test_baselines_use_correct_lag()",
       "_callable": true,
       "_origin": "ast",
-      "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
-      "norm_label": "_lag_col_name()",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L21"
+      "norm_label": ".test_baselines_use_correct_lag()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L111"
     },
     {
-      "id": "src_ml_pipeline_baselines_persistenciabaseline_init",
-      "label": ".__init__()",
+      "id": "tests_test_ml_pipeline_testmultidoenca_test_build_features_per_disease",
+      "label": ".test_build_features_per_disease()",
       "_callable": true,
       "_origin": "ast",
-      "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L33"
+      "norm_label": ".test_build_features_per_disease()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L90"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_run_pipeline",
-      "label": "run_pipeline()",
+      "id": "tests_test_ml_pipeline_testmultidoenca_test_chik_lag_exists",
+      "label": ".test_chik_lag_exists()",
       "_callable": true,
       "_origin": "ast",
-      "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community": 1,
+      "community_name": "build_ml_features",
       "file_type": "code",
-      "norm_label": "run_pipeline()",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
-      "source_location": "L172"
+      "norm_label": ".test_chik_lag_exists()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L105"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_run_single_disease",
-      "label": "_run_single_disease()",
+      "id": "tests_test_ml_pipeline_testmultidoenca_test_feature_cols_dont_include_other_target",
+      "label": ".test_feature_cols_dont_include_other_target()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": ".test_feature_cols_dont_include_other_target()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L98"
+    },
+    {
+      "id": "src_ml_pipeline_alerta_risco_benchmark_infodengue",
+      "label": "benchmark_infodengue()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "code",
-      "norm_label": "_run_single_disease()",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
-      "source_location": "L42"
+      "norm_label": "benchmark_infodengue()",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L63"
+    },
+    {
+      "id": "src_ml_pipeline_alerta_risco_niveis_infodengue",
+      "label": "niveis_infodengue()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "niveis_infodengue()",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L52"
+    },
+    {
+      "id": "src_ml_pipeline_alerta_risco_salvar_calibracao",
+      "label": "salvar_calibracao()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "salvar_calibracao()",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L100"
+    },
+    {
+      "id": "src_ml_pipeline_alerta_risco_treinar_modelos_risco",
+      "label": "treinar_modelos_risco()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "treinar_modelos_risco()",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L123"
+    },
+    {
+      "id": "src_ml_pipeline_experimento_horizontes_git_commit",
+      "label": "git_commit()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "git_commit()",
+      "source_file": "src/ml_pipeline/experimento_horizontes.py",
+      "source_location": "L54"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_calibrar_intervalo",
+      "label": "calibrar_intervalo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "calibrar_intervalo()",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L46"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_estatisticas_cidades",
+      "label": "estatisticas_cidades()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "estatisticas_cidades()",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L69"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L176"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_treinar_modelos_finais",
+      "label": "treinar_modelos_finais()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "treinar_modelos_finais()",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L98"
+    },
+    {
+      "id": "tests_test_prediction_service_artefatos",
+      "label": "artefatos()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "artefatos()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L49"
     },
     {
       "id": "src_ml_pipeline_analise_experimento_bootstrap_delta_mae",
@@ -933,6 +1209,18 @@
       "source_location": "L212"
     },
     {
+      "id": "src_ml_pipeline_experimento_horizontes_nome_config",
+      "label": "nome_config()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "analise_experimento.py",
+      "file_type": "code",
+      "norm_label": "nome_config()",
+      "source_file": "src/ml_pipeline/experimento_horizontes.py",
+      "source_location": "L50"
+    },
+    {
       "id": "src_ml_pipeline_feature_engineering_is_climate_feature",
       "label": "is_climate_feature()",
       "_callable": true,
@@ -945,292 +1233,88 @@
       "source_location": "L212"
     },
     {
-      "id": "src_ml_pipeline_model_training_alvo_treino",
-      "label": "alvo_treino()",
+      "id": "app_server_api_modelo_info",
+      "label": "api_modelo_info()",
       "_callable": true,
       "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
+      "community": 14,
+      "community_name": "predictor.py",
       "file_type": "code",
-      "norm_label": "alvo_treino()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L111"
+      "norm_label": "api_modelo_info()",
+      "source_file": "app/server.py",
+      "source_location": "L125"
     },
     {
-      "id": "src_ml_pipeline_model_training_build_base_margin",
-      "label": "_build_base_margin()",
+      "id": "app_server_api_predict",
+      "label": "api_predict()",
       "_callable": true,
       "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
+      "community": 14,
+      "community_name": "predictor.py",
       "file_type": "code",
-      "norm_label": "_build_base_margin()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L103"
+      "norm_label": "api_predict()",
+      "source_file": "app/server.py",
+      "source_location": "L109"
     },
     {
-      "id": "src_ml_pipeline_model_training_fit_predict_fold",
-      "label": "fit_predict_fold()",
+      "id": "src_prediction_service_predictor_get_preditor",
+      "label": "get_preditor()",
       "_callable": true,
       "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
+      "community": 14,
+      "community_name": "predictor.py",
       "file_type": "code",
-      "norm_label": "fit_predict_fold()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L120"
+      "norm_label": "get_preditor()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L184"
     },
     {
-      "id": "tests_test_experimento_testsemvazamento_test_corte_p99_calculado_no_treino",
-      "label": ".test_corte_p99_calculado_no_treino()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "code",
-      "norm_label": ".test_corte_p99_calculado_no_treino()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L49"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_clip_outliers_per_city",
-      "label": "clip_outliers_per_city()",
+      "id": "src_ml_pipeline_alerta_risco_nivel_por_probabilidade",
+      "label": "nivel_por_probabilidade()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
+      "community_name": "test_prediction_service.py",
       "file_type": "code",
-      "norm_label": "clip_outliers_per_city()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L45"
+      "norm_label": "nivel_por_probabilidade()",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L44"
     },
     {
-      "id": "src_ml_pipeline_model_training_expanding_window_splits",
-      "label": "_expanding_window_splits()",
+      "id": "src_prediction_service_predictor_aplicar_intervalo",
+      "label": "aplicar_intervalo()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
+      "community_name": "test_prediction_service.py",
       "file_type": "code",
-      "norm_label": "_expanding_window_splits()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L77"
+      "norm_label": "aplicar_intervalo()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L54"
     },
     {
-      "id": "src_ml_pipeline_model_training_persist_col",
-      "label": "_persist_col()",
+      "id": "tests_test_prediction_service_testintervalo_test_contem_previsao_e_nao_negativo",
+      "label": ".test_contem_previsao_e_nao_negativo()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
+      "community_name": "test_prediction_service.py",
       "file_type": "code",
-      "norm_label": "_persist_col()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L97"
+      "norm_label": ".test_contem_previsao_e_nao_negativo()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L41"
     },
     {
-      "id": "src_ml_pipeline_model_training_safe_mape",
-      "label": "_safe_mape()",
+      "id": "tests_test_prediction_service_testniveis_test_faixas",
+      "label": ".test_faixas()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
+      "community_name": "test_prediction_service.py",
       "file_type": "code",
-      "norm_label": "_safe_mape()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L70"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_train_model",
-      "label": "train_model()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": "train_model()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L142"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmodeltraining_test_clip_per_city",
-      "label": ".test_clip_per_city()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": ".test_clip_per_city()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L130"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmodeltraining_test_expanding_window_splits",
-      "label": ".test_expanding_window_splits()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": ".test_expanding_window_splits()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L143"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_anomalia_expanding",
-      "label": "_anomalia_expanding()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "_anomalia_expanding()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L59"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_get_feature_columns",
-      "label": "get_feature_columns()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "get_feature_columns()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L226"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_grupos_de_features",
-      "label": "grupos_de_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "grupos_de_features()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L289"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_is_clima_parcimonioso",
-      "label": "is_clima_parcimonioso()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "is_clima_parcimonioso()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L217"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_is_suscetibilidade",
-      "label": "is_suscetibilidade()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "is_suscetibilidade()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L222"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_prefixo_doenca",
-      "label": "_prefixo_doenca()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "_prefixo_doenca()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L196"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_roll_shifted",
-      "label": "_roll_shifted()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "_roll_shifted()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L51"
-    },
-    {
-      "id": "src_ml_pipeline_baselines_naivesazonalbaseline_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L46"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testintegration_test_pipeline_end_to_end",
-      "label": ".test_pipeline_end_to_end()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".test_pipeline_end_to_end()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L162"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmultidoenca_test_baselines_use_correct_lag",
-      "label": ".test_baselines_use_correct_lag()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".test_baselines_use_correct_lag()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L111"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmultidoenca_test_build_features_per_disease",
-      "label": ".test_build_features_per_disease()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".test_build_features_per_disease()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L90"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmultidoenca_test_chik_lag_exists",
-      "label": ".test_chik_lag_exists()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".test_chik_lag_exists()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L105"
-    },
-    {
-      "id": "tests_test_ml_pipeline_testmultidoenca_test_feature_cols_dont_include_other_target",
-      "label": ".test_feature_cols_dont_include_other_target()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": ".test_feature_cols_dont_include_other_target()",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L98"
+      "norm_label": ".test_faixas()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L36"
     },
     {
       "id": "main_command_analise",
@@ -1377,52 +1461,64 @@
       "source_location": "L123"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_benchmark_infodengue",
-      "label": "benchmark_infodengue()",
+      "id": "src_analise_efeito_dlnm_main",
+      "label": "main()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "benchmark_infodengue()",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L63"
+      "norm_label": "main()",
+      "source_file": "src/analise_efeito/dlnm.py",
+      "source_location": "L217"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_niveis_infodengue",
-      "label": "niveis_infodengue()",
+      "id": "src_ml_pipeline_data_ingestion_build_base_panel",
+      "label": "build_base_panel()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "niveis_infodengue()",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L52"
+      "norm_label": "build_base_panel()",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
+      "source_location": "L32"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_salvar_calibracao",
-      "label": "salvar_calibracao()",
+      "id": "src_ml_pipeline_data_ingestion_validate_panel",
+      "label": "validate_panel()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "salvar_calibracao()",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L100"
+      "norm_label": "validate_panel()",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
+      "source_location": "L190"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_treinar_modelos_risco",
-      "label": "treinar_modelos_risco()",
+      "id": "src_ml_pipeline_experimento_horizontes_configurar_log",
+      "label": "configurar_log()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "treinar_modelos_risco()",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L123"
+      "norm_label": "configurar_log()",
+      "source_file": "src/ml_pipeline/experimento_horizontes.py",
+      "source_location": "L218"
+    },
+    {
+      "id": "src_ml_pipeline_experimento_horizontes_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/ml_pipeline/experimento_horizontes.py",
+      "source_location": "L202"
     },
     {
       "id": "src_ml_pipeline_experimento_v5_main",
@@ -1437,28 +1533,40 @@
       "source_location": "L221"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_calibrar_intervalo",
-      "label": "calibrar_intervalo()",
+      "id": "src_ml_pipeline_ml_orchestrator_run_pipeline",
+      "label": "run_pipeline()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "calibrar_intervalo()",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L46"
+      "norm_label": "run_pipeline()",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L172"
     },
     {
-      "id": "tests_test_prediction_service_artefatos",
-      "label": "artefatos()",
+      "id": "src_ml_pipeline_teste_final_main",
+      "label": "main()",
       "_callable": true,
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "artefatos()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L49"
+      "norm_label": "main()",
+      "source_file": "src/ml_pipeline/teste_final.py",
+      "source_location": "L162"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L188"
     },
     {
       "id": "app_static_js_api_fetchresultados",
@@ -1605,54 +1713,6 @@
       "source_location": "L12"
     },
     {
-      "id": "src_ml_pipeline_data_ingestion_build_base_panel",
-      "label": "build_base_panel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "build_base_panel()",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L32"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_validate_panel",
-      "label": "validate_panel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "validate_panel()",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L190"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_horizontes_configurar_log",
-      "label": "configurar_log()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "configurar_log()",
-      "source_file": "src/ml_pipeline/experimento_horizontes.py",
-      "source_location": "L218"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_horizontes_git_commit",
-      "label": "git_commit()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "git_commit()",
-      "source_file": "src/ml_pipeline/experimento_horizontes.py",
-      "source_location": "L54"
-    },
-    {
       "id": "src_ml_pipeline_experimento_horizontes_linha",
       "label": "_linha()",
       "_callable": true,
@@ -1665,18 +1725,6 @@
       "source_location": "L114"
     },
     {
-      "id": "src_ml_pipeline_experimento_horizontes_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/ml_pipeline/experimento_horizontes.py",
-      "source_location": "L202"
-    },
-    {
       "id": "src_ml_pipeline_experimento_horizontes_metricas_de_oof",
       "label": "metricas_de_oof()",
       "_callable": true,
@@ -1687,18 +1735,6 @@
       "norm_label": "metricas_de_oof()",
       "source_file": "src/ml_pipeline/experimento_horizontes.py",
       "source_location": "L125"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_horizontes_nome_config",
-      "label": "nome_config()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "nome_config()",
-      "source_file": "src/ml_pipeline/experimento_horizontes.py",
-      "source_location": "L50"
     },
     {
       "id": "src_ml_pipeline_experimento_horizontes_preparar_dados",
@@ -1761,40 +1797,112 @@
       "source_location": "L31"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_estatisticas_cidades",
-      "label": "estatisticas_cidades()",
+      "id": "src_ml_pipeline_model_training_alvo_treino",
+      "label": "alvo_treino()",
       "_callable": true,
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "code",
-      "norm_label": "estatisticas_cidades()",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L69"
+      "norm_label": "alvo_treino()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L111"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_main",
-      "label": "main()",
+      "id": "src_ml_pipeline_model_training_build_base_margin",
+      "label": "_build_base_margin()",
       "_callable": true,
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L176"
+      "norm_label": "_build_base_margin()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L103"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_treinar_modelos_finais",
-      "label": "treinar_modelos_finais()",
+      "id": "src_ml_pipeline_model_training_clip_outliers_per_city",
+      "label": "clip_outliers_per_city()",
       "_callable": true,
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "code",
-      "norm_label": "treinar_modelos_finais()",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L98"
+      "norm_label": "clip_outliers_per_city()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L45"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_expanding_window_splits",
+      "label": "_expanding_window_splits()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "_expanding_window_splits()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L77"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_fit_predict_fold",
+      "label": "fit_predict_fold()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "fit_predict_fold()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L120"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_limiares_por_cidade",
+      "label": "limiares_por_cidade()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "limiares_por_cidade()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L55"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_persist_col",
+      "label": "_persist_col()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "_persist_col()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L97"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_safe_mape",
+      "label": "_safe_mape()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "_safe_mape()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L70"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_train_model",
+      "label": "train_model()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "train_model()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L142"
     },
     {
       "id": "src_ml_pipeline_teste_final_avaliar_2025",
@@ -1819,18 +1927,6 @@
       "norm_label": "carregar_config()",
       "source_file": "src/ml_pipeline/teste_final.py",
       "source_location": "L43"
-    },
-    {
-      "id": "src_ml_pipeline_teste_final_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/ml_pipeline/teste_final.py",
-      "source_location": "L162"
     },
     {
       "id": "src_ml_pipeline_teste_final_markdown",
@@ -1905,6 +2001,54 @@
       "source_location": "L28"
     },
     {
+      "id": "tests_test_experimento_testsemvazamento_test_corte_p99_calculado_no_treino",
+      "label": ".test_corte_p99_calculado_no_treino()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_corte_p99_calculado_no_treino()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L49"
+    },
+    {
+      "id": "tests_test_experimento_testsemvazamento_test_holdout_fora_dos_folds",
+      "label": ".test_holdout_fora_dos_folds()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_holdout_fora_dos_folds()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L55"
+    },
+    {
+      "id": "tests_test_experimento_testsemvazamento_test_limiares_usam_so_o_treino",
+      "label": ".test_limiares_usam_so_o_treino()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_limiares_usam_so_o_treino()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "tests_test_experimento_testsemvazamento_test_sem_clima_remove_todas_as_climaticas",
+      "label": ".test_sem_clima_remove_todas_as_climaticas()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_sem_clima_remove_todas_as_climaticas()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L67"
+    },
+    {
       "id": "tests_test_experimento_testtravaholdout_test_trava_impede_reuso",
       "label": ".test_trava_impede_reuso()",
       "_callable": true,
@@ -1915,6 +2059,30 @@
       "norm_label": ".test_trava_impede_reuso()",
       "source_file": "tests/test_experimento.py",
       "source_location": "L201"
+    },
+    {
+      "id": "tests_test_ml_pipeline_testmodeltraining_test_clip_per_city",
+      "label": ".test_clip_per_city()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_clip_per_city()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L130"
+    },
+    {
+      "id": "tests_test_ml_pipeline_testmodeltraining_test_expanding_window_splits",
+      "label": ".test_expanding_window_splits()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": ".test_expanding_window_splits()",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L143"
     },
     {
       "id": "src_ml_pipeline_interpretability_compute_shap_values",
@@ -1989,24 +2157,12 @@
       "source_location": "L58"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_nivel_por_probabilidade",
-      "label": "nivel_por_probabilidade()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "nivel_por_probabilidade()",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L44"
-    },
-    {
       "id": "src_prediction_service_data_fetcher_fontedados_com_linhas_futuras",
       "label": "._com_linhas_futuras()",
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": "._com_linhas_futuras()",
       "source_file": "src/prediction_service/data_fetcher.py",
@@ -2018,11 +2174,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": ".features_previsao()",
       "source_file": "src/prediction_service/data_fetcher.py",
       "source_location": "L116"
+    },
+    {
+      "id": "src_prediction_service_data_fetcher_fontedados_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "data_fetcher.py",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "src/prediction_service/data_fetcher.py",
+      "source_location": "L52"
     },
     {
       "id": "src_prediction_service_data_fetcher_fontedados_panel",
@@ -2030,7 +2198,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": ".panel()",
       "source_file": "src/prediction_service/data_fetcher.py",
@@ -2042,23 +2210,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": "remover_meses_nao_consolidados()",
       "source_file": "src/prediction_service/data_fetcher.py",
       "source_location": "L36"
-    },
-    {
-      "id": "src_prediction_service_predictor_aplicar_intervalo",
-      "label": "aplicar_intervalo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "aplicar_intervalo()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L54"
     },
     {
       "id": "tests_test_prediction_service_test_remove_meses_nao_consolidados",
@@ -2066,35 +2222,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": "test_remove_meses_nao_consolidados()",
       "source_file": "tests/test_prediction_service.py",
       "source_location": "L108"
-    },
-    {
-      "id": "tests_test_prediction_service_testintervalo_test_contem_previsao_e_nao_negativo",
-      "label": ".test_contem_previsao_e_nao_negativo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": ".test_contem_previsao_e_nao_negativo()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L41"
-    },
-    {
-      "id": "tests_test_prediction_service_testniveis_test_faixas",
-      "label": ".test_faixas()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": ".test_faixas()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L36"
     },
     {
       "id": "src_ml_pipeline_baselines_glmbinomialnegativa_fit",
@@ -2205,18 +2337,6 @@
       "source_location": "L29"
     },
     {
-      "id": "src_ml_pipeline_model_training_limiares_por_cidade",
-      "label": "limiares_por_cidade()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "code",
-      "norm_label": "limiares_por_cidade()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L55"
-    },
-    {
       "id": "src_ml_pipeline_teste_prospectivo_avaliar",
       "label": "avaliar()",
       "_callable": true,
@@ -2227,18 +2347,6 @@
       "norm_label": "avaliar()",
       "source_file": "src/ml_pipeline/teste_prospectivo.py",
       "source_location": "L70"
-    },
-    {
-      "id": "src_ml_pipeline_teste_prospectivo_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L188"
     },
     {
       "id": "src_ml_pipeline_teste_prospectivo_markdown",
@@ -2311,18 +2419,6 @@
       "norm_label": ".test_exige_confirmacao_e_trava()",
       "source_file": "tests/test_prediction_service.py",
       "source_location": "L139"
-    },
-    {
-      "id": "app_server_api_predict",
-      "label": "api_predict()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": ".prever",
-      "file_type": "code",
-      "norm_label": "api_predict()",
-      "source_file": "app/server.py",
-      "source_location": "L109"
     },
     {
       "id": "src_prediction_service_predictor_fmt_mes",
@@ -2457,18 +2553,6 @@
       "source_location": "L76"
     },
     {
-      "id": "app_server_api_modelo_info",
-      "label": "api_modelo_info()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "api_modelo_info()",
-      "source_file": "app/server.py",
-      "source_location": "L125"
-    },
-    {
       "id": "app_server_api_resultados",
       "label": "api_resultados()",
       "_callable": true,
@@ -2553,18 +2637,6 @@
       "source_location": "L33"
     },
     {
-      "id": "src_prediction_service_predictor_get_preditor",
-      "label": "get_preditor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "get_preditor()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L184"
-    },
-    {
       "id": "src_ml_pipeline_export_dashboard_clean",
       "label": "_clean()",
       "_callable": true,
@@ -2647,54 +2719,6 @@
       "norm_label": "mini_panel()",
       "source_file": "tests/conftest.py",
       "source_location": "L11"
-    },
-    {
-      "id": "tests_test_experimento_testsemvazamento_test_features_respeitam_horizonte",
-      "label": ".test_features_respeitam_horizonte()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": ".test_features_respeitam_horizonte()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L61"
-    },
-    {
-      "id": "tests_test_experimento_testsemvazamento_test_holdout_fora_dos_folds",
-      "label": ".test_holdout_fora_dos_folds()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": ".test_holdout_fora_dos_folds()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L55"
-    },
-    {
-      "id": "tests_test_experimento_testsemvazamento_test_limiares_usam_so_o_treino",
-      "label": ".test_limiares_usam_so_o_treino()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": ".test_limiares_usam_so_o_treino()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L43"
-    },
-    {
-      "id": "tests_test_experimento_testsemvazamento_test_sem_clima_remove_todas_as_climaticas",
-      "label": ".test_sem_clima_remove_todas_as_climaticas()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": ".test_sem_clima_remove_todas_as_climaticas()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L67"
     },
     {
       "id": "src_prediction_service_risk_classifier_classificar_risco",
@@ -2851,18 +2875,6 @@
       "norm_label": "cross_basis()",
       "source_file": "src/analise_efeito/dlnm.py",
       "source_location": "L68"
-    },
-    {
-      "id": "src_analise_efeito_dlnm_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "dlnm.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/analise_efeito/dlnm.py",
-      "source_location": "L217"
     },
     {
       "id": "src_analise_efeito_dlnm_plotar",
@@ -3189,18 +3201,6 @@
       "source_location": "L85"
     },
     {
-      "id": "src_prediction_service_data_fetcher_fontedados_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "Preditor",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L52"
-    },
-    {
       "id": "src_prediction_service_data_fetcher_fontedados_recarregar",
       "label": ".recarregar()",
       "_callable": true,
@@ -3508,6 +3508,226 @@
       "source_location": "L91"
     },
     {
+      "id": "src_ml_pipeline_baselines",
+      "label": "baselines.py",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "baselines.py",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering",
+      "label": "feature_engineering.py",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "feature_engineering.py",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_py_dataframe",
+      "label": "DataFrame",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "dataframe",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_py_series",
+      "label": "Series",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "series",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator",
+      "label": "ml_orchestrator.py",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "ml_orchestrator.py",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator_py_dataframe",
+      "label": "DataFrame",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "dataframe",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "tests_test_experimento_py_parametrize",
+      "label": "parametrize",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "parametrize",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "tests_test_ml_pipeline",
+      "label": "test_ml_pipeline.py",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "test_ml_pipeline.py",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_ml_pipeline_py_parametrize",
+      "label": "parametrize",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "code",
+      "norm_label": "parametrize",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_baselines_rationale_1",
+      "label": "Modelos de baseline para compara\u00e7\u00e3o com o XGBoost (multi-doen\u00e7a). Todos usam a\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "modelos de baseline para comparacao com o xgboost (multi-doenca). todos usam a...",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_rationale_139",
+      "label": "Avalia persist\u00eancia, naive sazonal e GLM NB com Expanding Window. Retorna lista\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "avalia persistencia, naive sazonal e glm nb com expanding window. retorna lista...",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L139"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_rationale_22",
+      "label": "Constr\u00f3i o nome da coluna de lag para a doen\u00e7a-alvo.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "constroi o nome da coluna de lag para a doenca-alvo.",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_rationale_28",
+      "label": "Prever = \u00faltimo valor conhecido no momento da previs\u00e3o (<doen\u00e7a>_lag<h>). No\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "prever = ultimo valor conhecido no momento da previsao (<doenca>_lag<h>). no...",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L28"
+    },
+    {
+      "id": "src_ml_pipeline_baselines_rationale_44",
+      "label": "Prever = mesmo m\u00eas do ano anterior (<doen\u00e7a>_lag12).",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "prever = mesmo mes do ano anterior (<doenca>_lag12).",
+      "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L44"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_1",
+      "label": "M\u00f3dulo de Feature Engineering v4 (multi-doen\u00e7a, multi-horizonte). Princ\u00edpios: -\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "modulo de feature engineering v4 (multi-doenca, multi-horizonte). principios: -...",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_218",
+      "label": "Conjunto clim\u00e1tico a priori do protocolo v5: s\u00f3 temp m\u00e9dia e precipita\u00e7\u00e3o\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "conjunto climatico a priori do protocolo v5: so temp media e precipitacao...",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L218"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_234",
+      "label": "Features do Modelo A (previs\u00e3o). - Inclui toda a mem\u00f3ria epid\u00eamica da doen\u00e7a-\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "features do modelo a (previsao). - inclui toda a memoria epidemica da doenca-...",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L234"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_290",
+      "label": "Grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L290"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_52",
+      "label": "Rolling por cidade aplicado sobre a s\u00e9rie j\u00e1 deslocada (nunca inclui\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "rolling por cidade aplicado sobre a serie ja deslocada (nunca inclui...",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L52"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_rationale_60",
+      "label": "Anomalia = valor - m\u00e9dia do MESMO m\u00eas nos anos ANTERIORES da mesma cidade.\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "anomalia = valor - media do mesmo mes nos anos anteriores da mesma cidade....",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L60"
+    },
+    {
       "id": "src_ml_pipeline_feature_engineering_rationale_71",
       "label": "Constr\u00f3i as features a partir do painel base. Args: panel: sa\u00edda de\u2026",
       "_origin": "ast",
@@ -3517,6 +3737,72 @@
       "norm_label": "constroi as features a partir do painel base. args: panel: saida de...",
       "source_file": "src/ml_pipeline/feature_engineering.py",
       "source_location": "L71"
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator_rationale_1",
+      "label": "Orquestrador MLOps principal v4 (multi-doen\u00e7a). Acopla ingest\u00e3o, valida\u00e7\u00e3o,\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "orquestrador mlops principal v4 (multi-doenca). acopla ingestao, validacao,...",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator_rationale_49",
+      "label": "Executa o pipeline para uma doen\u00e7a espec\u00edfica.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "executa o pipeline para uma doenca especifica.",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L49"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_1",
+      "label": "Testes unit\u00e1rios para o pipeline ML v4 (multi-doen\u00e7a). Testa a feature\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "testes unitarios para o pipeline ml v4 (multi-doenca). testa a feature...",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_106",
+      "label": "Verifica que os lags de chikungunya s\u00e3o criados quando solicitado.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "verifica que os lags de chikungunya sao criados quando solicitado.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L106"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_112",
+      "label": "Os baselines de persist\u00eancia usam o lag da doen\u00e7a correta.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "os baselines de persistencia usam o lag da doenca correta.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L112"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_163",
+      "label": "Testa o fluxo completo: features \u2192 treino \u2192 predi\u00e7\u00e3o, por doen\u00e7a.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "testa o fluxo completo: features \u2192 treino \u2192 predicao, por doenca.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L163"
     },
     {
       "id": "tests_test_ml_pipeline_rationale_25",
@@ -3585,125 +3871,224 @@
       "source_location": "L73"
     },
     {
-      "id": "src_ml_pipeline_baselines",
-      "label": "baselines.py",
+      "id": "tests_test_ml_pipeline_rationale_87",
+      "label": "Testa que o pipeline funciona para cada doen\u00e7a suportada.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "testa que o pipeline funciona para cada doenca suportada.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L87"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_91",
+      "label": "build_ml_features roda sem erro para cada doen\u00e7a.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "build_ml_features roda sem erro para cada doenca.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L91"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_99",
+      "label": "Features de uma doen\u00e7a N\u00c3O devem incluir a coluna-alvo de outra.",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "build_ml_features",
+      "file_type": "rationale",
+      "norm_label": "features de uma doenca nao devem incluir a coluna-alvo de outra.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L99"
+    },
+    {
+      "id": "src_config",
+      "label": "config.py",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "code",
-      "norm_label": "baselines.py",
-      "source_file": "src/ml_pipeline/baselines.py",
+      "norm_label": "config.py",
+      "source_file": "src/config.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator",
-      "label": "ml_orchestrator.py",
+      "id": "src_ml_pipeline_alerta_risco",
+      "label": "alerta_risco.py",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "code",
-      "norm_label": "ml_orchestrator.py",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "norm_label": "alerta_risco.py",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_py_dataframe",
+      "id": "src_ml_pipeline_alerta_risco_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "code",
       "norm_label": "dataframe",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_py_path",
+      "id": "src_ml_pipeline_alerta_risco_py_path",
       "label": "Path",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "code",
       "norm_label": "path",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_baselines_rationale_1",
-      "label": "Modelos de baseline para compara\u00e7\u00e3o com o XGBoost (multi-doen\u00e7a). Todos usam a\u2026",
+      "id": "src_ml_pipeline_modelo_final",
+      "label": "modelo_final.py",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
-      "file_type": "rationale",
-      "norm_label": "modelos de baseline para comparacao com o xgboost (multi-doenca). todos usam a...",
-      "source_file": "src/ml_pipeline/baselines.py",
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "modelo_final.py",
+      "source_file": "src/ml_pipeline/modelo_final.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_baselines_rationale_139",
-      "label": "Avalia persist\u00eancia, naive sazonal e GLM NB com Expanding Window. Retorna lista\u2026",
+      "id": "src_ml_pipeline_modelo_final_py_dataframe",
+      "label": "DataFrame",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
-      "file_type": "rationale",
-      "norm_label": "avalia persistencia, naive sazonal e glm nb com expanding window. retorna lista...",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L139"
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "dataframe",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_baselines_rationale_22",
-      "label": "Constr\u00f3i o nome da coluna de lag para a doen\u00e7a-alvo.",
+      "id": "src_ml_pipeline_modelo_final_py_ndarray",
+      "label": "ndarray",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
-      "file_type": "rationale",
-      "norm_label": "constroi o nome da coluna de lag para a doenca-alvo.",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L22"
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "ndarray",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_baselines_rationale_28",
-      "label": "Prever = \u00faltimo valor conhecido no momento da previs\u00e3o (<doen\u00e7a>_lag<h>). No\u2026",
+      "id": "src_ml_pipeline_modelo_final_py_path",
+      "label": "Path",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
-      "file_type": "rationale",
-      "norm_label": "prever = ultimo valor conhecido no momento da previsao (<doenca>_lag<h>). no...",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L28"
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_rationale_1",
-      "label": "Orquestrador MLOps principal v4 (multi-doen\u00e7a). Acopla ingest\u00e3o, valida\u00e7\u00e3o,\u2026",
+      "id": "tests_test_prediction_service_py_fixture",
+      "label": "fixture",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
+      "file_type": "code",
+      "norm_label": "fixture",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_config_rationale_1",
+      "label": "Caminhos e constantes do projeto. Nenhum efeito colateral al\u00e9m de criar os\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
       "file_type": "rationale",
-      "norm_label": "orquestrador mlops principal v4 (multi-doenca). acopla ingestao, validacao,...",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "norm_label": "caminhos e constantes do projeto. nenhum efeito colateral alem de criar os...",
+      "source_file": "src/config.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_rationale_177",
-      "label": "Executa o pipeline completo de ML (hiperpar\u00e2metros fixos, sem tunagem). Args:\u2026",
+      "id": "src_ml_pipeline_alerta_risco_rationale_1",
+      "label": "Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():\u2026",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "rationale",
-      "norm_label": "executa o pipeline completo de ml (hiperparametros fixos, sem tunagem). args:...",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
-      "source_location": "L177"
+      "norm_label": "produto v5: alerta de risco (docs/protocolo_v5.md). 1. benchmark_infodengue():...",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_ml_orchestrator_rationale_49",
-      "label": "Executa o pipeline para uma doen\u00e7a espec\u00edfica.",
+      "id": "src_ml_pipeline_alerta_risco_rationale_101",
+      "label": "Curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, OOF\u2026",
       "_origin": "ast",
       "community": 10,
-      "community_name": "ml_orchestrator.py",
+      "community_name": "alerta_risco.py",
       "file_type": "rationale",
-      "norm_label": "executa o pipeline para uma doenca especifica.",
-      "source_file": "src/ml_pipeline/ml_orchestrator.py",
-      "source_location": "L49"
+      "norm_label": "curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, oof...",
+      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "source_location": "L101"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_rationale_1",
+      "label": "Fase 4.1 \u2014 Modelo final para produ\u00e7\u00e3o (docs/PLANO_EXPERIMENTO_FINAL.md).\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "rationale",
+      "norm_label": "fase 4.1 \u2014 modelo final para producao (docs/plano_experimento_final.md)....",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_rationale_105",
+      "label": "Treina e salva os modelos de produ\u00e7\u00e3o. Retorna {doenca: metadata}.",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "rationale",
+      "norm_label": "treina e salva os modelos de producao. retorna {doenca: metadata}.",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L105"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_rationale_47",
+      "label": "Quantis do res\u00edduo log1p por faixa de valor previsto. Bordas por quantil de\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "rationale",
+      "norm_label": "quantis do residuo log1p por faixa de valor previsto. bordas por quantil de...",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L47"
+    },
+    {
+      "id": "src_ml_pipeline_modelo_final_rationale_70",
+      "label": "Nome, limiares de risco (hist\u00f3rico completo) e R\u00b2 OOF por horizonte para cada\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "rationale",
+      "norm_label": "nome, limiares de risco (historico completo) e r2 oof por horizonte para cada...",
+      "source_file": "src/ml_pipeline/modelo_final.py",
+      "source_location": "L70"
+    },
+    {
+      "id": "tests_test_prediction_service_rationale_50",
+      "label": "Experimento v5 + modelos de risco no painel sint\u00e9tico (com clima e\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "alerta_risco.py",
+      "file_type": "rationale",
+      "norm_label": "experimento v5 + modelos de risco no painel sintetico (com clima e...",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L50"
     },
     {
       "id": "src_ml_pipeline_analise_experimento",
@@ -3735,28 +4120,6 @@
       "community_name": "analise_experimento.py",
       "file_type": "code",
       "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_model_training_py_dataframe",
-      "label": "DataFrame",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "code",
-      "norm_label": "dataframe",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_model_training_py_ndarray",
-      "label": "ndarray",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "code",
-      "norm_label": "ndarray",
       "source_file": "",
       "source_location": ""
     },
@@ -3825,39 +4188,6 @@
       "norm_label": "true se a feature e derivada de variaveis climaticas/enso.",
       "source_file": "src/ml_pipeline/feature_engineering.py",
       "source_location": "L213"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_104",
-      "label": "Offset = log(pop / 100.000) para modelar incid\u00eancia, n\u00e3o contagem bruta.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "rationale",
-      "norm_label": "offset = log(pop / 100.000) para modelar incidencia, nao contagem bruta.",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L104"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_112",
-      "label": "Alvo de treino, com corte P<clip_percentile> por cidade calculado no pr\u00f3prio\u2026",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "rationale",
-      "norm_label": "alvo de treino, com corte p<clip_percentile> por cidade calculado no proprio...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L112"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_129",
-      "label": "Treina um XGBoost Poisson em df_train e prev\u00ea df_test. Retorna (modelo,\u2026",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "analise_experimento.py",
-      "file_type": "rationale",
-      "norm_label": "treina um xgboost poisson em df_train e preve df_test. retorna (modelo,...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L129"
     },
     {
       "id": "docs_plano_v5_limpeza_publicavel",
@@ -4027,13 +4357,24 @@
       "source_location": "L1"
     },
     {
-      "id": "basemodel",
-      "label": "BaseModel",
+      "id": "lookuperror",
+      "label": "LookupError",
       "_origin": "ast",
       "community": 14,
       "community_name": "predictor.py",
       "file_type": "code",
-      "norm_label": "basemodel",
+      "norm_label": "lookuperror",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "post",
+      "label": "post",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "predictor.py",
+      "file_type": "code",
+      "norm_label": "post",
       "source_file": "",
       "source_location": ""
     },
@@ -4060,15 +4401,26 @@
       "source_location": "L1"
     },
     {
-      "id": "src_prediction_service_schemas",
-      "label": "schemas.py",
+      "id": "app_server_rationale_110",
+      "label": "Previs\u00e3o de casos para um munic\u00edpio, doen\u00e7a e horizonte (1\u20133 meses). Rota\u2026",
       "_origin": "ast",
       "community": 14,
       "community_name": "predictor.py",
-      "file_type": "code",
-      "norm_label": "schemas.py",
-      "source_file": "src/prediction_service/schemas.py",
-      "source_location": "L1"
+      "file_type": "rationale",
+      "norm_label": "previsao de casos para um municipio, doenca e horizonte (1\u20133 meses). rota...",
+      "source_file": "app/server.py",
+      "source_location": "L110"
+    },
+    {
+      "id": "app_server_rationale_126",
+      "label": "Resumo dos modelos de produ\u00e7\u00e3o carregados (config, m\u00e9tricas, data de retreino).",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "predictor.py",
+      "file_type": "rationale",
+      "norm_label": "resumo dos modelos de producao carregados (config, metricas, data de retreino).",
+      "source_file": "app/server.py",
+      "source_location": "L126"
     },
     {
       "id": "src_prediction_service_init_rationale_1",
@@ -4093,17 +4445,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_prediction_service_schemas_rationale_1",
-      "label": "Schemas Pydantic de entrada e sa\u00edda da API de previs\u00e3o (v5: alerta de risco).",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "predictor.py",
-      "file_type": "rationale",
-      "norm_label": "schemas pydantic de entrada e saida da api de previsao (v5: alerta de risco).",
-      "source_file": "src/prediction_service/schemas.py",
-      "source_location": "L1"
-    },
-    {
       "id": "src_ml_pipeline_init",
       "label": "ml_pipeline/__init__.py",
       "_origin": "ast",
@@ -4115,323 +4456,37 @@
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_model_training",
-      "label": "model_training.py",
+      "id": "tests_test_prediction_service",
+      "label": "test_prediction_service.py",
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
+      "community_name": "test_prediction_service.py",
       "file_type": "code",
-      "norm_label": "model_training.py",
-      "source_file": "src/ml_pipeline/model_training.py",
+      "norm_label": "test_prediction_service.py",
+      "source_file": "tests/test_prediction_service.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_model_training_py_path",
-      "label": "Path",
+      "id": "src_prediction_service_predictor_rationale_55",
+      "label": "Intervalo de 90% a partir dos quantis de res\u00edduo log1p calibrados no OOF.",
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
+      "community_name": "test_prediction_service.py",
+      "file_type": "rationale",
+      "norm_label": "intervalo de 90% a partir dos quantis de residuo log1p calibrados no oof.",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L55"
     },
     {
-      "id": "src_ml_pipeline_model_training_py_series",
-      "label": "Series",
+      "id": "tests_test_prediction_service_rationale_1",
+      "label": "Testes do servi\u00e7o de previs\u00e3o v5 (alerta de risco): schemas, n\u00edveis, intervalo,\u2026",
       "_origin": "ast",
       "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": "series",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "tests_test_ml_pipeline",
-      "label": "test_ml_pipeline.py",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "code",
-      "norm_label": "test_ml_pipeline.py",
-      "source_file": "tests/test_ml_pipeline.py",
+      "community_name": "test_prediction_service.py",
+      "file_type": "rationale",
+      "norm_label": "testes do servico de previsao v5 (alerta de risco): schemas, niveis, intervalo,...",
+      "source_file": "tests/test_prediction_service.py",
       "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_1",
-      "label": "M\u00f3dulo de treinamento do motor de ML v4 (multi-doen\u00e7a, multi-horizonte). Isola\u2026",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "modulo de treinamento do motor de ml v4 (multi-doenca, multi-horizonte). isola...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_153",
-      "label": "Treina o modelo XGBoost Poisson com Expanding Window CV. Par\u00e2metros: df \u2014\u2026",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "treina o modelo xgboost poisson com expanding window cv. parametros: df \u2014...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L153"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_46",
-      "label": "Clipping P<percentile> **por cidade** usando o pr\u00f3prio df como refer\u00eancia.\u2026",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "clipping p<percentile> **por cidade** usando o proprio df como referencia....",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L46"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_78",
-      "label": "Gera splits Expanding Window (Walk Forward): Treina em anos < t, testa no ano\u2026",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "gera splits expanding window (walk forward): treina em anos < t, testa no ano...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L78"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_98",
-      "label": "Coluna do \u00faltimo valor conhecido no horizonte h (<prefixo>_lag<h>).",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "coluna do ultimo valor conhecido no horizonte h (<prefixo>_lag<h>).",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L98"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_1",
-      "label": "Testes unit\u00e1rios para o pipeline ML v4 (multi-doen\u00e7a). Testa a feature\u2026",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "testes unitarios para o pipeline ml v4 (multi-doenca). testa a feature...",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_131",
-      "label": "Garante que clipping \u00e9 por cidade e n\u00e3o global.",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "garante que clipping e por cidade e nao global.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L131"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_144",
-      "label": "Verifica que EW gera splits corretos.",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "model_training.py",
-      "file_type": "rationale",
-      "norm_label": "verifica que ew gera splits corretos.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L144"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering",
-      "label": "feature_engineering.py",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "feature_engineering.py",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_py_dataframe",
-      "label": "DataFrame",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "dataframe",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_py_series",
-      "label": "Series",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "code",
-      "norm_label": "series",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_1",
-      "label": "M\u00f3dulo de Feature Engineering v4 (multi-doen\u00e7a, multi-horizonte). Princ\u00edpios: -\u2026",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "modulo de feature engineering v4 (multi-doenca, multi-horizonte). principios: -...",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_218",
-      "label": "Conjunto clim\u00e1tico a priori do protocolo v5: s\u00f3 temp m\u00e9dia e precipita\u00e7\u00e3o\u2026",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "conjunto climatico a priori do protocolo v5: so temp media e precipitacao...",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L218"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_234",
-      "label": "Features do Modelo A (previs\u00e3o). - Inclui toda a mem\u00f3ria epid\u00eamica da doen\u00e7a-\u2026",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "features do modelo a (previsao). - inclui toda a memoria epidemica da doenca-...",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L234"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_290",
-      "label": "Grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L290"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_52",
-      "label": "Rolling por cidade aplicado sobre a s\u00e9rie j\u00e1 deslocada (nunca inclui\u2026",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "rolling por cidade aplicado sobre a serie ja deslocada (nunca inclui...",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L52"
-    },
-    {
-      "id": "src_ml_pipeline_feature_engineering_rationale_60",
-      "label": "Anomalia = valor - m\u00e9dia do MESMO m\u00eas nos anos ANTERIORES da mesma cidade.\u2026",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "get_feature_columns",
-      "file_type": "rationale",
-      "norm_label": "anomalia = valor - media do mesmo mes nos anos anteriores da mesma cidade....",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L60"
-    },
-    {
-      "id": "tests_test_ml_pipeline_py_parametrize",
-      "label": "parametrize",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "code",
-      "norm_label": "parametrize",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_baselines_rationale_44",
-      "label": "Prever = mesmo m\u00eas do ano anterior (<doen\u00e7a>_lag12).",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "prever = mesmo mes do ano anterior (<doenca>_lag12).",
-      "source_file": "src/ml_pipeline/baselines.py",
-      "source_location": "L44"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_106",
-      "label": "Verifica que os lags de chikungunya s\u00e3o criados quando solicitado.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "verifica que os lags de chikungunya sao criados quando solicitado.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L106"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_112",
-      "label": "Os baselines de persist\u00eancia usam o lag da doen\u00e7a correta.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "os baselines de persistencia usam o lag da doenca correta.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L112"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_163",
-      "label": "Testa o fluxo completo: features \u2192 treino \u2192 predi\u00e7\u00e3o, por doen\u00e7a.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "testa o fluxo completo: features \u2192 treino \u2192 predicao, por doenca.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L163"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_87",
-      "label": "Testa que o pipeline funciona para cada doen\u00e7a suportada.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "testa que o pipeline funciona para cada doenca suportada.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L87"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_91",
-      "label": "build_ml_features roda sem erro para cada doen\u00e7a.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "build_ml_features roda sem erro para cada doenca.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L91"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_99",
-      "label": "Features de uma doen\u00e7a N\u00c3O devem incluir a coluna-alvo de outra.",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "NaiveSazonalBaseline",
-      "file_type": "rationale",
-      "norm_label": "features de uma doenca nao devem incluir a coluna-alvo de outra.",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L99"
     },
     {
       "id": "main",
@@ -4445,18 +4500,18 @@
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco",
-      "label": "alerta_risco.py",
+      "id": "src_ml_pipeline_data_ingestion",
+      "label": "data_ingestion.py",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "alerta_risco.py",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "norm_label": "data_ingestion.py",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_py_dataframe",
+      "id": "src_ml_pipeline_data_ingestion_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
       "community": 19,
@@ -4467,7 +4522,7 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_py_path",
+      "id": "src_ml_pipeline_data_ingestion_py_path",
       "label": "Path",
       "_origin": "ast",
       "community": 19,
@@ -4478,24 +4533,13 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_modelo_final_py_ndarray",
-      "label": "ndarray",
+      "id": "src_ml_pipeline_ml_orchestrator_py_path",
+      "label": "Path",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "ndarray",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "tests_test_prediction_service_py_fixture",
-      "label": "fixture",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "fixture",
+      "norm_label": "path",
       "source_file": "",
       "source_location": ""
     },
@@ -4621,48 +4665,59 @@
       "source_location": "L96"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_rationale_1",
-      "label": "Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():\u2026",
+      "id": "src_ml_pipeline_data_ingestion_rationale_1",
+      "label": "M\u00f3dulo respons\u00e1vel por construir o painel base a partir do banco de dados\u2026",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "rationale",
-      "norm_label": "produto v5: alerta de risco (docs/protocolo_v5.md). 1. benchmark_infodengue():...",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
+      "norm_label": "modulo responsavel por construir o painel base a partir do banco de dados...",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_alerta_risco_rationale_101",
-      "label": "Curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, OOF\u2026",
+      "id": "src_ml_pipeline_data_ingestion_rationale_191",
+      "label": "Valida o painel base e retorna um dicion\u00e1rio-relat\u00f3rio de qualidade. Levanta\u2026",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "rationale",
-      "norm_label": "curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, oof...",
-      "source_file": "src/ml_pipeline/alerta_risco.py",
-      "source_location": "L101"
+      "norm_label": "valida o painel base e retorna um dicionario-relatorio de qualidade. levanta...",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
+      "source_location": "L191"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_rationale_47",
-      "label": "Quantis do res\u00edduo log1p por faixa de valor previsto. Bordas por quantil de\u2026",
+      "id": "src_ml_pipeline_data_ingestion_rationale_33",
+      "label": "L\u00ea as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto\u2026",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "rationale",
-      "norm_label": "quantis do residuo log1p por faixa de valor previsto. bordas por quantil de...",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L47"
+      "norm_label": "le as tabelas desacopladas do sqlite e devolve um dataframe unificado, pronto...",
+      "source_file": "src/ml_pipeline/data_ingestion.py",
+      "source_location": "L33"
     },
     {
-      "id": "tests_test_prediction_service_rationale_50",
-      "label": "Experimento v5 + modelos de risco no painel sint\u00e9tico (com clima e\u2026",
+      "id": "src_ml_pipeline_experimento_horizontes_rationale_219",
+      "label": "Log INFO em stdout UTF-8 (o console do Windows usa cp1252 por padr\u00e3o).",
       "_origin": "ast",
       "community": 19,
       "community_name": "main.py",
       "file_type": "rationale",
-      "norm_label": "experimento v5 + modelos de risco no painel sintetico (com clima e...",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L50"
+      "norm_label": "log info em stdout utf-8 (o console do windows usa cp1252 por padrao).",
+      "source_file": "src/ml_pipeline/experimento_horizontes.py",
+      "source_location": "L219"
+    },
+    {
+      "id": "src_ml_pipeline_ml_orchestrator_rationale_177",
+      "label": "Executa o pipeline completo de ML (hiperpar\u00e2metros fixos, sem tunagem). Args:\u2026",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "main.py",
+      "file_type": "rationale",
+      "norm_label": "executa o pipeline completo de ml (hiperparametros fixos, sem tunagem). args:...",
+      "source_file": "src/ml_pipeline/ml_orchestrator.py",
+      "source_location": "L177"
     },
     {
       "id": "app_static_js_api",
@@ -4707,50 +4762,6 @@
       "norm_label": "ui.js",
       "source_file": "app/static/js/ui.js",
       "source_location": "L1"
-    },
-    {
-      "id": "src_config",
-      "label": "config.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "config.py",
-      "source_file": "src/config.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion",
-      "label": "data_ingestion.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "data_ingestion.py",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_py_dataframe",
-      "label": "DataFrame",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "dataframe",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_py_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "src_ml_pipeline_experimento_horizontes",
@@ -4808,18 +4819,18 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_modelo_final",
-      "label": "modelo_final.py",
+      "id": "src_ml_pipeline_model_training",
+      "label": "model_training.py",
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "code",
-      "norm_label": "modelo_final.py",
-      "source_file": "src/ml_pipeline/modelo_final.py",
+      "norm_label": "model_training.py",
+      "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_py_dataframe",
+      "id": "src_ml_pipeline_model_training_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
       "community": 20,
@@ -4830,13 +4841,35 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_modelo_final_py_path",
+      "id": "src_ml_pipeline_model_training_py_ndarray",
+      "label": "ndarray",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "ndarray",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_model_training_py_path",
       "label": "Path",
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "code",
       "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_model_training_py_series",
+      "label": "Series",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "code",
+      "norm_label": "series",
       "source_file": "",
       "source_location": ""
     },
@@ -4885,17 +4918,6 @@
       "source_location": ""
     },
     {
-      "id": "src_prediction_service_data_fetcher",
-      "label": "data_fetcher.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "code",
-      "norm_label": "data_fetcher.py",
-      "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L1"
-    },
-    {
       "id": "tests_test_experimento",
       "label": "test_experimento.py",
       "_origin": "ast",
@@ -4905,50 +4927,6 @@
       "norm_label": "test_experimento.py",
       "source_file": "tests/test_experimento.py",
       "source_location": "L1"
-    },
-    {
-      "id": "src_config_rationale_1",
-      "label": "Caminhos e constantes do projeto. Nenhum efeito colateral al\u00e9m de criar os\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "caminhos e constantes do projeto. nenhum efeito colateral alem de criar os...",
-      "source_file": "src/config.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_rationale_1",
-      "label": "M\u00f3dulo respons\u00e1vel por construir o painel base a partir do banco de dados\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "modulo responsavel por construir o painel base a partir do banco de dados...",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_rationale_191",
-      "label": "Valida o painel base e retorna um dicion\u00e1rio-relat\u00f3rio de qualidade. Levanta\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "valida o painel base e retorna um dicionario-relatorio de qualidade. levanta...",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L191"
-    },
-    {
-      "id": "src_ml_pipeline_data_ingestion_rationale_33",
-      "label": "L\u00ea as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "le as tabelas desacopladas do sqlite e devolve um dataframe unificado, pronto...",
-      "source_file": "src/ml_pipeline/data_ingestion.py",
-      "source_location": "L33"
     },
     {
       "id": "src_ml_pipeline_experimento_horizontes_rationale_1",
@@ -4982,17 +4960,6 @@
       "norm_label": "executa o experimento completo e grava os resultados. retorna o dataframe de...",
       "source_file": "src/ml_pipeline/experimento_horizontes.py",
       "source_location": "L144"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_horizontes_rationale_219",
-      "label": "Log INFO em stdout UTF-8 (o console do Windows usa cp1252 por padr\u00e3o).",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "log info em stdout utf-8 (o console do windows usa cp1252 por padrao).",
-      "source_file": "src/ml_pipeline/experimento_horizontes.py",
-      "source_location": "L219"
     },
     {
       "id": "src_ml_pipeline_experimento_horizontes_rationale_64",
@@ -5050,37 +5017,103 @@
       "source_location": "L84"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_rationale_1",
-      "label": "Fase 4.1 \u2014 Modelo final para produ\u00e7\u00e3o (docs/PLANO_EXPERIMENTO_FINAL.md).\u2026",
+      "id": "src_ml_pipeline_model_training_rationale_1",
+      "label": "M\u00f3dulo de treinamento do motor de ML v4 (multi-doen\u00e7a, multi-horizonte). Isola\u2026",
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "rationale",
-      "norm_label": "fase 4.1 \u2014 modelo final para producao (docs/plano_experimento_final.md)....",
-      "source_file": "src/ml_pipeline/modelo_final.py",
+      "norm_label": "modulo de treinamento do motor de ml v4 (multi-doenca, multi-horizonte). isola...",
+      "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_rationale_105",
-      "label": "Treina e salva os modelos de produ\u00e7\u00e3o. Retorna {doenca: metadata}.",
+      "id": "src_ml_pipeline_model_training_rationale_104",
+      "label": "Offset = log(pop / 100.000) para modelar incid\u00eancia, n\u00e3o contagem bruta.",
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "rationale",
-      "norm_label": "treina e salva os modelos de producao. retorna {doenca: metadata}.",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L105"
+      "norm_label": "offset = log(pop / 100.000) para modelar incidencia, nao contagem bruta.",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L104"
     },
     {
-      "id": "src_ml_pipeline_modelo_final_rationale_70",
-      "label": "Nome, limiares de risco (hist\u00f3rico completo) e R\u00b2 OOF por horizonte para cada\u2026",
+      "id": "src_ml_pipeline_model_training_rationale_112",
+      "label": "Alvo de treino, com corte P<clip_percentile> por cidade calculado no pr\u00f3prio\u2026",
       "_origin": "ast",
       "community": 20,
       "community_name": "experimento_horizontes.py",
       "file_type": "rationale",
-      "norm_label": "nome, limiares de risco (historico completo) e r2 oof por horizonte para cada...",
-      "source_file": "src/ml_pipeline/modelo_final.py",
-      "source_location": "L70"
+      "norm_label": "alvo de treino, com corte p<clip_percentile> por cidade calculado no proprio...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L112"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_129",
+      "label": "Treina um XGBoost Poisson em df_train e prev\u00ea df_test. Retorna (modelo,\u2026",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "treina um xgboost poisson em df_train e preve df_test. retorna (modelo,...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L129"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_153",
+      "label": "Treina o modelo XGBoost Poisson com Expanding Window CV. Par\u00e2metros: df \u2014\u2026",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "treina o modelo xgboost poisson com expanding window cv. parametros: df \u2014...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L153"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_46",
+      "label": "Clipping P<percentile> **por cidade** usando o pr\u00f3prio df como refer\u00eancia.\u2026",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "clipping p<percentile> **por cidade** usando o proprio df como referencia....",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L46"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_61",
+      "label": "Quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o\u2026",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L61"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_78",
+      "label": "Gera splits Expanding Window (Walk Forward): Treina em anos < t, testa no ano\u2026",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "gera splits expanding window (walk forward): treina em anos < t, testa no ano...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L78"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_98",
+      "label": "Coluna do \u00faltimo valor conhecido no horizonte h (<prefixo>_lag<h>).",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "coluna do ultimo valor conhecido no horizonte h (<prefixo>_lag<h>).",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L98"
     },
     {
       "id": "src_ml_pipeline_teste_final_rationale_1",
@@ -5105,17 +5138,6 @@
       "source_location": "L51"
     },
     {
-      "id": "src_prediction_service_data_fetcher_rationale_1",
-      "label": "Fonte de dados do servi\u00e7o de previs\u00e3o. A fonte de verdade \u00e9 o SQLite\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_horizontes.py",
-      "file_type": "rationale",
-      "norm_label": "fonte de dados do servico de previsao. a fonte de verdade e o sqlite...",
-      "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L1"
-    },
-    {
       "id": "tests_test_experimento_rationale_1",
       "label": "Testes do experimento final (Fases 1\u20133): m\u00e9tricas, aus\u00eancia de vazamento e\u2026",
       "_origin": "ast",
@@ -5125,6 +5147,28 @@
       "norm_label": "testes do experimento final (fases 1\u20133): metricas, ausencia de vazamento e...",
       "source_file": "tests/test_experimento.py",
       "source_location": "L1"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_131",
+      "label": "Garante que clipping \u00e9 por cidade e n\u00e3o global.",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "garante que clipping e por cidade e nao global.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L131"
+    },
+    {
+      "id": "tests_test_ml_pipeline_rationale_144",
+      "label": "Verifica que EW gera splits corretos.",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "experimento_horizontes.py",
+      "file_type": "rationale",
+      "norm_label": "verifica que ew gera splits corretos.",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L144"
     },
     {
       "id": "src_ml_pipeline_interpretability",
@@ -5259,44 +5303,44 @@
       "source_location": "L81"
     },
     {
+      "id": "src_prediction_service_data_fetcher",
+      "label": "data_fetcher.py",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "data_fetcher.py",
+      "file_type": "code",
+      "norm_label": "data_fetcher.py",
+      "source_file": "src/prediction_service/data_fetcher.py",
+      "source_location": "L1"
+    },
+    {
       "id": "src_prediction_service_data_fetcher_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "code",
       "norm_label": "dataframe",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "tests_test_prediction_service",
-      "label": "test_prediction_service.py",
+      "id": "src_prediction_service_data_fetcher_rationale_1",
+      "label": "Fonte de dados do servi\u00e7o de previs\u00e3o. A fonte de verdade \u00e9 o SQLite\u2026",
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "test_prediction_service.py",
-      "source_file": "tests/test_prediction_service.py",
+      "community_name": "data_fetcher.py",
+      "file_type": "rationale",
+      "norm_label": "fonte de dados do servico de previsao. a fonte de verdade e o sqlite...",
+      "source_file": "src/prediction_service/data_fetcher.py",
       "source_location": "L1"
-    },
-    {
-      "id": "tests_test_prediction_service_py_parametrize",
-      "label": "parametrize",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "parametrize",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "src_prediction_service_data_fetcher_rationale_117",
       "label": "Linhas de features do m\u00eas-alvo (\u00faltimo observado + h) de todas as cidades. Com\u2026",
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "rationale",
       "norm_label": "linhas de features do mes-alvo (ultimo observado + h) de todas as cidades. com...",
       "source_file": "src/prediction_service/data_fetcher.py",
@@ -5307,7 +5351,7 @@
       "label": "Remove meses ingeridos menos de `dias` ap\u00f3s o fim do m\u00eas: o InfoDengue ainda\u2026",
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "rationale",
       "norm_label": "remove meses ingeridos menos de `dias` apos o fim do mes: o infodengue ainda...",
       "source_file": "src/prediction_service/data_fetcher.py",
@@ -5318,33 +5362,11 @@
       "label": "Painel + h meses futuros por cidade (ap\u00f3s o \u00faltimo m\u00eas com alvo observado).",
       "_origin": "ast",
       "community": 22,
-      "community_name": "test_prediction_service.py",
+      "community_name": "data_fetcher.py",
       "file_type": "rationale",
       "norm_label": "painel + h meses futuros por cidade (apos o ultimo mes com alvo observado).",
       "source_file": "src/prediction_service/data_fetcher.py",
       "source_location": "L96"
-    },
-    {
-      "id": "src_prediction_service_predictor_rationale_55",
-      "label": "Intervalo de 90% a partir dos quantis de res\u00edduo log1p calibrados no OOF.",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "rationale",
-      "norm_label": "intervalo de 90% a partir dos quantis de residuo log1p calibrados no oof.",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L55"
-    },
-    {
-      "id": "tests_test_prediction_service_rationale_1",
-      "label": "Testes do servi\u00e7o de previs\u00e3o v5 (alerta de risco): schemas, n\u00edveis, intervalo,\u2026",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "test_prediction_service.py",
-      "file_type": "rationale",
-      "norm_label": "testes do servico de previsao v5 (alerta de risco): schemas, niveis, intervalo,...",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L1"
     },
     {
       "id": "src_ml_pipeline_baselines_py_dataframe",
@@ -5413,6 +5435,17 @@
       "source_location": "L86"
     },
     {
+      "id": "basemodel",
+      "label": "BaseModel",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "PredictRequest",
+      "file_type": "code",
+      "norm_label": "basemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "field_validator",
       "label": "field_validator",
       "_origin": "ast",
@@ -5422,6 +5455,39 @@
       "norm_label": "field_validator",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "src_prediction_service_schemas",
+      "label": "schemas.py",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "PredictRequest",
+      "file_type": "code",
+      "norm_label": "schemas.py",
+      "source_file": "src/prediction_service/schemas.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_prediction_service_py_parametrize",
+      "label": "parametrize",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "PredictRequest",
+      "file_type": "code",
+      "norm_label": "parametrize",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_prediction_service_schemas_rationale_1",
+      "label": "Schemas Pydantic de entrada e sa\u00edda da API de previs\u00e3o (v5: alerta de risco).",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "PredictRequest",
+      "file_type": "rationale",
+      "norm_label": "schemas pydantic de entrada e saida da api de previsao (v5: alerta de risco).",
+      "source_file": "src/prediction_service/schemas.py",
+      "source_location": "L1"
     },
     {
       "id": "src_ml_pipeline_teste_prospectivo",
@@ -5468,17 +5534,6 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_model_training_rationale_61",
-      "label": "Quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o\u2026",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "rationale",
-      "norm_label": "quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L61"
-    },
-    {
       "id": "src_ml_pipeline_teste_prospectivo_rationale_1",
       "label": "Step 8 \u2014 Teste prospectivo \u00fanico em jan\u2013ago/2026 (docs/PROTOCOLO_V5.md). -\u2026",
       "_origin": "ast",
@@ -5501,28 +5556,6 @@
       "source_location": "L44"
     },
     {
-      "id": "lookuperror",
-      "label": "LookupError",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": ".prever",
-      "file_type": "code",
-      "norm_label": "lookuperror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "post",
-      "label": "post",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": ".prever",
-      "file_type": "code",
-      "norm_label": "post",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "src_prediction_service_predictor_py_runtimeerror",
       "label": "RuntimeError",
       "_origin": "ast",
@@ -5532,17 +5565,6 @@
       "norm_label": "runtimeerror",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "app_server_rationale_110",
-      "label": "Previs\u00e3o de casos para um munic\u00edpio, doen\u00e7a e horizonte (1\u20133 meses). Rota\u2026",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": ".prever",
-      "file_type": "rationale",
-      "norm_label": "previsao de casos para um municipio, doenca e horizonte (1\u20133 meses). rota...",
-      "source_file": "app/server.py",
-      "source_location": "L110"
     },
     {
       "id": "src_processamento_ingestor_ibge_populacao",
@@ -5811,17 +5833,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_server_rationale_126",
-      "label": "Resumo dos modelos de produ\u00e7\u00e3o carregados (config, m\u00e9tricas, data de retreino).",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "rationale",
-      "norm_label": "resumo dos modelos de producao carregados (config, metricas, data de retreino).",
-      "source_file": "app/server.py",
-      "source_location": "L126"
-    },
-    {
       "id": "app_server_rationale_26",
       "label": "Aquece o preditor (painel + features de previs\u00e3o) em segundo plano, sem\u2026",
       "_origin": "ast",
@@ -5963,17 +5974,6 @@
       "norm_label": "cria um painel sintetico com 2 cidades \u00d7 72 meses (6 anos) e 3 doencas.",
       "source_file": "tests/conftest.py",
       "source_location": "L12"
-    },
-    {
-      "id": "tests_test_experimento_py_parametrize",
-      "label": "parametrize",
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "TestSemVazamento",
-      "file_type": "code",
-      "norm_label": "parametrize",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "src_prediction_service_risk_classifier",
@@ -6325,7 +6325,7 @@
       "node_kind": "heading",
       "norm_label": "desvios",
       "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L66"
+      "source_location": "L81"
     },
     {
       "id": "docs_protocolo_v5_experimento_preditivo_responde_h2_e_h3",
@@ -6362,6 +6362,18 @@
       "norm_label": "holdout prospectivo",
       "source_file": "docs/PROTOCOLO_V5.md",
       "source_location": "L60"
+    },
+    {
+      "id": "docs_protocolo_v5_produ\u00e7\u00e3o_v5_1_registrado_em_2026_11_06_depois_do_teste_de_2026_e_antes_do_retreino",
+      "label": "Produ\u00e7\u00e3o v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "producao v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L66"
     },
     {
       "id": "docs_protocolo_v5_protocolo_v5_pr\u00e9_registro_fixado_antes_de_ingerir_dados_de_2026",
@@ -16006,7 +16018,7 @@
     },
     {
       "source": "docs_protocolo_v5_protocolo_v5_pr\u00e9_registro_fixado_antes_de_ingerir_dados_de_2026",
-      "target": "docs_protocolo_v5_desvios",
+      "target": "docs_protocolo_v5_produ\u00e7\u00e3o_v5_1_registrado_em_2026_11_06_depois_do_teste_de_2026_e_antes_do_retreino",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16024,6 +16036,17 @@
       "confidence_score": 1.0,
       "source_file": "docs/PROTOCOLO_V5.md",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_protocolo_v5_protocolo_v5_pr\u00e9_registro_fixado_antes_de_ingerir_dados_de_2026",
+      "target": "docs_protocolo_v5_desvios",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -20943,5 +20966,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e84751d929a4a8b6e52ff8824ebc790cf82115f8"
+  "built_at_commit": "82590daad2d31093570d48cec221af1c4b986b44"
 }

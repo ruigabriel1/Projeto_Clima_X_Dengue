@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "docs/PROTOCOLO_V5.md": {
-    "mtime": 1793843475.0008936,
-    "seen": 1793843481.8528726,
-    "ast_hash": "abd2c948c30a85b7b42e6a5d85a076be",
+    "mtime": 1793985482.3064234,
+    "seen": 1793985489.5272481,
+    "ast_hash": "560f3c9c312cef56438be428ed46f3e6",
     "semantic_hash": ""
   },
   ".githooks/pre-commit": {

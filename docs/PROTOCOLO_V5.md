@@ -63,6 +63,21 @@ O produto é o **alerta de risco**; a contagem é informação secundária.
 - Treino: 2015–2025 completo. Uma única execução, com trava (`--confirmar`); nada é ajustado depois.
 - Reportado: MAE, Skill, AUC, Brier, calibração e o benchmark do InfoDengue, por doença e horizonte.
 
+## Produção v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)
+
+O holdout de 2026 já foi usado, então todos os dados consolidados podem entrar na produção. Isto não é um
+novo teste nem uma nova análise: é o retreino do modelo que a aplicação usa.
+
+- **Treino:** todos os meses com ≥ 28 dias de consolidação (2015-01 até 2026-09 nesta data). Mesmas
+  features da decisão v5 (dengue `clima_susc`, chikungunya `semclima_susc`), mesmos `XGB_PARAMS`, zika fora.
+- **Calibração da probabilidade e intervalo da contagem:** OOF 2018–2025 mais as previsões do teste de
+  2026 (fora da amostra, ano de baixa). O limiar P75 de cada cidade passa a usar todos os meses consolidados.
+- **Desempenho reportado:** continua sendo o do teste de 2026 (e o de 2018–2025), lado a lado com a
+  persistência e o InfoDengue. Daqui em diante, soma-se o monitoramento ao vivo das previsões emitidas.
+- **Longo prazo (até 5 anos):** não é previsão. A aplicação mostra a faixa histórica (P10–P90 por
+  mês-calendário) e um cenário climático (+1/+2 °C) a partir da curva do DLNM (resultado 2015–2025, não reestimado).
+- Retreino anual, com o mesmo procedimento.
+
 ## Desvios
 
 Qualquer desvio deste protocolo é registrado aqui, com data e motivo, antes de rodar a análise afetada.
