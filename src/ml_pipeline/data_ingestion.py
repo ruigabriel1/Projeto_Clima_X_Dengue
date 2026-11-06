@@ -82,8 +82,10 @@ def build_base_panel(root_dir: Path, modo: str = "regional") -> pd.DataFrame:
 
     # ---------- Merge Saúde + Clima ----------
     if not df_saude.empty and not df_clima.empty:
-        # Remover colunas redundantes do clima (já presentes na saúde)
-        cols_to_drop = ["LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO"]
+        # Remover colunas redundantes do clima (já presentes na saúde). INGERIDO_EM fica só o da saúde:
+        # é ele que define se o mês de casos já consolidou (com os dois, o merge gerava _x/_y e o filtro
+        # de meses não consolidados deixava de funcionar).
+        cols_to_drop = ["LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO", "INGERIDO_EM"]
         df_clima = df_clima.drop(columns=[c for c in cols_to_drop if c in df_clima.columns])
         panel = pd.merge(df_saude, df_clima, on=["CODIGO_MUNICIPIO", "ANO", "MES"], how="inner")
     else:

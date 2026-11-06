@@ -100,8 +100,9 @@ def command_modelo_risco(args):
     configurar_log()
     if not args.sem_benchmark:
         print(benchmark_infodengue().round(3).to_string(index=False))
-    treinar_modelos_risco(build_base_panel(Path(__file__).resolve().parent), ano_max=args.ano_max)
-    print("Modelos de risco em output/models/final_v5/")
+    treinar_modelos_risco(build_base_panel(Path(__file__).resolve().parent), ano_max=args.ano_max,
+                          producao=args.producao)
+    print("Modelos de risco em output/models/final_v5/" + (" (produção v5.1: todos os meses consolidados)" if args.producao else ""))
 
 
 def command_dlnm(args):
@@ -195,6 +196,8 @@ def main():
     p_mr = subparsers.add_parser("modelo-risco", help="Benchmark InfoDengue + modelos de alerta de risco (produção).")
     p_mr.add_argument("--ano-max", type=int, default=2025, help="Último ano de treino (2025 até o teste prospectivo)")
     p_mr.add_argument("--sem-benchmark", action="store_true")
+    p_mr.add_argument("--producao", action="store_true",
+                      help="v5.1: treina com todos os meses consolidados e calibra com OOF + teste 2026")
     p_mr.set_defaults(func=command_modelo_risco)
 
     p_dl = subparsers.add_parser("dlnm", help="Efeito do clima por DLNM (Poisson condicional).")

@@ -120,15 +120,82 @@ def salvar_calibracao(exp_dir: Path, dec: dict, horizontes):
 
 
 # ------------------------------------------------------------------ modelos de produção
+ANO_TESTE_2026 = 2026
+
+
+def previsoes_teste_2026(panel: pd.DataFrame, exp_dir: Path, doenca: str, h: int) -> pd.DataFrame | None:
+    """
+    Previsões do teste prospectivo de 2026 (fora da amostra) com o escore do modelo, para entrar na calibração
+    de produção (v5.1). O escore usa o P75 de cada cidade com os anos < 2026, como no teste.
+    """
+    path = exp_dir / f"teste_2026_{doenca}_h{h}.csv.gz"
+    if not path.exists():
+        return None
+    t = pd.read_csv(path, dtype={"code": str})
+    alvo = DOENCA_PARA_COL[doenca]
+    ant = panel[(panel["year"] < ANO_TESTE_2026) & (panel["populacao"] > 0)].dropna(subset=[alvo])
+    p75 = (ant[alvo] / ant["populacao"] * 1e5).groupby(ant["code"]).quantile(Q_RISCO_V5)
+    pop = panel[panel["year"] == ANO_TESTE_2026].groupby("code")["populacao"].last()
+    t["pop"] = t["code"].map(pop)
+    t["escore"] = (t["pred"] / t["pop"] * 1e5) / (t["code"].map(p75).fillna(p75.median()) + EPS_INCID)
+    return t.dropna(subset=["pop"])
+
+
+def desempenho(res: pd.DataFrame, bench: pd.DataFrame | None, teste: dict | None, doenca: str, h: int, mod: str,
+               t26: pd.DataFrame | None, intervalo_dev: dict) -> dict:
+    """Resumo honesto por horizonte para a aplicação ("quão confiável é"): dev, 2025 e teste de 2026."""
+    cols = ["mae", "skill", "auc", "brier_skill", "mae_incid_mediana_cidades"]
+    out = {}
+    for per, rotulo in (("dev_2018_2024", "validacao_2018_2024"), ("validacao_2025_ja_vista", "validacao_2025")):
+        r = res[(res.doenca == doenca) & (res.horizonte == h) & (res.periodo == per)].set_index("modelo")
+        if mod in r.index:
+            out[rotulo] = {"modelo": r.loc[mod, cols].astype(float).round(4).to_dict(),
+                           "persistencia": (r.loc["persistencia", cols].astype(float).round(4).to_dict()
+                                            if "persistencia" in r.index else None)}
+        if bench is not None:
+            b = bench[(bench.doenca == doenca) & (bench.horizonte == h) & (bench.periodo == per)]
+            if len(b) and rotulo in out:
+                out[rotulo]["auc_infodengue"] = round(float(b["auc_infodengue"].iloc[0]), 4)
+    tt = (teste or {}).get(doenca, {}).get(f"h{h}")
+    if tt:
+        sub = ("mae", "skill", "auc", "brier_skill", "mae_incid_mediana_cidades")
+        out["teste_2026"] = {
+            "meses": tt.get("meses"),
+            "modelo": {k: round(float(tt[k]), 4) for k in sub if tt.get(k) is not None},
+            "persistencia": {k: round(float(tt["persistencia"][k]), 4) for k in sub if tt["persistencia"].get(k) is not None},
+            "auc_infodengue": round(float(tt["infodengue"]["auc"]), 4) if tt.get("infodengue") else None,
+        }
+        if t26 is not None and len(t26):
+            from src.prediction_service.predictor import aplicar_intervalo
+            iv = np.array([aplicar_intervalo(float(p), intervalo_dev) for p in t26["pred"]])
+            out["teste_2026"].update({
+                "casos_reais": int(t26["y_true"].sum()), "casos_previstos": int(round(t26["pred"].sum())),
+                "razao_previsto_real": round(float(t26["pred"].sum() / max(t26["y_true"].sum(), 1)), 3),
+                "cobertura_intervalo_90": round(float(np.mean((t26["y_true"] >= iv[:, 0]) & (t26["y_true"] <= iv[:, 1]))), 4),
+            })
+    return out
+
+
 def treinar_modelos_risco(panel: pd.DataFrame, exp_dir: Path = OUT_V5, out_dir: Path = OUT_MODELOS_V5,
-                          ano_max: int = 2025, horizontes=HORIZONTES) -> dict:
+                          ano_max: int = 2025, horizontes=HORIZONTES, producao: bool = False,
+                          dlnm_curvas: Path | None = None) -> dict:
+    """
+    producao=False: reproduz a v5 (treino até `ano_max`, calibração no OOF 2018–2025).
+    producao=True: v5.1 (PROTOCOLO_V5.md, "Produção v5.1") — treino com todos os meses consolidados e
+    calibração/intervalo no OOF 2018–2025 + previsões do teste de 2026.
+    """
     dec = json.loads((exp_dir / "decisao.json").read_text(encoding="utf-8"))
     res = pd.read_csv(exp_dir / "resultados.csv")
     bench = exp_dir / "benchmark_infodengue.csv"
     bench = pd.read_csv(bench) if bench.exists() else None
     teste = exp_dir / "teste_prospectivo_2026.json"
     teste = json.loads(teste.read_text(encoding="utf-8")) if teste.exists() else None
-    p = panel[panel["year"] <= ano_max]
+    if producao:
+        from src.prediction_service.data_fetcher import remover_meses_nao_consolidados
+        p = remover_meses_nao_consolidados(panel)
+    else:
+        p = panel[panel["year"] <= ano_max]
+    dlnm_curvas = dlnm_curvas or (OUTPUT_DIR / "dlnm" / "curvas_exposicao_resposta.csv")
     todas = {}
     for doenca, info in dec.items():
         alvo = DOENCA_PARA_COL[doenca]
@@ -136,9 +203,13 @@ def treinar_modelos_risco(panel: pd.DataFrame, exp_dir: Path = OUT_V5, out_dir: 
         mod = nome(clima, info["suscetibilidade"])
         dest = out_dir / doenca
         dest.mkdir(parents=True, exist_ok=True)
-        meta = {"versao": "v5", "doenca": doenca, "modelo": mod, "clima": clima,
+        obs = p.dropna(subset=[alvo])
+        ini, fim = obs.sort_values(["year", "month"]).iloc[[0, -1]][["year", "month"]].astype(int).values
+        meta = {"versao": "v5.1" if producao else "v5", "doenca": doenca, "modelo": mod, "clima": clima,
                 "suscetibilidade": info["suscetibilidade"], "treinado_em": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "git_commit": git_commit(), "anos_treino": [int(p.year.min()), ano_max],
+                "git_commit": git_commit(), "anos_treino": [int(ini[0]), int(fim[0])],
+                "periodo_treino": f"{ini[0]}-{ini[1]:02d} a {fim[0]}-{fim[1]:02d}",
+                "calibracao": "OOF 2018–2025 + teste 2026" if producao else "OOF 2018–2025",
                 "xgb_params": XGB_PARAMS, "q_risco": Q_RISCO_V5, "eps_incid": EPS_INCID,
                 "faixas_probabilidade": FAIXAS_PROB, "horizontes": {}}
         for h in horizontes:
@@ -147,20 +218,32 @@ def treinar_modelos_risco(panel: pd.DataFrame, exp_dir: Path = OUT_V5, out_dir: 
             feats = get_feature_columns(df, doenca=doenca, clima=clima, suscetibilidade=info["suscetibilidade"])
             model, _ = fit_predict_fold(df, df.iloc[:1], feats, alvo, use_pop_offset=True)
             joblib.dump(model, dest / f"h{h}.joblib")
-            oof = pd.read_csv(exp_dir / f"oof_{doenca}_h{h}.csv.gz")
-            iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(oof[f"escore_{mod}"].fillna(0), oof["risco_alto"])
+            oof = pd.read_csv(exp_dir / f"oof_{doenca}_h{h}.csv.gz", dtype={"code": str})
+            intervalo_dev = calibrar_intervalo(oof["y_true"], oof[f"pred_{mod}"])
+            t26 = previsoes_teste_2026(panel, exp_dir, doenca, h)
+            esc, risco = oof[f"escore_{mod}"].fillna(0), oof["risco_alto"]
+            y_cal, p_cal = oof["y_true"], oof[f"pred_{mod}"]
+            if producao and t26 is not None:
+                esc, risco = pd.concat([esc, t26["escore"]]), pd.concat([risco, t26["risco_alto"]])
+                y_cal, p_cal = pd.concat([y_cal, t26["y_true"]]), pd.concat([p_cal, t26["pred"]])
+            iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(esc, risco)
             joblib.dump(iso, dest / f"h{h}_calibrador.joblib")
             r = res[(res.doenca == doenca) & (res.horizonte == h) & (res.modelo == mod)].set_index("periodo")
             cols = ["mae", "skill", "auc", "brier_skill", "mae_incid_mediana_cidades"]
             meta["horizontes"][f"h{h}"] = {
                 "arquivo": f"h{h}.joblib", "calibrador": f"h{h}_calibrador.joblib", "features": feats,
-                "intervalo_contagem": calibrar_intervalo(oof["y_true"], oof[f"pred_{mod}"]),
+                "intervalo_contagem": calibrar_intervalo(y_cal, p_cal),
                 "metricas": {per: r.loc[per, cols].astype(float).round(4).to_dict() for per in r.index},
                 "benchmark_infodengue": (bench[(bench.doenca == doenca) & (bench.horizonte == h)].round(4).to_dict("records")
                                          if bench is not None else None),
                 "teste_prospectivo_2026": (teste or {}).get(doenca, {}).get(f"h{h}"),
+                "desempenho": desempenho(res, bench, teste, doenca, h, mod, t26, intervalo_dev),
             }
-            logger.info(f"Risco {doenca} h={h}: {mod}, {len(feats)} features")
+            logger.info(f"Risco {doenca} h={h}: {mod}, {len(feats)} features, treino {meta['periodo_treino']}")
+        if dlnm_curvas.exists():
+            cur = pd.read_csv(dlnm_curvas)
+            cur = cur[(cur.doenca == doenca) & (cur.especificacao == "principal") & (cur.variavel == "temp_media")]
+            cur[["valor", "rr", "ic_lo", "ic_hi"]].to_csv(dest / "dlnm_curva.csv", index=False)
         hist = p.dropna(subset=[alvo]).assign(_inc=lambda x: x[alvo] / x["populacao"] * 1e5)
         q = hist.groupby("code").agg(p75_incid=("_inc", lambda s: s.quantile(Q_RISCO_V5)),
                                      meses_com_caso=(alvo, lambda s: int((s > 0).sum())),

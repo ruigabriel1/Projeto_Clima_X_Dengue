@@ -1,35 +1,37 @@
 # Graph Report - Projeto_Clima_X_Dengue  (2026-11-06)
 
 ## Corpus Check
-- 49 files · ~33,233 words
+- 49 files · ~33,798 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 586 nodes · 1219 edges · 33 communities (28 shown, 3 thin omitted)
+- 591 nodes · 1233 edges · 36 communities (30 shown, 4 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 35 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `82590daa`
+- Built from commit: `012af59c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - experimento_v5.py
-- build_ml_features
+- get_feature_columns
 - main.js
 - server.py
-- ingestor_api_sul.py
+- config.py
 - dlnm.py
 - atualizacao_incremental.py
 - 🦟 Clima × Arboviroses
 - Plano de Experimento Final — Clima × Arboviroses
 - Preditor
 - alerta_risco.py
-- analise_experimento.py
+- build_ml_features
 - Plano v5 — Limpeza e Resultado Publicável
 - predictor.py
 - test_prediction_service.py
+- baselines.py
+- _expanding_window_splits
 - main.py
 - experimento_horizontes.py
 - run_interpretability
@@ -38,11 +40,12 @@
 - PredictRequest
 - teste_prospectivo.py
 - .prever
-- ingestor_ibge_populacao.py
+- TestMultiDoenca
 - CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)
 - Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão
 - export_dashboard.py
 - mini_panel
+- TestSemVazamento
 - risk_classifier.py
 - pre-commit
 - analise_efeito/__init__.py
@@ -55,34 +58,34 @@
 5. `Preditor` - 20 edges
 6. `FonteDados` - 19 edges
 7. `configurar_log()` - 18 edges
-8. `limiares_por_cidade()` - 16 edges
-9. `_expanding_window_splits()` - 16 edges
-10. `run_teste_final()` - 15 edges
+8. `treinar_modelos_risco()` - 17 edges
+9. `limiares_por_cidade()` - 16 edges
+10. `_expanding_window_splits()` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `api_predict()` --uses--> `ModeloIndisponivel`  [INFERRED]
   app/server.py → src/prediction_service/predictor.py
 - `api_predict()` --uses--> `PredictRequest`  [INFERRED]
   app/server.py → src/prediction_service/schemas.py
+- `TestMultiDoenca` --uses--> `PersistenciaBaseline`  [INFERRED]
+  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
+- `TestMultiDoenca` --uses--> `NaiveSazonalBaseline`  [INFERRED]
+  tests/test_ml_pipeline.py → src/ml_pipeline/baselines.py
 - `TestPreditor` --uses--> `ModeloIndisponivel`  [INFERRED]
   tests/test_prediction_service.py → src/prediction_service/predictor.py
-- `TestPreditor` --uses--> `CidadeNaoEncontrada`  [INFERRED]
-  tests/test_prediction_service.py → src/prediction_service/predictor.py
-- `api_predict()` --uses--> `CidadeNaoEncontrada`  [INFERRED]
-  app/server.py → src/prediction_service/predictor.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (33 total, 3 thin omitted)
+## Communities (36 total, 4 thin omitted)
 
 ### Community 0 - "experimento_v5.py"
 Cohesion: 0.10
-Nodes (33): aplicar(), combinar(), escolher_peso(), pesos_cross_fit(), DataFrame, ndarray, Path, Combinação modelo + persistência (docs/PROTOCOLO_V5.md, desvio de 2026-11-04,… (+25 more)
+Nodes (35): bootstrap_delta_mae(), ΔMAE = MAE(a) − MAE(b) com IC 95% por bootstrap de CIDADES (preserva a…, aplicar(), combinar(), escolher_peso(), pesos_cross_fit(), DataFrame, ndarray (+27 more)
 
-### Community 1 - "build_ml_features"
-Cohesion: 0.05
-Nodes (49): evaluate_baselines(), _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, Avalia persistência, naive sazonal e GLM NB com Expanding Window. Retorna lista…, Constrói o nome da coluna de lag para a doença-alvo., Prever = último valor conhecido no momento da previsão (<doença>_lag<h>). No… (+41 more)
+### Community 1 - "get_feature_columns"
+Cohesion: 0.13
+Nodes (20): _anomalia_expanding(), get_feature_columns(), grupos_de_features(), is_clima_parcimonioso(), is_suscetibilidade(), _prefixo_doenca(), DataFrame, Series (+12 more)
 
 ### Community 2 - "main.js"
 Cohesion: 0.31
@@ -92,9 +95,9 @@ Nodes (12): fetchResultados(), fetchStatus(), getPlotlyConfig(), getPlotlyLayout
 Cohesion: 0.17
 Nodes (17): api_cidades(), api_doencas(), api_resultados(), api_status(), index(), lifespan(), server.py — FastAPI backend para a interface Prodígia. Rotas: status do banco,…, Aquece o preditor (painel + features de previsão) em segundo plano, sem… (+9 more)
 
-### Community 4 - "ingestor_api_sul.py"
-Cohesion: 0.29
-Nodes (10): fetch_clima(), fetch_infodengue(), get_ibge_7(), ingest_noaa_enso(), main(), obter_faixa_latitude(), process_clima(), process_saude() (+2 more)
+### Community 4 - "config.py"
+Cohesion: 0.13
+Nodes (18): Caminhos e constantes do projeto. Nenhum efeito colateral além de criar os…, fetch_clima(), fetch_infodengue(), get_ibge_7(), ingest_noaa_enso(), main(), obter_faixa_latitude(), process_clima() (+10 more)
 
 ### Community 5 - "dlnm.py"
 Cohesion: 0.16
@@ -117,12 +120,12 @@ Cohesion: 0.21
 Nodes (6): FonteDados, Nível de alerta oficial do InfoDengue (1–4) no mês informado, se disponível., Preditor, Path, TestAPI, TestPreditor
 
 ### Community 10 - "alerta_risco.py"
-Cohesion: 0.12
-Nodes (24): Caminhos e constantes do projeto. Nenhum efeito colateral além de criar os…, benchmark_infodengue(), niveis_infodengue(), DataFrame, Path, Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():…, Curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, OOF…, salvar_calibracao() (+16 more)
+Cohesion: 0.17
+Nodes (19): benchmark_infodengue(), desempenho(), niveis_infodengue(), previsoes_teste_2026(), DataFrame, Path, Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():…, Curva de confiabilidade (10 faixas) da probabilidade do modelo escolhido, OOF… (+11 more)
 
-### Community 11 - "analise_experimento.py"
-Cohesion: 0.21
-Nodes (19): bootstrap_delta_mae(), decidir_config(), diagnostico_grupos_clima(), _fmt(), plot_skill(), DataFrame, Path, Fase 2 — Análise e decisão (docs/PLANO_EXPERIMENTO_FINAL.md). Lê… (+11 more)
+### Community 11 - "build_ml_features"
+Cohesion: 0.14
+Nodes (10): build_ml_features(), Constrói as features a partir do painel base. Args: panel: saída de…, TestFeaturesV5, Garante que colunas proibidas não aparecem nas features., Verifica que dengue_lag1 corresponde ao valor do mês anterior., O rolling de memória epidêmica NÃO deve incluir o mês corrente., Verifica que o output tem features e menos linhas que o input (warm-up)., Verifica que get_feature_columns exclui colunas de identificação. (+2 more)
 
 ### Community 12 - "Plano v5 — Limpeza e Resultado Publicável"
 Cohesion: 0.15
@@ -136,13 +139,21 @@ Nodes (10): api_modelo_info(), api_predict(), Previsão de casos para um municí
 Cohesion: 0.28
 Nodes (6): nivel_por_probabilidade(), aplicar_intervalo(), Intervalo de 90% a partir dos quantis de resíduo log1p calibrados no OOF., Testes do serviço de previsão v5 (alerta de risco): schemas, níveis, intervalo,…, TestIntervalo, TestNiveis
 
+### Community 17 - "baselines.py"
+Cohesion: 0.21
+Nodes (10): evaluate_baselines(), _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, Avalia persistência, naive sazonal e GLM NB com Expanding Window. Retorna lista…, Constrói o nome da coluna de lag para a doença-alvo., Prever = último valor conhecido no momento da previsão (<doença>_lag<h>). No… (+2 more)
+
+### Community 18 - "_expanding_window_splits"
+Cohesion: 0.19
+Nodes (9): clip_outliers_per_city(), _expanding_window_splits(), Series, Clipping P<percentile> **por cidade** usando o próprio df como referência.…, Gera splits Expanding Window (Walk Forward): Treina em anos < t, testa no ano…, Testes unitários para o pipeline ML v4 (multi-doença). Testa a feature…, Garante que clipping é por cidade e não global., Verifica que EW gera splits corretos. (+1 more)
+
 ### Community 19 - "main.py"
-Cohesion: 0.08
-Nodes (40): command_analise(), command_atualizar_dados(), command_dlnm(), command_experimento(), command_experimento_v5(), command_export_dashboard(), command_modelo_risco(), command_serve() (+32 more)
+Cohesion: 0.10
+Nodes (33): command_analise(), command_atualizar_dados(), command_dlnm(), command_experimento(), command_experimento_v5(), command_export_dashboard(), command_modelo_risco(), command_serve() (+25 more)
 
 ### Community 20 - "experimento_horizontes.py"
-Cohesion: 0.05
-Nodes (58): _linha(), metricas_de_oof(), preparar_dados(), DataFrame, Path, Fase 1 — Experimento controlado (docs/PLANO_EXPERIMENTO_FINAL.md). Fatores:…, Métricas agregadas (todas as linhas do OOF) para cada modelo e baseline., Executa o experimento completo e grava os resultados. Retorna o DataFrame de… (+50 more)
+Cohesion: 0.06
+Nodes (64): decidir_config(), diagnostico_grupos_clima(), _fmt(), plot_skill(), DataFrame, Path, Fase 2 — Análise e decisão (docs/PLANO_EXPERIMENTO_FINAL.md). Lê…, Treina o modelo COM clima em 2015–2024 e devolve o ranking SHAP (média |SHAP|). (+56 more)
 
 ### Community 21 - "run_interpretability"
 Cohesion: 0.25
@@ -161,16 +172,16 @@ Cohesion: 0.24
 Nodes (7): BaseModel, field_validator, PredictRequest, PredictResponse, Schemas Pydantic de entrada e saída da API de previsão (v5: alerta de risco)., parametrize, TestSchemas
 
 ### Community 25 - "teste_prospectivo.py"
-Cohesion: 0.25
-Nodes (12): avaliar(), HoldoutJaUsado, markdown(), meses_consolidados(), _metricas(), DataFrame, Path, RuntimeError (+4 more)
+Cohesion: 0.12
+Nodes (29): alvo_treino(), _build_base_margin(), fit_predict_fold(), limiares_por_cidade(), _persist_col(), DataFrame, ndarray, Path (+21 more)
 
 ### Community 26 - ".prever"
 Cohesion: 0.29
 Nodes (3): _fmt_mes(), ModeloIndisponivel, RuntimeError
 
-### Community 27 - "ingestor_ibge_populacao.py"
-Cohesion: 0.32
-Nodes (7): fetch_populacao_ibge(), get_ibge_7(), main(), DataFrame, ingestor_ibge_populacao.py — Busca estimativas populacionais do IBGE (API…, Busca população estimada do IBGE via API SIDRA (tabela 6579)., Calcula o dígito verificador IBGE para transformar código de 6 em 7 dígitos.
+### Community 27 - "TestMultiDoenca"
+Cohesion: 0.18
+Nodes (8): parametrize, Verifica que os lags de chikungunya são criados quando solicitado., Testa o fluxo completo: features → treino → predição, por doença., Testa que o pipeline funciona para cada doença suportada., build_ml_features roda sem erro para cada doença., Features de uma doença NÃO devem incluir a coluna-alvo de outra., TestIntegration, TestMultiDoenca
 
 ### Community 28 - "CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)"
 Cohesion: 0.29
@@ -190,23 +201,23 @@ Nodes (4): mini_panel(), fixture, Fixtures compartilhados: painel sintético (n�
 
 ## Knowledge Gaps
 - **54 isolated node(s):** `Comandos`, `Arquitetura`, `Grafo do código (graphify): consulte antes de abrir arquivos`, `Regras metodológicas (não violar)`, `Convenções` (+49 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 231 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 234 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `build_ml_features()` connect `build_ml_features` to `experimento_v5.py`, `alerta_risco.py`, `experimento_horizontes.py`, `data_fetcher.py`, `teste_prospectivo.py`?**
+- **Why does `build_ml_features()` connect `build_ml_features` to `experimento_v5.py`, `get_feature_columns`, `TestSemVazamento`, `alerta_risco.py`, `baselines.py`, `_expanding_window_splits`, `experimento_horizontes.py`, `data_fetcher.py`, `teste_prospectivo.py`, `TestMultiDoenca`?**
   _High betweenness centrality (0.092) - this node is a cross-community bridge._
-- **Why does `build_base_panel()` connect `main.py` to `experimento_v5.py`, `build_ml_features`, `dlnm.py`, `alerta_risco.py`, `analise_experimento.py`, `experimento_horizontes.py`, `data_fetcher.py`, `teste_prospectivo.py`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
-- **Why does `get_feature_columns()` connect `build_ml_features` to `experimento_v5.py`, `alerta_risco.py`, `analise_experimento.py`, `experimento_horizontes.py`, `teste_prospectivo.py`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `build_base_panel()` connect `experimento_horizontes.py` to `experimento_v5.py`, `get_feature_columns`, `dlnm.py`, `main.py`, `data_fetcher.py`, `teste_prospectivo.py`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `get_feature_columns()` connect `get_feature_columns` to `experimento_v5.py`, `TestSemVazamento`, `alerta_risco.py`, `build_ml_features`, `_expanding_window_splits`, `experimento_horizontes.py`, `teste_prospectivo.py`, `TestMultiDoenca`?**
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `Preditor` (e.g. with `FonteDados` and `PredictResponse`) actually correct?**
   _`Preditor` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Comandos`, `Arquitetura`, `Grafo do código (graphify): consulte antes de abrir arquivos` to the rest of the system?**
   _54 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `experimento_v5.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.09986504723346828 - nodes in this community are weakly interconnected._
-- **Should `build_ml_features` be split into smaller, more focused modules?**
-  _Cohesion score 0.050078247261345854 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09634146341463415 - nodes in this community are weakly interconnected._
+- **Should `get_feature_columns` be split into smaller, more focused modules?**
+  _Cohesion score 0.12648221343873517 - nodes in this community are weakly interconnected._
