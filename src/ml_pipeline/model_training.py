@@ -108,6 +108,14 @@ def _build_base_margin(df: pd.DataFrame) -> np.ndarray | None:
     return np.log(pop / 100_000.0)
 
 
+SUAVIZACAO_PERSISTENCIA = 1.0   # protocolo v6: offset = log(casos[t−h] + 1)
+
+
+def margem_persistencia(df: pd.DataFrame, col: str) -> np.ndarray:
+    """Offset da formulação A (v6): log(casos[t−h] + 1). Persistência ausente conta como zero."""
+    return np.log(df[col].fillna(0).clip(lower=0).to_numpy(float) + SUAVIZACAO_PERSISTENCIA)
+
+
 def alvo_treino(df_train: pd.DataFrame, target_col: str, clip_percentile: float | None) -> np.ndarray:
     """Alvo de treino, com corte P<clip_percentile> por cidade calculado no próprio treino."""
     y = df_train[target_col].to_numpy(dtype=float)
@@ -125,12 +133,21 @@ def fit_predict_fold(
     clip_percentile: float | None = None,
     params: dict | None = None,
     use_pop_offset: bool = False,
+    offset_persistencia: str | None = None,
 ):
-    """Treina um XGBoost Poisson em df_train e prevê df_test. Retorna (modelo, previsões ≥ 0)."""
+    """
+    Treina um XGBoost Poisson em df_train e prevê df_test. Retorna (modelo, previsões ≥ 0).
+
+    offset_persistencia: nome da coluna casos[t−h]. Se dado, o offset é log(casos[t−h] + 1) (protocolo v6, A):
+    o modelo aprende o fator multiplicativo sobre a persistência. Tem precedência sobre use_pop_offset.
+    """
     params = params or XGB_PARAMS
     y_train = alvo_treino(df_train, target_col, clip_percentile)
     fit_kw, pred_kw = {}, {}
-    if use_pop_offset:
+    if offset_persistencia:
+        fit_kw["base_margin"] = margem_persistencia(df_train, offset_persistencia)
+        pred_kw["base_margin"] = margem_persistencia(df_test, offset_persistencia)
+    elif use_pop_offset:
         fit_kw["base_margin"] = _build_base_margin(df_train)
         pred_kw["base_margin"] = _build_base_margin(df_test)
     model = xgb.XGBRegressor(**params)

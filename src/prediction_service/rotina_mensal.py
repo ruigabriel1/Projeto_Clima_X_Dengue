@@ -53,6 +53,17 @@ def executar(atualizar_dados: bool = True, doencas=("dengue", "chikungunya"), ho
             mes = lote["mes_alvo"].iloc[0]
             lote.to_csv(DIR_RANKING / f"ranking_{d}_{mes}_h{h}.csv", index=False)
             resumo["emitidas"][f"{d}_h{h}"] = {"mes_alvo": mes, "novas": n, "total_previsto": int(lote["casos_previstos"].sum())}
+
+    # Modo sombra (PROTOCOLO_V6.md): a v6 emite ao lado da v5.1, sem aparecer na aplicação
+    from src.ml_pipeline.experimento_v6 import OUT_MODELOS_V6
+    if (OUT_MODELOS_V6 / "dengue" / "metadata.json").exists():
+        sombra = Preditor(model_dir=OUT_MODELOS_V6, fonte=p.fonte)
+        for d in sombra.doencas_disponiveis():
+            for h in horizontes:
+                lote = sombra.prever_lote(d, h)
+                n = registrar(lote, d, h, modelo="v6")
+                resumo["emitidas"][f"v6_{d}_h{h}"] = {"mes_alvo": lote["mes_alvo"].iloc[0], "novas": n,
+                                                      "total_previsto": int(lote["casos_previstos"].sum())}
     logger.info(json.dumps(resumo, ensure_ascii=False, indent=1))
     logger.info(f"Previsões registradas em {ARQ_PREVISOES}")
     return resumo

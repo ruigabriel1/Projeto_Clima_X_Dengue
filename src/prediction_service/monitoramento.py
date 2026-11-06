@@ -22,17 +22,25 @@ from src.ml_pipeline.feature_engineering import DOENCA_PARA_COL
 logger = logging.getLogger(__name__)
 
 ARQ_PREVISOES = OUTPUT_DIR / "monitoramento" / "previsoes.csv"
-CHAVE = ["codigo_ibge", "doenca", "mes_alvo", "horizonte"]
+CHAVE = ["modelo", "codigo_ibge", "doenca", "mes_alvo", "horizonte"]
+MODELO_PADRAO = "v5.1"   # registros antigos, anteriores à coluna "modelo"
 
 
-def registrar(lote: pd.DataFrame, doenca: str, h: int, path: Path = ARQ_PREVISOES) -> int:
+def _ler(path: Path) -> pd.DataFrame:
+    df = pd.read_csv(path, dtype={"codigo_ibge": str})
+    if "modelo" not in df.columns:
+        df["modelo"] = MODELO_PADRAO
+    return df
+
+
+def registrar(lote: pd.DataFrame, doenca: str, h: int, path: Path = ARQ_PREVISOES, modelo: str = MODELO_PADRAO) -> int:
     """Acrescenta as previsões do lote; ignora as que já tinham sido emitidas. Retorna quantas entraram."""
     novo = lote[["codigo_ibge", "mes_alvo", "casos_previstos", "ic_lo", "ic_hi", "probabilidade_risco_alto",
-                 "casos_persistencia"]].assign(doenca=doenca, horizonte=int(h),
+                 "casos_persistencia"]].assign(doenca=doenca, horizonte=int(h), modelo=modelo,
                                                emitido_em=datetime.now().isoformat(timespec="seconds"))
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
-        antigo = pd.read_csv(path, dtype={"codigo_ibge": str})
+        antigo = _ler(path)
         ja = antigo.set_index(CHAVE).index
         novo = novo[~novo.set_index(CHAVE).index.isin(ja)]
         if novo.empty:
@@ -48,9 +56,9 @@ def avaliar(panel: pd.DataFrame, path: Path = ARQ_PREVISOES) -> list[dict]:
     """Desempenho por doença × horizonte das previsões cujo mês-alvo já foi observado (painel consolidado)."""
     if not path.exists():
         return []
-    prev = pd.read_csv(path, dtype={"codigo_ibge": str})
+    prev = _ler(path)
     saida = []
-    for (doenca, h), g in prev.groupby(["doenca", "horizonte"]):
+    for (modelo, doenca, h), g in prev.groupby(["modelo", "doenca", "horizonte"]):
         alvo = DOENCA_PARA_COL[doenca]
         real = panel.dropna(subset=[alvo]).assign(mes_alvo=lambda x: x["year"].astype(str) + "-" + x["month"].map("{:02d}".format))
         real = real[["code", "mes_alvo", alvo]].rename(columns={"code": "codigo_ibge", alvo: "real"})
@@ -60,7 +68,7 @@ def avaliar(panel: pd.DataFrame, path: Path = ARQ_PREVISOES) -> list[dict]:
         mae = float(np.mean(np.abs(m["real"] - m["casos_previstos"])))
         mae_p = float(np.mean(np.abs(m["real"] - m["casos_persistencia"].fillna(0))))
         saida.append({
-            "doenca": doenca, "horizonte": int(h), "meses": sorted(m["mes_alvo"].unique().tolist()), "n": int(len(m)),
+            "modelo": modelo, "doenca": doenca, "horizonte": int(h), "meses": sorted(m["mes_alvo"].unique().tolist()), "n": int(len(m)),
             "casos_reais": int(m["real"].sum()), "casos_previstos": int(m["casos_previstos"].sum()),
             "razao_previsto_real": round(float(m["casos_previstos"].sum() / max(m["real"].sum(), 1)), 3),
             "mae": round(mae, 3), "mae_persistencia": round(mae_p, 3),

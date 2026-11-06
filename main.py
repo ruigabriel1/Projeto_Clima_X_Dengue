@@ -105,6 +105,21 @@ def command_modelo_risco(args):
     print("Modelos de risco em output/models/final_v5/" + (" (produção v5.1: todos os meses consolidados)" if args.producao else ""))
 
 
+def command_experimento_v6(args):
+    """Protocolo v6: formulação (offset de persistência), vizinhos, imunidade longa. Exige protocolo commitado."""
+    from src.ml_pipeline.experimento_v6 import main as v6_main
+    v6_main(["--doenca", args.doenca])
+
+
+def command_modelo_v6(args):
+    """Protocolo v6: modelo de produção do modo sombra (output/models/final_v6/)."""
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    from src.ml_pipeline.experimento_v6 import treinar_producao
+    configurar_log()
+    treinar_producao()
+    print("Modelo v6 (modo sombra) em output/models/final_v6/")
+
+
 def command_atualizar_mensal(args):
     """Produção v5.1: atualiza dados, avalia previsões passadas e emite/registra as novas."""
     from src.ml_pipeline.experimento_horizontes import configurar_log
@@ -215,6 +230,13 @@ def main():
     p_mr.add_argument("--producao", action="store_true",
                       help="v5.1: treina com todos os meses consolidados e calibra com OOF + teste 2026")
     p_mr.set_defaults(func=command_modelo_risco)
+
+    p_v6 = subparsers.add_parser("experimento-v6", help="v6: formulação × vizinhos × imunidade longa (pré-registrado).")
+    p_v6.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
+    p_v6.set_defaults(func=command_experimento_v6)
+
+    p_m6 = subparsers.add_parser("modelo-v6", help="v6: treina o modelo do modo sombra com a decisão do experimento.")
+    p_m6.set_defaults(func=command_modelo_v6)
 
     p_am = subparsers.add_parser("atualizar-mensal", help="v5.1: ingestão + monitoramento + previsões do mês.")
     p_am.add_argument("--sem-ingestao", action="store_true", help="Não baixa dados novos (só emite e avalia)")

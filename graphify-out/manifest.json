@@ -6,9 +6,9 @@
     "semantic_hash": "777833a442370f8e33989ebb29ae6935"
   },
   "app/server.py": {
-    "mtime": 1793986576.5578783,
-    "seen": 1793987179.8073764,
-    "ast_hash": "05592de5d14d9678258dc28ee70e1049",
+    "mtime": 1794005980.1256335,
+    "seen": 1794006205.9506216,
+    "ast_hash": "5a0b878380f92cb92e491642d4390c7d",
     "semantic_hash": ""
   },
   "app/static/js/api.js": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "main.py": {
-    "mtime": 1793987253.4480765,
-    "seen": 1793987567.2056117,
-    "ast_hash": "ec074b48fdc4422b40ef511c2e511d1e",
+    "mtime": 1794005988.9354486,
+    "seen": 1794006205.9506216,
+    "ast_hash": "c3a7702668ba692202422eccea1624a3",
     "semantic_hash": ""
   },
   "src/config.py": {
@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/feature_engineering.py": {
-    "mtime": 1793843357.0151546,
-    "seen": 1793843481.8528726,
-    "ast_hash": "8d2d103fe177fed071f7b4b3125bc7c0",
+    "mtime": 1794005683.3985019,
+    "seen": 1794006205.9516234,
+    "ast_hash": "2fdfcec95b92c0280e03e034e5dd88fc",
     "semantic_hash": ""
   },
   "src/ml_pipeline/ml_orchestrator.py": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/model_training.py": {
-    "mtime": 1793809523.8799856,
-    "seen": 1793819820.3750954,
-    "ast_hash": "bafafc61c970f949f73cb3e6fdc5f00f",
+    "mtime": 1794005815.9855309,
+    "seen": 1794006205.9516234,
+    "ast_hash": "44b6134e470ed86c8bb4a2df810f51b8",
     "semantic_hash": ""
   },
   "src/processamento/ingestor_api_sul.py": {
@@ -216,9 +216,9 @@
     "semantic_hash": ""
   },
   "src/prediction_service/predictor.py": {
-    "mtime": 1794003868.1691477,
-    "seen": 1794004046.0629961,
-    "ast_hash": "0d7d57dd3dde7bb68e5e7ee24d88190f",
+    "mtime": 1794005938.6626167,
+    "seen": 1794006205.9516234,
+    "ast_hash": "8b7d6661d572d97b99b0e84253f0ec46",
     "semantic_hash": ""
   },
   "src/prediction_service/schemas.py": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "tests/test_experimento.py": {
-    "mtime": 1793843375.260576,
-    "seen": 1793843481.8528726,
-    "ast_hash": "ce88d0ffc2e8ab7ecabcb038a1cd7b7c",
+    "mtime": 1794006114.8694012,
+    "seen": 1794006205.9516234,
+    "ast_hash": "7aeb7d2c702086c82ec5d6d9dbd2e85c",
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "src/prediction_service/monitoramento.py": {
-    "mtime": 1793986339.9733007,
-    "seen": 1793986547.029418,
-    "ast_hash": "6e4d1622259379991eabb3cacfb660e1",
+    "mtime": 1794005953.133947,
+    "seen": 1794006205.9516234,
+    "ast_hash": "054dc126c21c4e237d49aea21def9976",
     "semantic_hash": ""
   },
   "app/static/js/app.js": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "src/prediction_service/rotina_mensal.py": {
-    "mtime": 1793987251.1983967,
-    "seen": 1793987567.2056117,
-    "ast_hash": "8fe88a860b520ffd5e58a976275cf307",
+    "mtime": 1794005978.9238513,
+    "seen": 1794006205.9516234,
+    "ast_hash": "9078ba1bd5f60f1fdd4d8b14a690bc24",
     "semantic_hash": ""
   },
   "deploy/hf_space/README.md": {
@@ -339,6 +339,18 @@
     "mtime": 1793987383.2739582,
     "seen": 1793987567.2056117,
     "ast_hash": "a8cdbd05892b480e8da4e762db22b356",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/experimento_v6.py": {
+    "mtime": 1794005977.7645535,
+    "seen": 1794006205.9506216,
+    "ast_hash": "1bfcf4bab0910e962eb08744c2b7fd81",
+    "semantic_hash": ""
+  },
+  "docs/PROTOCOLO_V6.md": {
+    "mtime": 1794005634.4490266,
+    "seen": 1794006205.9516234,
+    "ast_hash": "2028e0e84c89782ecf678c963f7e30b1",
     "semantic_hash": ""
   }
 }

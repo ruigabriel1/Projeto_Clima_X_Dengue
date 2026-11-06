@@ -67,6 +67,37 @@ def _anomalia_expanding(d: pd.DataFrame, col: str) -> pd.Series:
     return d[col] - clim
 
 
+N_VIZINHOS = 8   # protocolo v6
+
+
+def _incidencia_vizinhos(d: pd.DataFrame, alvo: str, k: int = N_VIZINHOS) -> pd.Series | None:
+    """
+    Incidência agregada (casos / pop × 100 mil) das k cidades mais próximas (haversine), no MESMO mês.
+    O deslocamento para t−h é feito por quem chama. Cidades sem coordenada ficam NaN.
+    """
+    coords = d.groupby("code", sort=False)[["latitude", "longitude"]].first().dropna()
+    if len(coords) <= k:
+        return None
+    lat, lon = np.radians(coords["latitude"].to_numpy()), np.radians(coords["longitude"].to_numpy())
+    dlat, dlon = lat[:, None] - lat[None, :], lon[:, None] - lon[None, :]
+    a = np.sin(dlat / 2) ** 2 + np.cos(lat[:, None]) * np.cos(lat[None, :]) * np.sin(dlon / 2) ** 2
+    dist = 2 * np.arcsin(np.sqrt(a))
+    np.fill_diagonal(dist, np.inf)
+    viz = np.argsort(dist, axis=1)[:, :k]                          # (n_cidades, k)
+    t = (d["year"] * 12 + d["month"]).to_numpy()
+    casos = d.pivot_table(index=t, columns="code", values=alvo, aggfunc="sum").reindex(columns=coords.index)
+    pops = d.assign(_p=d["populacao"].where(d[alvo].notna())).pivot_table(
+        index=t, columns="code", values="_p", aggfunc="sum").reindex(columns=coords.index)
+    c, p = casos.to_numpy(float), pops.to_numpy(float)              # (meses, cidades)
+    soma_c = np.nansum(c[:, viz], axis=2)                          # (meses, cidades)
+    soma_p = np.nansum(p[:, viz], axis=2)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        inc = np.where(soma_p > 0, soma_c / soma_p * 100_000, np.nan)
+    tab = pd.DataFrame(inc, index=casos.index, columns=coords.index).stack(future_stack=True)
+    chave = pd.MultiIndex.from_arrays([t, d["code"]])
+    return pd.Series(tab.reindex(chave).to_numpy(), index=d.index)
+
+
 def build_ml_features(panel: pd.DataFrame, doenca: str = "dengue", horizonte: int = 1) -> pd.DataFrame:
     """
     Constrói as features a partir do painel base.
@@ -179,6 +210,28 @@ def build_ml_features(panel: pd.DataFrame, doenca: str = "dengue", horizonte: in
         ).clip(upper=60)
         d = d.drop(columns=["_incid"])
 
+    # ---------- 6c. Protocolo v6: vizinhos (V) e imunidade longa (L) ----------
+    # Desligadas por padrão em get_feature_columns (vizinhos=False, imunidade_longa=False).
+    if has_pop:
+        p_alvo = PREFIXOS[alvo]
+        d["_incid"] = d[alvo] / pop * 100_000
+        for janela in (48, 60):
+            d[f"{p_alvo}_imun_acum{janela}_lag{h}"] = _roll_shifted(d, "_incid", h, janela, janela // 2, how="sum")
+        # imunidade do estado: incidência da UF (casos/pop da UF) acumulada em 24 meses até t−h
+        uf = d["code"].astype(str).str[:2]
+        chave = [uf, d["year"], d["month"]]
+        casos_uf = d[alvo].groupby(chave).transform("sum")
+        pop_uf = pop.where(d[alvo].notna()).groupby(chave).transform("sum")
+        d["_inc_uf"] = casos_uf / pop_uf * 100_000
+        d[f"{p_alvo}_imun_uf_acum24_lag{h}"] = _roll_shifted(d, "_inc_uf", h, 24, 12, how="sum")
+        if {"latitude", "longitude"} <= set(d.columns):
+            viz = _incidencia_vizinhos(d, alvo)
+            if viz is not None:
+                d["_inc_viz"] = viz
+                d[f"{p_alvo}_viz_incid_lag{h}"] = d.groupby("code", sort=False)["_inc_viz"].shift(h)
+                d[f"{p_alvo}_viz_incid_media3_lag{h}"] = _roll_shifted(d, "_inc_viz", h, 3, 2)
+        d = d.drop(columns=[c for c in ("_incid", "_inc_uf", "_inc_viz") if c in d.columns])
+
     # ---------- 7. Estáticas da cidade ----------
     if has_pop:
         d["log_pop"] = np.log1p(d["populacao"].fillna(0))
@@ -223,6 +276,16 @@ def is_suscetibilidade(col: str) -> bool:
     return "_susc_" in col
 
 
+def is_vizinhos(col: str) -> bool:
+    """Protocolo v6, grupo V."""
+    return "_viz_" in col
+
+
+def is_imunidade_longa(col: str) -> bool:
+    """Protocolo v6, grupo L."""
+    return "_imun_" in col
+
+
 def get_feature_columns(
     df: pd.DataFrame,
     forecast: bool = True,
@@ -230,6 +293,8 @@ def get_feature_columns(
     usar_clima: bool = True,
     clima: str | None = None,
     suscetibilidade: bool = False,
+    vizinhos: bool = False,
+    imunidade_longa: bool = False,
 ) -> list[str]:
     """
     Features do Modelo A (previsão).
@@ -264,6 +329,7 @@ def get_feature_columns(
         if c not in excluir and not c.startswith("_")   # "_" = coluna auxiliar (ex.: _incid do alvo), nunca feature
         and pd.api.types.is_numeric_dtype(df[c])
         and _clima_ok(c) and (suscetibilidade or not is_suscetibilidade(c))
+        and (vizinhos or not is_vizinhos(c)) and (imunidade_longa or not is_imunidade_longa(c))
     ]
 
     # Menor lag disponível por doença (depende do horizonte)

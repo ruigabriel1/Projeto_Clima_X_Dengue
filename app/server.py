@@ -223,7 +223,8 @@ def api_confiabilidade(doenca: Literal["dengue", "chikungunya"] = "dengue"):
         m = p.metadata(doenca)
     except Exception as e:
         _erro_http(e)
-    ao_vivo = [x for x in avaliar(p.fonte.panel) if x["doenca"] == doenca]
+    # só o modelo em produção; o modo sombra (v6) é avaliado à parte, no fim do teste
+    ao_vivo = [x for x in avaliar(p.fonte.panel) if x["doenca"] == doenca and x["modelo"] == m["versao"]]
     return {"doenca": doenca, "versao": m["versao"], "periodo_treino": m.get("periodo_treino"),
             "calibracao": m.get("calibracao"), "treinado_em": m["treinado_em"],
             "ultimo_mes_consolidado": "{}-{:02d}".format(*p.ultimo_mes_consolidado(doenca)),

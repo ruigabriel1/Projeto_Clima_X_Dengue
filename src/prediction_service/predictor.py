@@ -56,6 +56,14 @@ def _fmt_mes(ano: int, mes: int) -> str:
     return f"{ano}-{mes:02d}"
 
 
+def margem_modelo(meta: dict, X: pd.DataFrame, doenca: str, h: int) -> np.ndarray:
+    """Offset usado no treino: log(pop/100 mil) (v5) ou log(casos[t−h] + 1) (v6, formulação A)."""
+    if meta.get("offset") == "persistencia":
+        from src.ml_pipeline.model_training import margem_persistencia
+        return margem_persistencia(X, f"{PREFIXOS[DOENCA_PARA_COL[doenca]]}_lag{h}")
+    return np.log(np.maximum(X["populacao"].to_numpy(float), 1.0) / 100_000.0)
+
+
 def aplicar_intervalo(pred: float, calib: dict | None) -> tuple[int, int]:
     """Intervalo de 90% a partir dos quantis de resíduo log1p calibrados no OOF."""
     if not calib:
@@ -132,7 +140,7 @@ class Preditor:
 
         pop = float(linha["populacao"].iloc[0])
         modelo = self._carregar(doenca, hm["arquivo"])
-        margem = np.log(np.array([max(pop, 1.0)]) / 100_000.0)
+        margem = margem_modelo(meta, linha, doenca, h)
         pred = float(max(0.0, modelo.predict(linha[hm["features"]], base_margin=margem)[0]))
         incid = pred / pop * 100_000
         escore = incid / (cid["p75_incid"] + meta["eps_incid"])
@@ -250,7 +258,7 @@ class Preditor:
         X = X[X.index.isin(list(meta["cidades"].keys())) & (X["populacao"] > 0)]
         pop = X["populacao"].to_numpy(float)
         pred = np.maximum(0.0, self._carregar(doenca, hm["arquivo"]).predict(
-            X[hm["features"]], base_margin=np.log(np.maximum(pop, 1.0) / 100_000.0)))
+            X[hm["features"]], base_margin=margem_modelo(meta, X, doenca, h)))
         p75 = np.array([meta["cidades"][c]["p75_incid"] for c in X.index])
         incid = pred / pop * 100_000
         prob = self._carregar(doenca, hm["calibrador"]).predict(incid / (p75 + meta["eps_incid"]))

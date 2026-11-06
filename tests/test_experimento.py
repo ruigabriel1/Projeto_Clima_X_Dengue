@@ -197,6 +197,124 @@ class TestCombinacao:
         assert p[2019] == 0.0 and p[2020] == 0.0
 
 
+@pytest.fixture
+def painel_grade():
+    """12 cidades numa grade de coordenadas × 4 anos (para os vizinhos do protocolo v6)."""
+    rng = np.random.default_rng(0)
+    linhas = []
+    for i in range(12):
+        code = f"4{i // 4 + 1}{i:04d}"           # UFs 41, 42, 43
+        for y in range(2016, 2020):
+            for m in range(1, 13):
+                linhas.append({"code": code, "year": y, "month": m, "dengue_cases": int(rng.poisson(20 + 5 * i)),
+                               "chik_cases": int(rng.poisson(3)), "populacao": 10_000 * (i + 1),
+                               "latitude": -25.0 - (i % 4), "longitude": -50.0 - (i // 4), "temp_media": 20.0,
+                               "precipitacao": 100.0})
+    return pd.DataFrame(linhas)
+
+
+class TestFeaturesV6:
+    @pytest.mark.parametrize("h", [1, 3])
+    def test_vizinhos_e_imunidade_nao_usam_o_futuro(self, painel_grade, h):
+        df = build_ml_features(painel_grade, doenca="dengue", horizonte=h)
+        alterado = painel_grade.copy()
+        alvo_t = (alterado.year == 2019) & (alterado.month == 6)
+        alterado.loc[alvo_t, "dengue_cases"] += 10_000               # muda o mês t de TODAS as cidades
+        df2 = build_ml_features(alterado, doenca="dengue", horizonte=h)
+        cols = [c for c in df.columns if "_viz_" in c or "_imun_" in c]
+        assert len(cols) == 5
+        linha = (df.year == 2019) & (df.month == 6)
+        pd.testing.assert_frame_equal(df.loc[linha, cols].reset_index(drop=True), df2.loc[linha, cols].reset_index(drop=True))
+
+    def test_vizinhos_agregam_as_8_mais_proximas(self, painel_grade):
+        df = build_ml_features(painel_grade, doenca="dengue", horizonte=1)
+        c0 = painel_grade.code.iloc[0]
+        coords = painel_grade.groupby("code")[["latitude", "longitude"]].first()
+        lat, lon = np.radians(coords["latitude"]), np.radians(coords["longitude"])
+        a = (np.sin((lat - lat[c0]) / 2) ** 2 + np.cos(lat) * np.cos(lat[c0]) * np.sin((lon - lon[c0]) / 2) ** 2)
+        viz = a.drop(c0).sort_values(kind="stable").index[:8]
+        mes = painel_grade[(painel_grade.year == 2018) & (painel_grade.month == 5) & painel_grade.code.isin(viz)]
+        esperado = mes.dengue_cases.sum() / mes.populacao.sum() * 1e5
+        obtido = df[(df.code == c0) & (df.year == 2018) & (df.month == 6)]["dengue_viz_incid_lag1"].iloc[0]
+        assert obtido == pytest.approx(esperado)
+
+    def test_novas_features_desligadas_por_padrao(self, painel_grade):
+        df = build_ml_features(painel_grade, doenca="dengue", horizonte=1)
+        padrao = get_feature_columns(df, doenca="dengue", clima="parcimonioso", suscetibilidade=True)
+        assert not any("_viz_" in c or "_imun_" in c for c in padrao)
+        com = get_feature_columns(df, doenca="dengue", clima="parcimonioso", suscetibilidade=True,
+                                  vizinhos=True, imunidade_longa=True)
+        assert set(com) - set(padrao) == {c for c in df.columns if "_viz_" in c or "_imun_" in c}
+
+
+class TestExperimentoV6:
+    def test_offset_de_persistencia(self):
+        from src.ml_pipeline.model_training import fit_predict_fold, margem_persistencia
+        df = pd.DataFrame({"x": np.arange(200.0), "y": np.arange(200) % 7, "lag": [np.nan, 0.0, 4.0, 9.0] * 50,
+                           "populacao": 1000})
+        assert list(margem_persistencia(df.head(4), "lag")) == pytest.approx(np.log([1, 1, 5, 10]))
+        _, pred = fit_predict_fold(df, df, ["x"], "y", offset_persistencia="lag")
+        assert (pred >= 0).all() and len(pred) == 200
+
+    def test_regra_sequencial(self):
+        from src.ml_pipeline.experimento_v6 import decidir
+
+        def ef(passos_sim):
+            linhas = []
+            for passo in ("A_vs_B0", "V_vs_B0", "L_vs_B0", "V_vs_A", "L_vs_A"):
+                for h in (1, 2, 3):
+                    linhas.append({"passo": passo, "horizonte": h, "reduz_erro": passo in passos_sim and h <= 2})
+            return pd.DataFrame(linhas)
+        assert decidir({"dengue": ef({"A_vs_B0", "V_vs_A"})})["dengue"]["modelo"] == "A_V"
+        assert decidir({"dengue": ef({"V_vs_A", "L_vs_B0"})})["dengue"]["modelo"] == "B0_L"   # V só valeria sobre A
+        d = decidir({"dengue": ef(set())})["dengue"]
+        assert d["modelo"] == "B0" and d["offset"] == "pop"
+
+    def test_ponta_a_ponta(self, mini_panel, tmp_path):
+        from src.ml_pipeline import experimento_v6 as v6
+        base = {"dengue": {"clima": "parcimonioso", "suscetibilidade": True}}
+        res, ef, dec = v6.run(panel=mini_panel, out_dir=tmp_path, doencas=("dengue",), horizontes=(1, 2),
+                              base=base, exigir_registro=False)
+        assert set(res["modelo"]) == {*v6.VARIANTES, "persistencia"}
+        assert set(ef["passo"]) == {"A_vs_B0", "V_vs_B0", "L_vs_B0", "V_vs_A", "L_vs_A"}
+        assert dec["dengue"]["formulacao"] in ("A", "B0")
+        oof = pd.read_csv(tmp_path / "oof_dengue_h1.csv.gz")
+        assert oof["year"].min() >= v6.ANO_MIN_TESTE
+        assert json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))["protocolo_commit"] is None
+
+    def test_producao_e_preditor_com_offset_de_persistencia(self, mini_panel, tmp_path):
+        from src.ml_pipeline import experimento_v6 as v6
+        from src.prediction_service.data_fetcher import FonteDados
+        from src.prediction_service.predictor import Preditor
+        panel = mini_panel.assign(city_name="X")
+        base = {"dengue": {"clima": "parcimonioso", "suscetibilidade": True}}
+        v6.run(panel=panel, out_dir=tmp_path / "exp", doencas=("dengue",), horizontes=(1,), base=base,
+               exigir_registro=False)
+        (tmp_path / "exp" / "decisao.json").write_text(json.dumps({"dengue": {
+            "formulacao": "A", "offset": "persistencia", "vizinhos": False, "imunidade_longa": True,
+            "modelo": "A_L"}}), encoding="utf-8")
+        meta = v6.treinar_producao(panel, exp_dir=tmp_path / "exp", out_dir=tmp_path / "mod", horizontes=(1,), base=base)
+        assert meta["dengue"]["offset"] == "persistencia" and meta["dengue"]["horizontes"]["h1"]["calibracao_de"] == "A_L"
+        lote = Preditor(model_dir=tmp_path / "mod", fonte=FonteDados(panel)).prever_lote("dengue", 1)
+        assert len(lote) == 2 and (lote["casos_previstos"] >= 0).all()
+
+
+class TestMonitoramentoPorModelo:
+    def test_modelos_separados_e_registro_antigo(self, tmp_path):
+        from src.prediction_service.monitoramento import avaliar, registrar
+        arq = tmp_path / "p.csv"
+        pd.DataFrame({"codigo_ibge": ["100001"], "mes_alvo": ["2024-01"], "casos_previstos": [5], "ic_lo": [0],
+                      "ic_hi": [9], "probabilidade_risco_alto": [0.2], "casos_persistencia": [4.0],
+                      "doenca": ["dengue"], "horizonte": [1], "emitido_em": ["x"]}).to_csv(arq, index=False)  # sem "modelo"
+        lote = pd.DataFrame({"codigo_ibge": ["100001"], "mes_alvo": ["2024-01"], "casos_previstos": [7], "ic_lo": [1],
+                             "ic_hi": [12], "probabilidade_risco_alto": [0.3], "casos_persistencia": [4.0]})
+        assert registrar(lote, "dengue", 1, arq, modelo="v5.1") == 0        # já emitida pela v5.1
+        assert registrar(lote, "dengue", 1, arq, modelo="v6") == 1
+        panel = pd.DataFrame({"code": ["100001"], "year": [2024], "month": [1], "dengue_cases": [6]})
+        res = {r["modelo"]: r for r in avaliar(panel, arq)}
+        assert res["v5.1"]["casos_previstos"] == 5 and res["v6"]["casos_previstos"] == 7
+
+
 class TestTravaHoldout:
     def test_trava_impede_reuso(self, tmp_path):
         from src.ml_pipeline.teste_final import LOCK_NAME, HoldoutJaUsado, run_teste_final
