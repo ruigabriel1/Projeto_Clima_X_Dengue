@@ -292,7 +292,7 @@ async function carregarConfiabilidade() {
     const rot = hs.map((h) => `${h.slice(1)} ${h === "h1" ? "mês" : "meses"} à frente`);
     Plotly.react("cfGrafico", [
       { type: "bar", name: "Modelo", x: rot, y: hs.map((h) => t(h).modelo?.auc), marker: { color: COR.modelo } },
-      { type: "bar", name: "Persistência (repetir o último mês)", x: rot, y: hs.map((h) => t(h).persistencia?.auc), marker: { color: COR.persist } },
+      { type: "bar", name: "Persistência", x: rot, y: hs.map((h) => t(h).persistencia?.auc), marker: { color: COR.persist } },
       { type: "bar", name: "Alerta InfoDengue", x: rot, y: hs.map((h) => t(h).auc_infodengue), marker: { color: COR.info } },
     ], { ...layoutBase, barmode: "group", title: { text: "Acerto na ordem de risco (AUC) no teste de 2026 · 0,5 = acaso, 1 = perfeito", font: { size: 14 } },
       yaxis: { range: [0.4, 1], title: "AUC" }, shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 0.5, y1: 0.5, line: { dash: "dot", color: "#94a3b8" } }] }, cfgPlot);
