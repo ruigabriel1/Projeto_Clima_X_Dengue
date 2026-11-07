@@ -7,17 +7,17 @@ function getPlotlyConfig() {
 }
 
 function getPlotlyLayout(title, yTitle) {
-  const fontColor = "#1e293b";
+  const fontColor = "#55524b";
   const paperBg = "transparent";
   const plotBg = "transparent";
-  const gridColor = "#e2e8f0";
+  const gridColor = "#e4e0d6";
 
   return {
-    title: { text: title, font: { color: fontColor, size: 16, family: "Inter, sans-serif" } },
+    title: { text: title, font: { color: fontColor, size: 15, family: "'Source Serif 4', Georgia, serif" } },
     paper_bgcolor: paperBg,
     plot_bgcolor: plotBg,
     font: { color: fontColor, family: "Inter, sans-serif" },
-    xaxis: { gridcolor: gridColor, tickfont: { color: fontColor }, showline: true, linecolor: gridColor },
+    xaxis: { showgrid: false, tickfont: { color: fontColor }, showline: true, linecolor: gridColor },
     yaxis: { title: yTitle, gridcolor: gridColor, tickfont: { color: fontColor }, showline: true, linecolor: gridColor },
     margin: { t: 50, b: 40, l: 60, r: 20 },
     legend: { font: { color: fontColor }, orientation: "h", y: -0.2 }
@@ -28,8 +28,8 @@ function getPlotlyLayout(title, yTitle) {
 export function renderChartBacktest(serie) {
   if (!serie || !serie.labels || serie.labels.length === 0) return;
   const traces = [
-    { x: serie.labels, y: serie.real, type: "scatter", mode: "lines", name: "Casos reais", line: { color: "#1e293b", width: 2 } },
-    { x: serie.labels, y: serie.previsto, type: "scatter", mode: "lines", name: "Previsto (fora da amostra)", line: { color: "#3b82f6", width: 2, dash: "dash" } },
+    { x: serie.labels, y: serie.real, type: "scatter", mode: "lines", name: "Casos reais", line: { color: "#1c1b18", width: 2 } },
+    { x: serie.labels, y: serie.previsto, type: "scatter", mode: "lines", name: "Previsto (fora da amostra)", line: { color: "#0f6e6e", width: 2, dash: "dash" } },
   ];
   const layout = getPlotlyLayout("Backtest: real × previsto 1 mês à frente", "Casos mensais");
   Plotly.react("chartBacktest", traces, layout, getPlotlyConfig());
@@ -40,7 +40,7 @@ export function renderChartSazonal(data) {
   
   const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const maxCasos = Math.max(...data.casos_mean);
-  const colors = data.casos_mean.map(v => v === maxCasos ? "#ef4444" : "#3b82f6");
+  const colors = data.casos_mean.map(v => v === maxCasos ? "#c2410c" : "#0f6e6e");
 
   const traces = [
     { 
@@ -57,7 +57,7 @@ export function renderChartSazonal(data) {
       type: "scatter", 
       mode: "lines+markers", 
       name: "Temperatura Média", 
-      line: { color: "#f59e0b", width: 3 },
+      line: { color: "#b07a1d", width: 3 },
       yaxis: "y2"
     }
   ];
@@ -67,8 +67,8 @@ export function renderChartSazonal(data) {
     title: "Temperatura Média (°C)",
     overlaying: "y",
     side: "right",
-    gridcolor: "#e2e8f0",
-    tickfont: { color: "#1e293b" }
+    gridcolor: "#e4e0d6",
+    tickfont: { color: "#1c1b18" }
   };
   layout.legend = { orientation: "h", y: -0.2 };
 

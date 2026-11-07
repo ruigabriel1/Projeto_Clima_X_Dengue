@@ -4,64 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prodígia | Previsão de Arboviroses</title>
+  <meta name="description" content="Previsão de 1 a 3 meses e cenários de dengue e chikungunya para os 1.190 municípios do PR, SC e RS, com a margem de erro e o desempenho real do modelo.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css?v=5.1.3">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.2.7">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
 
   <div class="app-container">
 
-    <!-- SIDEBAR: navegação -->
-    <aside class="sidebar">
+    <header class="topo">
       <div class="brand">
         <h1>Prodígia</h1>
-        <p>Dengue e chikungunya na Região Sul</p>
+        <p>Dengue e chikungunya · Região Sul</p>
       </div>
 
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="previsao" role="tab">🔮 Previsão por mês</button>
-        <button class="tab" data-tab="ranking" role="tab">📍 Ranking de risco</button>
-        <button class="tab" data-tab="cenario" role="tab">📈 Próximos 5 anos</button>
-        <button class="tab" data-tab="confiabilidade" role="tab">🎯 Quão confiável é</button>
-        <button class="tab" data-tab="historico" role="tab">🗂️ Histórico</button>
+      <nav class="tabs" role="tablist" aria-label="Seções">
+        <button class="tab active" data-tab="previsao" role="tab" title="Previsão por mês">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Previsão por mês</span></button>
+        <button class="tab" data-tab="ranking" role="tab" title="Ranking de risco">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M7 15v-4M12 15V6M17 15v-7"/></svg><span>Ranking de risco</span></button>
+        <button class="tab" data-tab="cenario" role="tab" title="Próximos 5 anos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg><span>Próximos 5 anos</span></button>
+        <button class="tab" data-tab="confiabilidade" role="tab" title="Quão confiável é">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>Quão confiável é</span></button>
+        <button class="tab" data-tab="historico" role="tab" title="Histórico">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M4 10h16M9 5v14"/></svg><span>Histórico</span></button>
       </nav>
 
-      <div class="control-panel sidebar-info">
-        <p><strong>O que o modelo faz:</strong> prevê de 1 a 3 meses à frente o risco de cada cidade ficar
-          acima do seu próprio padrão (P75 histórico) e o número de casos, com intervalo de 90%.</p>
-        <p><strong>O que ele não faz:</strong> prever anos à frente. Para isso, a aba "Próximos 5 anos" mostra
-          cenários, não previsões.</p>
-        <p class="muted" id="infoModelo">Carregando modelo…</p>
-        <p class="muted"><a href="/docs">API (/docs)</a> · <a href="https://github.com/ruigabriel1/Projeto_Clima_X_Dengue" target="_blank" rel="noopener">Código</a></p>
-      </div>
-    </aside>
+      <div class="topo-dado" id="topoDado">Carregando modelo…</div>
+    </header>
 
     <main class="main-content">
-      <div id="loader" class="loader-overlay"><div class="spinner"></div></div>
+      <div id="loader" class="loader-overlay"><div class="spinner" role="status" aria-label="Carregando"></div></div>
 
       <!-- ============ 1. PREVISÃO POR MÊS ============ -->
       <section class="tab-panel active" id="tab-previsao">
-        <div class="top-bar"><h2>Quantos casos em um mês?</h2></div>
-        <div class="form-row">
-          <label>Município
-            <input id="pvCidade" list="listaCidades" placeholder="Digite o nome (ex.: Curitiba)" autocomplete="off">
-          </label>
-          <label>Doença
-            <select id="pvDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
-          </label>
-          <label>Mês
-            <select id="pvMes"></select>
-          </label>
-          <button class="btn-primary" id="pvBotao">Ver resposta</button>
+        <h2 class="pergunta">
+          Quantos casos de
+          <select id="pvDoenca" class="campo" aria-label="Doença"><option value="dengue">dengue</option><option value="chikungunya">chikungunya</option></select>
+          em
+          <input id="pvCidade" class="campo" list="listaCidades" aria-label="Município" placeholder="município" autocomplete="off">
+          em
+          <select id="pvMes" class="campo" aria-label="Mês"></select>?
+        </h2>
+        <div class="pergunta-rodape">
+          <span>Toque nas palavras sublinhadas para trocar a doença, o município ou o mês.</span>
+          <button class="btn-primary btn-sm" id="pvBotao">Ver resposta</button>
         </div>
         <datalist id="listaCidades"></datalist>
         <div id="pvResultado" class="result-area"><p class="muted">Escolha um município e um mês.</p></div>
         <div class="chart-card" id="pvGraficoCard" hidden>
-          <div id="pvGrafico" style="width:100%; height:360px;"></div>
+          <div id="pvGrafico" style="width:100%; height:340px;"></div>
         </div>
       </section>
 
@@ -109,9 +106,11 @@
           </label>
           <fieldset class="seg">
             <legend>Aquecimento</legend>
-            <label><input type="radio" name="ceDelta" value="0" checked> Clima atual</label>
-            <label><input type="radio" name="ceDelta" value="1"> +1 °C</label>
-            <label><input type="radio" name="ceDelta" value="2"> +2 °C</label>
+            <div>
+              <label><input type="radio" name="ceDelta" value="0" checked> Clima atual</label>
+              <label><input type="radio" name="ceDelta" value="1"> +1 °C</label>
+              <label><input type="radio" name="ceDelta" value="2"> +2 °C</label>
+            </div>
           </fieldset>
           <button class="btn-primary" id="ceBotao">Ver cenário</button>
         </div>
@@ -177,7 +176,7 @@
 
       <!-- ============ 5. HISTÓRICO (painel analítico) ============ -->
       <section class="tab-panel" id="tab-historico">
-        <div class="top-bar"><h2>Histórico — Região Sul (PR, SC, RS)</h2></div>
+        <div class="top-bar"><h2>Histórico da Região Sul (PR, SC, RS)</h2></div>
 
         <section class="stats-grid">
           <div class="stat-card"><span class="stat-label">Municípios</span><span class="stat-value" id="totalMunicipios">-</span></div>
@@ -187,24 +186,24 @@
         </section>
 
         <section id="chartsGrid" class="charts-grid">
-          <div class="chart-card highlight-card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent-primary);">
-            <div style="display: flex; gap: 2rem; align-items: center; padding: 1rem; flex-wrap: wrap;">
+          <div class="chart-card highlight-card">
+            <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; justify-content: space-between;">
               <div>
-                <h3 style="margin: 0; font-size: 1.2rem;">Precisão do modelo do painel (expanding window)</h3>
-                <p style="margin: 0.5rem 0 0; color: var(--text-secondary); font-size: 0.9rem;">Validação fora da amostra do modelo de contagem</p>
+                <h3 style="margin: 0;">Precisão do modelo do painel (expanding window)</h3>
+                <p class="muted" style="margin-top: 4px;">Validação fora da amostra do modelo de contagem</p>
               </div>
-              <div style="display: flex; gap: 1.5rem;">
-                <div class="metric-badge"><span style="font-weight: 600;">R² médio:</span> <span id="metricR2" style="font-weight: bold;">-</span></div>
-                <div class="metric-badge"><span style="font-weight: 600;">MAE médio:</span> <span id="metricMAE" style="font-weight: bold;">-</span></div>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="metric-badge">R² médio: <strong id="metricR2">-</strong></div>
+                <div class="metric-badge">MAE médio: <strong id="metricMAE">-</strong></div>
               </div>
             </div>
           </div>
           <div class="chart-card hero-chart">
-            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <h3 style="margin: 0;"></h3>
-              <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">⬇ Baixar PNG</button>
+            <div class="chart-header">
+              <h3></h3>
+              <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">Baixar PNG</button>
             </div>
-            <div id="chartBacktest" style="width:100%; height:500px;"></div>
+            <div id="chartBacktest" style="width:100%; height:460px;"></div>
           </div>
           <div class="grid-2">
             <div class="chart-card"><div id="chartSazonal" style="width:100%; height:350px;"></div></div>
@@ -222,9 +221,26 @@
         </section>
       </section>
     </main>
+
+    <footer class="rodape">
+      <div class="rodape-dentro">
+        <div>
+          <h3>Sobre o modelo</h3>
+          <p><strong>O que o modelo faz:</strong> prevê de 1 a 3 meses à frente o risco de cada cidade ficar
+            acima do seu próprio padrão (P75 histórico) e o número de casos, com intervalo de 90%.</p>
+          <p><strong>O que ele não faz:</strong> prever anos à frente. Para isso, a aba "Próximos 5 anos" mostra
+            cenários, não previsões.</p>
+        </div>
+        <div>
+          <h3>Dados e código</h3>
+          <p id="infoModelo">Carregando modelo…</p>
+          <p><a href="/docs">API (/docs)</a> · <a href="https://github.com/ruigabriel1/Projeto_Clima_X_Dengue" target="_blank" rel="noopener">Código e resultados no GitHub</a></p>
+        </div>
+      </div>
+    </footer>
   </div>
 
-  <script type="module" src="/static/js/main.js?v=5.1.3"></script>
-  <script type="module" src="/static/js/app.js?v=5.1.3"></script>
+  <script type="module" src="/static/js/main.js?v=5.2.7"></script>
+  <script type="module" src="/static/js/app.js?v=5.2.7"></script>
 </body>
 </html>

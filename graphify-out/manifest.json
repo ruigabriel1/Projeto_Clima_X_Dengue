@@ -18,15 +18,15 @@
     "semantic_hash": "fb37fc581a2980c938afe7315e7e8ed9"
   },
   "app/static/js/charts.js": {
-    "mtime": 1793809291.8457253,
-    "seen": 1793819820.3750954,
-    "ast_hash": "c44bb38f0381c65cae62b7049603b188",
+    "mtime": 1794023347.3683016,
+    "seen": 1794023543.7682035,
+    "ast_hash": "8f510d3bf416cf664c9998394e547b30",
     "semantic_hash": ""
   },
   "app/static/js/main.js": {
-    "mtime": 1793809326.1009233,
-    "seen": 1793819820.3750954,
-    "ast_hash": "8ca494fd90b6461d9e4cea8580ee5aeb",
+    "mtime": 1794023431.266152,
+    "seen": 1794023543.7682035,
+    "ast_hash": "13163da5b6833fd833efe470c9f0ac49",
     "semantic_hash": ""
   },
   "app/static/js/ui.js": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/templates/index.html": {
-    "mtime": 1794018511.828581,
-    "seen": 1794018780.5324628,
-    "ast_hash": "7934fc78164b9d98baf1d350f60c4219",
+    "mtime": 1794023431.252151,
+    "seen": 1794023543.7682035,
+    "ast_hash": "b94111ec2624549aaab7193fd97820b0",
     "semantic_hash": ""
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "app/static/js/app.js": {
-    "mtime": 1794018510.3342245,
-    "seen": 1794018780.5324628,
-    "ast_hash": "d2363ca22743c7e02c8c27dbd45b1fc9",
+    "mtime": 1794023430.0912964,
+    "seen": 1794023543.7682035,
+    "ast_hash": "f01edc963574891cd48d251ffa63c50e",
     "semantic_hash": ""
   },
   "src/prediction_service/artefatos.py": {
