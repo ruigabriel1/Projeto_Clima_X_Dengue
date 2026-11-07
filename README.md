@@ -8,6 +8,11 @@ Dados públicos de **1.190 municípios** (PR, SC, RS), **2015–2026**, um proto
 e uma aplicação web + API que entrega **alerta de risco** e casos previstos por município, de 1 a 3 meses
 à frente, sempre com a margem de erro e o desempenho real medido em 2026.
 
+### [▶ Abrir a aplicação](https://ruigabriel1.github.io/Projeto_Clima_X_Dengue/)
+
+Funciona no navegador e no celular, sem instalar nada. Versão estática (GitHub Pages) com as previsões das
+1.190 cidades calculadas a cada atualização mensal; a API completa roda com Docker (ver [Rodando](#rodando)).
+
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-Poisson-EB5E28)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20de%20previsão-009688?logo=fastapi&logoColor=white)
