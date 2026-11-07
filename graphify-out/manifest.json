@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/processamento/ingestor_api_sul.py": {
-    "mtime": 1793808947.356865,
-    "seen": 1793819820.3750954,
-    "ast_hash": "80ef7834c8dc926837a44ef070e1fec9",
+    "mtime": 1794015523.8641346,
+    "seen": 1794015642.0754435,
+    "ast_hash": "279545be0cfa6f06147dfda3391709e5",
     "semantic_hash": ""
   },
   "src/processamento/ingestor_ibge_populacao.py": {
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "src/processamento/atualizacao_incremental.py": {
-    "mtime": 1793812955.1346793,
-    "seen": 1793819820.3750954,
-    "ast_hash": "1f8b7ddb8a15e87c34560cd63b350e35",
+    "mtime": 1794015573.255152,
+    "seen": 1794015642.0754435,
+    "ast_hash": "96acac47c28799f9b5b433d74f7a9501",
     "semantic_hash": ""
   },
   "tests/conftest.py": {
@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "tests/test_atualizacao_incremental.py": {
-    "mtime": 1793809036.2494698,
-    "seen": 1793819820.3750954,
-    "ast_hash": "7653b47b5f3e0244569d9fb95e031537",
+    "mtime": 1794015574.081912,
+    "seen": 1794015642.0754435,
+    "ast_hash": "54011fba849da6afca8075dba1093092",
     "semantic_hash": ""
   },
   "tests/test_dlnm.py": {

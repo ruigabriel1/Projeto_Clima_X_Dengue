@@ -9,6 +9,9 @@ Política (preserva a reprodutibilidade dos experimentos já publicados):
   - Só meses FECHADOS (anteriores ao mês corrente) são gravados.
   - Upsert por (CODIGO_MUNICIPIO, ANO, MES), garantido por índice UNIQUE: rodar de novo não duplica.
   - Progresso por cidade em `ingestao_progresso`; uma rodada interrompida retoma de onde parou.
+  - InfoDengue: as últimas 12 semanas (casos, casos_est, Rt, p_rt1...) de dengue e chikungunya são copiadas
+    em `ingestao_infodengue_snapshot` com a data da coleta. Só acrescenta; é o registro do que se sabia
+    em cada data (o InfoDengue recalcula o histórico).
 
 Uso:
   python -m src.processamento.atualizacao_incremental --alvo todos
@@ -36,6 +39,8 @@ CHAVES = ["CODIGO_MUNICIPIO", "ANO", "MES"]
 TABELAS = {"infodengue": "ingestao_saude", "openmeteo": "ingestao_clima"}
 COLS_HISTORICO = {"ingestao_saude": ["NIVEL_DENGUE", "NIVEL_CHIKUNGUNYA", "NIVEL_ZIKA"], "ingestao_clima": []}
 PAUSA = {"infodengue": 0.3, "openmeteo": 1.0}
+TABELA_SNAPSHOT = "ingestao_infodengue_snapshot"
+DOENCAS_SNAPSHOT = ("dengue", "chikungunya")   # zika fora do projeto
 
 
 # ------------------------------------------------------------------ esquema
@@ -88,27 +93,66 @@ def _meses_fechados(df: pd.DataFrame, hoje: date) -> pd.DataFrame:
 
 
 # ------------------------------------------------------------------ coletas por cidade
-def coletar_saude(cidade: pd.Series, hoje: date) -> pd.DataFrame:
+def coletar_saude(cidade: pd.Series, hoje: date):
+    """Série mensal da cidade (para ingestao_saude) e cópia das últimas semanas (para o snapshot)."""
     cod7 = ing.get_ibge_7(int(cidade["CODIGO_MUNICIPIO"]))
     from concurrent.futures import ThreadPoolExecutor
 
     doencas = ("dengue", "chikungunya", "zika")
     with ThreadPoolExecutor(max_workers=3) as ex:   # 3 chamadas simultâneas por cidade
-        series = list(ex.map(lambda d: ing.fetch_infodengue(cod7, disease=d, start_year=2015, end_year=hoje.year), doencas))
+        semanais = list(ex.map(lambda d: ing.fetch_infodengue_semanal(cod7, disease=d, start_year=2015,
+                                                                      end_year=hoje.year), doencas))
+    snaps = []
+    for doenca, s in zip(doencas, semanais):
+        if doenca in DOENCAS_SNAPSHOT and not s.empty:
+            sn = ing.snapshot_semanal(s)
+            sn["DOENCA"] = doenca
+            snaps.append(sn)
+    snapshot = pd.concat(snaps, ignore_index=True) if snaps else pd.DataFrame()
+    if not snapshot.empty:
+        snapshot["CODIGO_MUNICIPIO"] = int(cidade["CODIGO_MUNICIPIO"])
+    series = [ing.agregar_infodengue_mensal(s, cod7, d) for d, s in zip(doencas, semanais)]
     partes = []
     for doenca, d in zip(doencas, series):
         if not d.empty:
             if doenca != "dengue":   # receptividade/umidade vêm só da série de dengue (como na ingestão original)
                 d = d[[c for c in d.columns if c in ("ANO", "MES") or c.endswith(doenca.upper())]]
             partes.append(d.drop(columns=["CODIGO_MUNICIPIO"], errors="ignore"))
+    extras = {TABELA_SNAPSHOT: snapshot}
     if not partes:
-        return pd.DataFrame()
+        return pd.DataFrame(), extras
     df = partes[0]
     for p in partes[1:]:
         df = df.merge(p, on=["ANO", "MES"], how="outer")
     for c in ("CODIGO_MUNICIPIO", "LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO"):
         df[c] = cidade[c]
-    return _meses_fechados(df, hoje)
+    return _meses_fechados(df, hoje), extras
+
+
+def gravar_snapshot(conn: sqlite3.Connection, snap: pd.DataFrame, coletado_em: date) -> int:
+    """
+    Guarda a cópia das últimas semanas como a API as entregou nesta data (só acrescenta).
+    O InfoDengue recalcula o histórico, então esta é a única forma de saber, no futuro, o que se sabia na
+    época (necessário para avaliar um nowcast). Rodar de novo no mesmo dia não duplica.
+    """
+    if snap is None or snap.empty:
+        return 0
+    s = snap.copy()
+    s["COLETADO_EM"] = coletado_em.isoformat()
+    conn.execute(
+        f"CREATE TABLE IF NOT EXISTS {TABELA_SNAPSHOT} (CODIGO_MUNICIPIO INTEGER, DOENCA TEXT, SE INTEGER, "
+        "DATA_INI_SE TEXT, casos REAL, casos_est REAL, casos_est_min REAL, casos_est_max REAL, Rt REAL, "
+        "p_rt1 REAL, versao_modelo TEXT, COLETADO_EM TEXT)")
+    conn.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS ux_{TABELA_SNAPSHOT} ON {TABELA_SNAPSHOT} "
+                 "(CODIGO_MUNICIPIO, DOENCA, SE, COLETADO_EM)")
+    cols = ["CODIGO_MUNICIPIO", "DOENCA", "SE", "DATA_INI_SE", *ing.COLS_SNAPSHOT, "COLETADO_EM"]
+    s = s[cols].dropna(subset=["SE"])
+    s["SE"] = s["SE"].astype(int)
+    ph = ", ".join("?" for _ in cols)
+    antes = conn.total_changes
+    conn.executemany(f"INSERT OR IGNORE INTO {TABELA_SNAPSHOT} ({', '.join(cols)}) VALUES ({ph})",
+                     s.astype(object).where(s.notna(), None).itertuples(index=False, name=None))
+    return conn.total_changes - antes
 
 
 def coletar_clima(cidade: pd.Series, hoje: date) -> pd.DataFrame:
@@ -147,17 +191,19 @@ def atualizar(alvo: str, rodada: str, limite: int | None = None, hoje: date | No
         pendentes = pendentes.head(limite)
     logger.info(f"[{alvo}] rodada {rodada}: {len(feitas)} feitas, {len(pendentes)} pendentes")
 
-    total = 0
+    total = n_snap = 0
     for i, (_, cidade) in enumerate(pendentes.iterrows(), 1):
-        df = COLETORES[alvo](cidade, hoje)
+        res = COLETORES[alvo](cidade, hoje)
+        df, extras = res if isinstance(res, tuple) else (res, {})
         with sqlite3.connect(db_path, timeout=120) as conn:
             total += upsert(conn, tabela, df)["inseridas"]
+            n_snap += gravar_snapshot(conn, extras.get(TABELA_SNAPSHOT), hoje)
             conn.execute("INSERT INTO ingestao_progresso VALUES (?, ?, ?, ?)",
                          (alvo, rodada, int(cidade["CODIGO_MUNICIPIO"]), datetime.now().isoformat(timespec="seconds")))
         if i % 50 == 0:
             logger.info(f"[{alvo}] {i}/{len(pendentes)} cidades, {total} linhas novas")
         time.sleep(PAUSA[alvo])
-    logger.info(f"[{alvo}] concluído: {total} linhas novas")
+    logger.info(f"[{alvo}] concluído: {total} linhas novas" + (f", {n_snap} semanas no snapshot" if n_snap else ""))
 
 
 def atualizar_enso():

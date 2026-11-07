@@ -45,47 +45,80 @@ def obter_faixa_latitude(lat):
             return faixa
     return None
 
-def fetch_infodengue(geocode, disease='dengue', start_year=2015, end_year=2025):
+COLS_SNAPSHOT = ['casos', 'casos_est', 'casos_est_min', 'casos_est_max', 'Rt', 'p_rt1', 'versao_modelo']
+
+
+def fetch_infodengue_semanal(geocode, disease='dengue', start_year=2015, end_year=2025):
+    """Série semanal bruta do InfoDengue (todas as colunas da API), com `data` = início da semana."""
     url = f"https://info.dengue.mat.br/api/alertcity?geocode={geocode}&disease={disease}&format=json&ew_start=1&ew_end=53&ey_start={start_year}&ey_end={end_year}"
     try:
         resp = requests.get(url, timeout=60)
         if resp.status_code == 200:
             data = resp.json()
-            if not data: return pd.DataFrame()
+            if not data:
+                return pd.DataFrame()
             df = pd.DataFrame(data)
             df['data'] = pd.to_datetime(df['data_iniSE'], unit='ms')
-            df['ANO'] = df['data'].dt.year
-            df['MES'] = df['data'].dt.month
-            
-            for col in ['casos', 'casos_est', 'receptivo', 'umidmed', 'umidmax', 'umidmin']:
-                if col in df.columns:
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
-                    
-            if 'nivel' in df.columns:
-                df['nivel'] = pd.to_numeric(df['nivel'], errors='coerce')
-            agg_rules = {
-                'casos': 'sum',
-                'casos_est': 'sum',
-                'receptivo': 'mean',
-                'umidmed': 'mean',
-                'umidmax': 'mean',
-                'umidmin': 'mean',
-                'nivel': 'max',   # alerta oficial do InfoDengue (1 verde … 4 vermelho), pior semana do mês
-            }
-            agg_rules = {k: v for k, v in agg_rules.items() if k in df.columns}
-            df_grouped = df.groupby(['ANO', 'MES']).agg(agg_rules).reset_index()
-            
-            df_grouped = df_grouped.rename(columns={
-                'casos': f'CASOS_{disease.upper()}',
-                'casos_est': f'CASOS_EST_{disease.upper()}',
-                'nivel': f'NIVEL_{disease.upper()}',
-            })
-            
-            df_grouped['CODIGO_MUNICIPIO'] = geocode
-            return df_grouped
+            return df
     except Exception as e:
         logger.error(f"[SAÚDE - InfoDengue] Erro ao baixar {disease} para a cidade {geocode}: {e}")
     return pd.DataFrame()
+
+
+def snapshot_semanal(df_sem: pd.DataFrame, n_semanas: int = 12) -> pd.DataFrame:
+    """Últimas `n_semanas` da série semanal como a API as entrega hoje (a parte que ainda é revisada)."""
+    if df_sem.empty:
+        return pd.DataFrame()
+    d = df_sem.sort_values('data').tail(n_semanas)
+    out = pd.DataFrame({'SE': pd.to_numeric(d['SE'], errors='coerce').to_numpy(),
+                        'DATA_INI_SE': d['data'].dt.strftime('%Y-%m-%d').to_numpy()})
+    for c in COLS_SNAPSHOT:
+        out[c] = d[c].to_numpy() if c in d.columns else None
+    for c in COLS_SNAPSHOT[:-1]:
+        out[c] = pd.to_numeric(out[c], errors='coerce')
+    out['versao_modelo'] = out['versao_modelo'].astype(str)
+    return out
+
+
+def fetch_infodengue(geocode, disease='dengue', start_year=2015, end_year=2025):
+    return agregar_infodengue_mensal(fetch_infodengue_semanal(geocode, disease, start_year, end_year),
+                                     geocode, disease)
+
+
+def agregar_infodengue_mensal(df: pd.DataFrame, geocode, disease='dengue') -> pd.DataFrame:
+    """Agrega a série semanal por mês (o mês de cada semana é o do seu primeiro dia)."""
+    if df.empty:
+        return pd.DataFrame()
+    df = df.copy()
+    df['ANO'] = df['data'].dt.year
+    df['MES'] = df['data'].dt.month
+
+    for col in ['casos', 'casos_est', 'receptivo', 'umidmed', 'umidmax', 'umidmin']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    if 'nivel' in df.columns:
+        df['nivel'] = pd.to_numeric(df['nivel'], errors='coerce')
+    agg_rules = {
+        'casos': 'sum',
+        'casos_est': 'sum',
+        'receptivo': 'mean',
+        'umidmed': 'mean',
+        'umidmax': 'mean',
+        'umidmin': 'mean',
+        'nivel': 'max',   # alerta oficial do InfoDengue (1 verde … 4 vermelho), pior semana do mês
+    }
+    agg_rules = {k: v for k, v in agg_rules.items() if k in df.columns}
+    df_grouped = df.groupby(['ANO', 'MES']).agg(agg_rules).reset_index()
+
+    df_grouped = df_grouped.rename(columns={
+        'casos': f'CASOS_{disease.upper()}',
+        'casos_est': f'CASOS_EST_{disease.upper()}',
+        'nivel': f'NIVEL_{disease.upper()}',
+    })
+
+    df_grouped['CODIGO_MUNICIPIO'] = geocode
+    return df_grouped
 
 def sleep_until_next_hour():
     now = datetime.now()
