@@ -1,6 +1,6 @@
-import { fetchStatus, fetchResultados } from './api.js?v=5.2.7';
-import { renderChartBacktest, renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.2.7';
-import { showLoader, updateStats, populateTable } from './ui.js?v=5.2.7';
+import { fetchStatus, fetchResultados } from './api.js?v=5.2.8';
+import { renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.2.8';
+import { showLoader, updateStats, populateTable } from './ui.js?v=5.2.8';
 
 let cachedData = null;
 
@@ -26,7 +26,6 @@ function renderAll(data) {
   document.getElementById("chartsGrid").classList.add("visible");
   updateStats(data);
   populateTable(data);
-  renderChartBacktest(data.serie_temporal_mensal);
   renderChartSazonal(data.dist_sazonal);
   renderChartHeatmap(data.dist_sazonal);
 }

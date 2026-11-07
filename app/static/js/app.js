@@ -201,7 +201,8 @@ async function carregarPrevisao() {
   const doenca = $("pvDoenca").value;
   const [ano, mes] = $("pvMes").value.split("-").map(Number);
   const meu = ++seq.pv;
-  loader("previsao", true);
+  const primeira = !!out.querySelector(".aquecendo");   // a mensagem de aquecimento já explica a espera
+  if (!primeira) loader("previsao", true);
   try {
     const [r, hist] = await Promise.all([
       api(`/api/previsao?codigo=${codigo}&doenca=${doenca}&ano=${ano}&mes=${mes}`),
@@ -211,7 +212,7 @@ async function carregarPrevisao() {
     out.innerHTML = cartaoPrevisao(r);
     graficoPrevisao(r, hist);
   } catch (e) { erro(out, e); $("pvGraficoCard").hidden = true; }
-  finally { loader("previsao", false); }
+  finally { if (!primeira) loader("previsao", false); }
 }
 
 function cartaoPrevisao(r) {

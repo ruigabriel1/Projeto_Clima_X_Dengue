@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css?v=5.2.7">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.2.8">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
@@ -49,14 +49,22 @@
           em
           <input id="pvCidade" class="campo" list="listaCidades" aria-label="Município" placeholder="município" autocomplete="off">
           em
-          <select id="pvMes" class="campo" aria-label="Mês"></select>?
+          <select id="pvMes" class="campo" aria-label="Mês"><option>…</option></select>?
         </h2>
         <div class="pergunta-rodape">
           <span>Toque nas palavras sublinhadas para trocar a doença, o município ou o mês.</span>
           <button class="btn-primary btn-sm" id="pvBotao">Ver resposta</button>
         </div>
         <datalist id="listaCidades"></datalist>
-        <div id="pvResultado" class="result-area"><p class="muted">Escolha um município e um mês.</p></div>
+        <div id="pvResultado" class="result-area">
+          <div class="aquecendo" role="status">
+            <div class="spinner"></div>
+            <div><strong>Preparando o modelo…</strong>
+              <p>Na primeira abertura leva cerca de 40 segundos: o servidor carrega 12 anos de dados dos 1.190 municípios
+                e calcula as previsões de todos eles. Depois disso, as respostas são imediatas.</p></div>
+          </div>
+          <div class="grade-prev esboco" aria-hidden="true"><div class="card-resultado"></div><div class="card-resultado"></div></div>
+        </div>
         <div class="chart-card" id="pvGraficoCard" hidden>
           <div id="pvGrafico" style="width:100%; height:340px;"></div>
         </div>
@@ -186,28 +194,14 @@
         </section>
 
         <section id="chartsGrid" class="charts-grid">
-          <div class="chart-card highlight-card">
-            <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; justify-content: space-between;">
-              <div>
-                <h3 style="margin: 0;">Precisão do modelo do painel (expanding window)</h3>
-                <p class="muted" style="margin-top: 4px;">Validação fora da amostra do modelo de contagem</p>
-              </div>
-              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <div class="metric-badge">R² médio: <strong id="metricR2">-</strong></div>
-                <div class="metric-badge">MAE médio: <strong id="metricMAE">-</strong></div>
-              </div>
-            </div>
-          </div>
-          <div class="chart-card hero-chart">
-            <div class="chart-header">
-              <h3></h3>
-              <button class="btn-outline btn-sm" onclick="downloadChart('chartBacktest', 'backtest_real_previsto')">Baixar PNG</button>
-            </div>
-            <div id="chartBacktest" style="width:100%; height:460px;"></div>
-          </div>
+          <p class="muted" style="margin-bottom: 16px;">Casos observados (InfoDengue). O desempenho do modelo atual está na aba
+            "Quão confiável é".</p>
           <div class="grid-2">
-            <div class="chart-card"><div id="chartSazonal" style="width:100%; height:350px;"></div></div>
-            <div class="chart-card"><div id="chartHeatmap" style="width:100%; height:350px;"></div></div>
+            <div class="chart-card">
+              <div id="chartSazonal" style="width:100%; height:230px;"></div>
+              <div id="chartTemp" style="width:100%; height:190px;"></div>
+            </div>
+            <div class="chart-card"><div id="chartHeatmap" style="width:100%; height:420px;"></div></div>
           </div>
           <div class="chart-card">
             <div class="chart-header"><h3>Resumo Epidemiológico Anual</h3></div>
@@ -240,7 +234,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/static/js/main.js?v=5.2.7"></script>
-  <script type="module" src="/static/js/app.js?v=5.2.7"></script>
+  <script type="module" src="/static/js/main.js?v=5.2.8"></script>
+  <script type="module" src="/static/js/app.js?v=5.2.8"></script>
 </body>
 </html>

@@ -24,17 +24,6 @@ function getPlotlyLayout(title, yTitle) {
   };
 }
 
-// Backtest fora-da-amostra: casos reais × previstos (expanding window), soma da região
-export function renderChartBacktest(serie) {
-  if (!serie || !serie.labels || serie.labels.length === 0) return;
-  const traces = [
-    { x: serie.labels, y: serie.real, type: "scatter", mode: "lines", name: "Casos reais", line: { color: "#1c1b18", width: 2 } },
-    { x: serie.labels, y: serie.previsto, type: "scatter", mode: "lines", name: "Previsto (fora da amostra)", line: { color: "#0f6e6e", width: 2, dash: "dash" } },
-  ];
-  const layout = getPlotlyLayout("Backtest: real × previsto 1 mês à frente", "Casos mensais");
-  Plotly.react("chartBacktest", traces, layout, getPlotlyConfig());
-}
-
 export function renderChartSazonal(data) {
   if (!data || !data.meses) return;
   
@@ -42,37 +31,25 @@ export function renderChartSazonal(data) {
   const maxCasos = Math.max(...data.casos_mean);
   const colors = data.casos_mean.map(v => v === maxCasos ? "#c2410c" : "#0f6e6e");
 
-  const traces = [
-    { 
-      x: mesNomes, 
-      y: data.casos_mean, 
-      type: "bar", 
-      name: "Casos Médios (histórico)", 
-      marker: { color: colors },
-      yaxis: "y"
-    },
-    { 
-      x: mesNomes, 
-      y: data.temp_mean, 
-      type: "scatter", 
-      mode: "lines+markers", 
-      name: "Temperatura Média", 
-      line: { color: "#b07a1d", width: 3 },
-      yaxis: "y2"
-    }
-  ];
+  // Dois gráficos empilhados com o mesmo eixo de meses (nunca dois eixos y no mesmo gráfico)
+  const casos = [{
+    x: mesNomes, y: data.casos_mean, type: "bar", name: "Casos médios", marker: { color: colors },
+    hovertemplate: "%{x}: %{y:,.0f} casos em média<extra></extra>",
+  }];
+  const lCasos = getPlotlyLayout("Casos médios por mês do ano", "Casos");
+  lCasos.showlegend = false;
+  lCasos.margin = { t: 40, b: 24, l: 60, r: 20 };
+  Plotly.react("chartSazonal", casos, lCasos, getPlotlyConfig());
 
-  const layout = getPlotlyLayout("", "Casos Médios Mensais");
-  layout.yaxis2 = {
-    title: "Temperatura Média (°C)",
-    overlaying: "y",
-    side: "right",
-    gridcolor: "#e4e0d6",
-    tickfont: { color: "#1c1b18" }
-  };
-  layout.legend = { orientation: "h", y: -0.2 };
-
-  Plotly.react("chartSazonal", traces, layout, getPlotlyConfig());
+  const temp = [{
+    x: mesNomes, y: data.temp_mean, type: "scatter", mode: "lines+markers", name: "Temperatura média",
+    line: { color: "#b07a1d", width: 2 }, marker: { size: 6 },
+    hovertemplate: "%{x}: %{y:.1f} °C<extra></extra>",
+  }];
+  const lTemp = getPlotlyLayout("Temperatura média por mês do ano", "°C");
+  lTemp.showlegend = false;
+  lTemp.margin = { t: 40, b: 30, l: 60, r: 20 };
+  Plotly.react("chartTemp", temp, lTemp, getPlotlyConfig());
 }
 
 export function renderChartHeatmap(data) {
