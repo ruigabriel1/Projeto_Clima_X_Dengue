@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css?v=5.1.2">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.1.3">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
@@ -138,7 +138,8 @@
           Os números abaixo vêm do <strong>teste prospectivo de 2026</strong> (jan–ago): o modelo foi treinado
           até 2025 e previu meses que nunca tinha visto, uma única vez, com protocolo registrado antes.
           A comparação é com duas referências: <em>persistência</em> (repetir os casos do último mês conhecido)
-          e o <em>alerta oficial do InfoDengue</em>.
+          e o <em>último alerta oficial do InfoDengue</em>, usado como se fosse previsão (o alerta descreve a semana
+          atual; não é uma previsão).
         </div>
         <div id="cfResumo" class="cards-3"></div>
         <div class="chart-card">
@@ -150,7 +151,7 @@
             <p><strong>AUC</strong>: sorteie uma cidade que teve risco alto (acima do normal <em>dela</em>) e outra que não
               teve. A AUC é a chance de o previsor ter dado nota maior à cidade certa. <strong>0,5 = cara ou coroa</strong>
               (linha pontilhada), <strong>1 = acerta sempre</strong>.</p>
-            <p><strong>Resultado:</strong> o modelo ordena as cidades melhor que o alerta oficial do InfoDengue, mas em 2026
+            <p><strong>Resultado:</strong> o modelo ordena as cidades melhor que o último alerta do InfoDengue usado como previsão, mas em 2026
               repetir o último mês foi um pouco melhor. 2026 foi um ano de baixa e estável, em que "nada muda" acerta muito;
               o modelo, que aprendeu com anos epidêmicos, esperou uma alta que não veio.</p>
           </details>
@@ -223,7 +224,7 @@
     </main>
   </div>
 
-  <script type="module" src="/static/js/main.js?v=5.1.2"></script>
-  <script type="module" src="/static/js/app.js?v=5.1.2"></script>
+  <script type="module" src="/static/js/main.js?v=5.1.3"></script>
+  <script type="module" src="/static/js/app.js?v=5.1.3"></script>
 </body>
 </html>

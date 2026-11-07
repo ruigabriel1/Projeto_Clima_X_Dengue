@@ -283,7 +283,7 @@ async function carregarConfiabilidade() {
     const venceInfo = hs.every((h) => (t(h).modelo?.auc ?? 0) > (t(h).auc_infodengue ?? 1));
     const vencePers = hs.filter((h) => (t(h).modelo?.auc ?? 0) > (t(h).persistencia?.auc ?? 1)).length;
     $("cfResumo").innerHTML = `
-      <div class="stat-card ${venceInfo ? "ok" : "ruim"}"><span class="stat-label">Contra o alerta oficial (InfoDengue)</span>
+      <div class="stat-card ${venceInfo ? "ok" : "ruim"}"><span class="stat-label">Contra o último alerta do InfoDengue</span>
         <span class="stat-value">${venceInfo ? "Melhor" : "Não supera"}</span><span class="muted">na ordem de risco das cidades, ${venceInfo ? "em todos os horizontes" : "em parte dos horizontes"}</span></div>
       <div class="stat-card ${vencePers === hs.length ? "ok" : vencePers ? "medio" : "ruim"}"><span class="stat-label">Contra repetir o último mês</span>
         <span class="stat-value">${vencePers} de ${hs.length} horizontes</span><span class="muted">em que o modelo ordena o risco melhor (AUC)</span></div>

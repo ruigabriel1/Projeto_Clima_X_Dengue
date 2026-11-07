@@ -56,6 +56,19 @@
       "source_location": "L318"
     },
     {
+      "id": "src_ml_pipeline_teste_prospectivo_holdoutjausado",
+      "label": "HoldoutJaUsado",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "holdoutjausado",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L39"
+    },
+    {
       "id": "tests_test_experimento_testexperimentov5",
       "label": "TestExperimentoV5",
       "_callable": true,
@@ -67,6 +80,32 @@
       "norm_label": "testexperimentov5",
       "source_file": "tests/test_experimento.py",
       "source_location": "L151"
+    },
+    {
+      "id": "tests_test_prediction_service_testintervalo",
+      "label": "TestIntervalo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "testintervalo",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L40"
+    },
+    {
+      "id": "tests_test_prediction_service_testtesteprospectivo",
+      "label": "TestTesteProspectivo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "testtesteprospectivo",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L258"
     },
     {
       "id": "src_prediction_service_predictor_cidadenaoencontrada",
@@ -140,7 +179,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "naivesazonalbaseline",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -153,7 +192,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "persistenciabaseline",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -166,7 +205,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "testmultidoenca",
       "source_file": "tests/test_ml_pipeline.py",
@@ -179,7 +218,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "code",
       "norm_label": "testmodeltraining",
       "source_file": "tests/test_ml_pipeline.py",
@@ -197,19 +236,6 @@
       "norm_label": "protocolonaoregistrado",
       "source_file": "src/ml_pipeline/experimento_v6.py",
       "source_location": "L49"
-    },
-    {
-      "id": "tests_test_experimento_v7_testexperimentov7",
-      "label": "TestExperimentoV7",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "testexperimentov7",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L123"
     },
     {
       "id": "tests_test_experimento_testfeaturesv5",
@@ -275,6 +301,19 @@
       "norm_label": "testexperimentov6",
       "source_file": "tests/test_experimento.py",
       "source_location": "L250"
+    },
+    {
+      "id": "tests_test_experimento_v7_testexperimentov7",
+      "label": "TestExperimentoV7",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "Preditor",
+      "file_type": "code",
+      "norm_label": "testexperimentov7",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L123"
     },
     {
       "id": "tests_test_prediction_service_testapi",
@@ -413,24 +452,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "predictrequest",
       "source_file": "src/prediction_service/schemas.py",
       "source_location": "L12"
-    },
-    {
-      "id": "tests_test_prediction_service_testintervalo",
-      "label": "TestIntervalo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "testintervalo",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L40"
     },
     {
       "id": "tests_test_prediction_service_testniveis",
@@ -439,7 +465,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "testniveis",
       "source_file": "tests/test_prediction_service.py",
@@ -452,7 +478,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "testschemas",
       "source_file": "tests/test_prediction_service.py",
@@ -470,32 +496,6 @@
       "norm_label": "glmbinomialnegativa",
       "source_file": "src/ml_pipeline/baselines.py",
       "source_location": "L56"
-    },
-    {
-      "id": "src_ml_pipeline_teste_prospectivo_holdoutjausado",
-      "label": "HoldoutJaUsado",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "code",
-      "norm_label": "holdoutjausado",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L39"
-    },
-    {
-      "id": "tests_test_prediction_service_testtesteprospectivo",
-      "label": "TestTesteProspectivo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "code",
-      "norm_label": "testtesteprospectivo",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L258"
     },
     {
       "id": "tests_test_ml_pipeline_testfeatureengineering",
@@ -556,7 +556,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 50,
-      "community_name": "TestSemVazamento",
+      "community_name": "experimento_v6.py",
       "file_type": "code",
       "norm_label": "testsemvazamento",
       "source_file": "tests/test_experimento.py",
@@ -582,7 +582,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "TestNivelRegional",
+      "community_name": "test_experimento_v7.py",
       "file_type": "code",
       "norm_label": "testnivelregional",
       "source_file": "tests/test_experimento_v7.py",
@@ -594,8 +594,8 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "testmonitoramentopormodelo",
       "source_file": "tests/test_experimento.py",
@@ -962,6 +962,78 @@
       "source_location": "L124"
     },
     {
+      "id": "src_ml_pipeline_teste_prospectivo_avaliar",
+      "label": "avaliar()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "avaliar()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L70"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_markdown",
+      "label": "markdown()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "markdown()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L165"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_meses_consolidados",
+      "label": "meses_consolidados()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "meses_consolidados()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_metricas",
+      "label": "_metricas()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "_metricas()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L56"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_run",
+      "label": "run()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "run()",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L136"
+    },
+    {
+      "id": "src_prediction_service_predictor_aplicar_intervalo",
+      "label": "aplicar_intervalo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "aplicar_intervalo()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L67"
+    },
+    {
       "id": "tests_test_experimento_testexperimentov5_test_calibracao_so_usa_anos_anteriores",
       "label": ".test_calibracao_so_usa_anos_anteriores()",
       "_callable": true,
@@ -998,16 +1070,40 @@
       "source_location": "L49"
     },
     {
-      "id": "app_server_api_predict",
-      "label": "api_predict()",
+      "id": "tests_test_prediction_service_testintervalo_test_contem_previsao_e_nao_negativo",
+      "label": ".test_contem_previsao_e_nao_negativo()",
       "_callable": true,
       "_origin": "ast",
-      "community": 11,
-      "community_name": ".prever",
+      "community": 10,
+      "community_name": "experimento_v5.py",
       "file_type": "code",
-      "norm_label": "api_predict()",
-      "source_file": "app/server.py",
-      "source_location": "L106"
+      "norm_label": ".test_contem_previsao_e_nao_negativo()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L41"
+    },
+    {
+      "id": "tests_test_prediction_service_testtesteprospectivo_test_avaliacao_usa_treino_ate_2025",
+      "label": ".test_avaliacao_usa_treino_ate_2025()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": ".test_avaliacao_usa_treino_ate_2025()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L268"
+    },
+    {
+      "id": "tests_test_prediction_service_testtesteprospectivo_test_exige_confirmacao_e_trava",
+      "label": ".test_exige_confirmacao_e_trava()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": ".test_exige_confirmacao_e_trava()",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L259"
     },
     {
       "id": "src_prediction_service_predictor_fmt_mes",
@@ -1034,6 +1130,18 @@
       "source_location": "L59"
     },
     {
+      "id": "src_prediction_service_predictor_preditor_aquecer",
+      "label": ".aquecer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": ".prever",
+      "file_type": "code",
+      "norm_label": ".aquecer()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L107"
+    },
+    {
       "id": "src_prediction_service_predictor_preditor_carregar",
       "label": "._carregar()",
       "_callable": true,
@@ -1044,6 +1152,30 @@
       "norm_label": "._carregar()",
       "source_file": "src/prediction_service/predictor.py",
       "source_location": "L96"
+    },
+    {
+      "id": "src_prediction_service_predictor_preditor_casos_mes",
+      "label": "._casos_mes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": ".prever",
+      "file_type": "code",
+      "norm_label": "._casos_mes()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L199"
+    },
+    {
+      "id": "src_prediction_service_predictor_preditor_doencas_disponiveis",
+      "label": ".doencas_disponiveis()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": ".prever",
+      "file_type": "code",
+      "norm_label": ".doencas_disponiveis()",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L104"
     },
     {
       "id": "src_prediction_service_predictor_preditor_fatores_nivel",
@@ -1200,6 +1332,18 @@
       "norm_label": "ler_campos_dbf()",
       "source_file": "src/processamento/ingestor_sinan_sorotipo.py",
       "source_location": "L81"
+    },
+    {
+      "id": "src_processamento_ingestor_sinan_sorotipo_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "ingestor_sinan_sorotipo.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "src/processamento/ingestor_sinan_sorotipo.py",
+      "source_location": "L163"
     },
     {
       "id": "src_processamento_ingestor_sinan_sorotipo_processar_ano",
@@ -1423,7 +1567,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "evaluate_baselines()",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -1435,7 +1579,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "_lag_col_name()",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -1447,7 +1591,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -1459,7 +1603,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -1471,7 +1615,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": ".test_baselines_use_correct_lag()",
       "source_file": "tests/test_ml_pipeline.py",
@@ -1483,23 +1627,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "code",
       "norm_label": "clip_outliers_per_city()",
       "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L45"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_expanding_window_splits",
-      "label": "_expanding_window_splits()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "_expanding_window_splits",
-      "file_type": "code",
-      "norm_label": "_expanding_window_splits()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L77"
     },
     {
       "id": "tests_test_ml_pipeline_testmodeltraining_test_clip_per_city",
@@ -1507,7 +1639,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "code",
       "norm_label": ".test_clip_per_city()",
       "source_file": "tests/test_ml_pipeline.py",
@@ -1519,7 +1651,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "code",
       "norm_label": ".test_expanding_window_splits()",
       "source_file": "tests/test_ml_pipeline.py",
@@ -1826,78 +1958,6 @@
       "source_location": "L390"
     },
     {
-      "id": "src_ml_pipeline_export_dashboard_clean",
-      "label": "_clean()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "_clean()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L77"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_code6",
-      "label": "_code6()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "_code6()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L68"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_exportar_dados_dashboard",
-      "label": "exportar_dados_dashboard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "exportar_dados_dashboard()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L227"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_exportar_doenca",
-      "label": "exportar_doenca()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "exportar_doenca()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L114"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_historico",
-      "label": "_historico()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "_historico()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L90"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_mean",
-      "label": "_mean()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "_mean()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L72"
-    },
-    {
       "id": "src_ml_pipeline_teste_final_main",
       "label": "main()",
       "_callable": true,
@@ -1920,18 +1980,6 @@
       "norm_label": "main()",
       "source_file": "src/ml_pipeline/teste_prospectivo.py",
       "source_location": "L188"
-    },
-    {
-      "id": "src_processamento_ingestor_sinan_sorotipo_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "src/processamento/ingestor_sinan_sorotipo.py",
-      "source_location": "L163"
     },
     {
       "id": "app_static_js_api_fetchresultados",
@@ -2126,18 +2174,6 @@
       "source_location": "L124"
     },
     {
-      "id": "src_ml_pipeline_experimento_v6_features_variantes",
-      "label": "features_variantes()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "features_variantes()",
-      "source_file": "src/ml_pipeline/experimento_v6.py",
-      "source_location": "L76"
-    },
-    {
       "id": "src_ml_pipeline_experimento_v6_preparar",
       "label": "preparar()",
       "_callable": true,
@@ -2172,18 +2208,6 @@
       "norm_label": "relatorio()",
       "source_file": "src/ml_pipeline/experimento_v6.py",
       "source_location": "L254"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_v6_rodar",
-      "label": "rodar()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "rodar()",
-      "source_file": "src/ml_pipeline/experimento_v6.py",
-      "source_location": "L82"
     },
     {
       "id": "src_ml_pipeline_experimento_v6_run",
@@ -2594,66 +2618,6 @@
       "source_location": "L259"
     },
     {
-      "id": "tests_test_experimento_v7_painel_v7",
-      "label": "painel_v7()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "painel_v7()",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L13"
-    },
-    {
-      "id": "tests_test_experimento_v7_sorotipo_sint",
-      "label": "sorotipo_sint()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "sorotipo_sint()",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L32"
-    },
-    {
-      "id": "tests_test_experimento_v7_testexperimentov7_test_ponta_a_ponta",
-      "label": ".test_ponta_a_ponta()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": ".test_ponta_a_ponta()",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L148"
-    },
-    {
-      "id": "tests_test_experimento_v7_testexperimentov7_test_portao",
-      "label": ".test_portao()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": ".test_portao()",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L124"
-    },
-    {
-      "id": "tests_test_experimento_v7_testexperimentov7_test_regra_dupla",
-      "label": ".test_regra_dupla()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": ".test_regra_dupla()",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L131"
-    },
-    {
       "id": "tests_test_prediction_service_test_remove_meses_nao_consolidados",
       "label": "test_remove_meses_nao_consolidados()",
       "_callable": true,
@@ -2954,42 +2918,6 @@
       "source_location": "L79"
     },
     {
-      "id": "src_prediction_service_predictor_preditor_aquecer",
-      "label": ".aquecer()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "Preditor",
-      "file_type": "code",
-      "norm_label": ".aquecer()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L107"
-    },
-    {
-      "id": "src_prediction_service_predictor_preditor_casos_mes",
-      "label": "._casos_mes()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "Preditor",
-      "file_type": "code",
-      "norm_label": "._casos_mes()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L199"
-    },
-    {
-      "id": "src_prediction_service_predictor_preditor_doencas_disponiveis",
-      "label": ".doencas_disponiveis()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "Preditor",
-      "file_type": "code",
-      "norm_label": ".doencas_disponiveis()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L104"
-    },
-    {
       "id": "src_prediction_service_predictor_preditor_init",
       "label": ".__init__()",
       "_callable": true,
@@ -3038,6 +2966,30 @@
       "source_location": "L285"
     },
     {
+      "id": "tests_test_experimento_v7_testexperimentov7_test_ponta_a_ponta",
+      "label": ".test_ponta_a_ponta()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "Preditor",
+      "file_type": "code",
+      "norm_label": ".test_ponta_a_ponta()",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L148"
+    },
+    {
+      "id": "tests_test_experimento_v7_testexperimentov7_test_portao",
+      "label": ".test_portao()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "Preditor",
+      "file_type": "code",
+      "norm_label": ".test_portao()",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L124"
+    },
+    {
       "id": "tests_test_experimento_v7_testexperimentov7_test_producao_com_nivel_regional_e_preditor",
       "label": ".test_producao_com_nivel_regional_e_preditor()",
       "_callable": true,
@@ -3048,6 +3000,18 @@
       "norm_label": ".test_producao_com_nivel_regional_e_preditor()",
       "source_file": "tests/test_experimento_v7.py",
       "source_location": "L169"
+    },
+    {
+      "id": "tests_test_experimento_v7_testexperimentov7_test_regra_dupla",
+      "label": ".test_regra_dupla()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "Preditor",
+      "file_type": "code",
+      "norm_label": ".test_regra_dupla()",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L131"
     },
     {
       "id": "tests_test_prediction_service_testapi_test_rota_predict",
@@ -3134,6 +3098,18 @@
       "source_location": "L91"
     },
     {
+      "id": "app_server_api_ranking",
+      "label": "api_ranking()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "predictor.py",
+      "file_type": "code",
+      "norm_label": "api_ranking()",
+      "source_file": "app/server.py",
+      "source_location": "L177"
+    },
+    {
       "id": "src_ml_pipeline_model_training_alvo_treino",
       "label": "alvo_treino()",
       "_callable": true,
@@ -3168,18 +3144,6 @@
       "norm_label": "fit_predict_fold()",
       "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L128"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_limiares_por_cidade",
-      "label": "limiares_por_cidade()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "test_experimento.py",
-      "file_type": "code",
-      "norm_label": "limiares_por_cidade()",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L55"
     },
     {
       "id": "src_ml_pipeline_model_training_margem_persistencia",
@@ -3398,18 +3362,6 @@
       "source_location": "L217"
     },
     {
-      "id": "app_server_api_doencas",
-      "label": "api_doencas()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "api_doencas()",
-      "source_file": "app/server.py",
-      "source_location": "L81"
-    },
-    {
       "id": "app_server_api_historico",
       "label": "api_historico()",
       "_callable": true,
@@ -3446,6 +3398,18 @@
       "source_location": "L236"
     },
     {
+      "id": "app_server_api_predict",
+      "label": "api_predict()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "server.py",
+      "file_type": "code",
+      "norm_label": "api_predict()",
+      "source_file": "app/server.py",
+      "source_location": "L106"
+    },
+    {
       "id": "app_server_api_previsao",
       "label": "api_previsao()",
       "_callable": true,
@@ -3456,18 +3420,6 @@
       "norm_label": "api_previsao()",
       "source_file": "app/server.py",
       "source_location": "L162"
-    },
-    {
-      "id": "app_server_api_ranking",
-      "label": "api_ranking()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "api_ranking()",
-      "source_file": "app/server.py",
-      "source_location": "L177"
     },
     {
       "id": "app_server_api_recarregar",
@@ -3492,18 +3444,6 @@
       "norm_label": "api_resultados()",
       "source_file": "app/server.py",
       "source_location": "L88"
-    },
-    {
-      "id": "app_server_api_status",
-      "label": "api_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "api_status()",
-      "source_file": "app/server.py",
-      "source_location": "L69"
     },
     {
       "id": "app_server_erro_http",
@@ -3542,18 +3482,6 @@
       "source_location": "L30"
     },
     {
-      "id": "src_ml_pipeline_export_dashboard_doencas_exportadas",
-      "label": "doencas_exportadas()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "doencas_exportadas()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L63"
-    },
-    {
       "id": "src_ml_pipeline_export_dashboard_get_cidades",
       "label": "get_cidades()",
       "_callable": true,
@@ -3564,18 +3492,6 @@
       "norm_label": "get_cidades()",
       "source_file": "src/ml_pipeline/export_dashboard.py",
       "source_location": "L53"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_get_db_status",
-      "label": "get_db_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "code",
-      "norm_label": "get_db_status()",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L33"
     },
     {
       "id": "src_prediction_service_predictor_get_preditor",
@@ -3703,23 +3619,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "nivel_por_probabilidade()",
       "source_file": "src/ml_pipeline/alerta_risco.py",
       "source_location": "L44"
-    },
-    {
-      "id": "src_prediction_service_predictor_aplicar_intervalo",
-      "label": "aplicar_intervalo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "aplicar_intervalo()",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L67"
     },
     {
       "id": "src_prediction_service_schemas_predictrequest_normaliza_codigo",
@@ -3727,23 +3631,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "._normaliza_codigo()",
       "source_file": "src/prediction_service/schemas.py",
       "source_location": "L19"
-    },
-    {
-      "id": "tests_test_prediction_service_testintervalo_test_contem_previsao_e_nao_negativo",
-      "label": ".test_contem_previsao_e_nao_negativo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": ".test_contem_previsao_e_nao_negativo()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L41"
     },
     {
       "id": "tests_test_prediction_service_testniveis_test_faixas",
@@ -3751,7 +3643,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": ".test_faixas()",
       "source_file": "tests/test_prediction_service.py",
@@ -3763,7 +3655,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": ".test_codigo_7_digitos_vira_6()",
       "source_file": "tests/test_prediction_service.py",
@@ -3775,7 +3667,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": ".test_entradas_invalidas()",
       "source_file": "tests/test_prediction_service.py",
@@ -3950,88 +3842,124 @@
       "source_location": "L267"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_avaliar",
-      "label": "avaliar()",
+      "id": "app_server_api_doencas",
+      "label": "api_doencas()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "avaliar()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L70"
+      "norm_label": "api_doencas()",
+      "source_file": "app/server.py",
+      "source_location": "L81"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_markdown",
-      "label": "markdown()",
+      "id": "app_server_api_status",
+      "label": "api_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "markdown()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L165"
+      "norm_label": "api_status()",
+      "source_file": "app/server.py",
+      "source_location": "L69"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_meses_consolidados",
-      "label": "meses_consolidados()",
+      "id": "src_ml_pipeline_export_dashboard_clean",
+      "label": "_clean()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "meses_consolidados()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L43"
+      "norm_label": "_clean()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L77"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_metricas",
-      "label": "_metricas()",
+      "id": "src_ml_pipeline_export_dashboard_code6",
+      "label": "_code6()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "_metricas()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L56"
+      "norm_label": "_code6()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L68"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_run",
-      "label": "run()",
+      "id": "src_ml_pipeline_export_dashboard_doencas_exportadas",
+      "label": "doencas_exportadas()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "run()",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L136"
+      "norm_label": "doencas_exportadas()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L63"
     },
     {
-      "id": "tests_test_prediction_service_testtesteprospectivo_test_avaliacao_usa_treino_ate_2025",
-      "label": ".test_avaliacao_usa_treino_ate_2025()",
+      "id": "src_ml_pipeline_export_dashboard_exportar_dados_dashboard",
+      "label": "exportar_dados_dashboard()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": ".test_avaliacao_usa_treino_ate_2025()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L268"
+      "norm_label": "exportar_dados_dashboard()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L227"
     },
     {
-      "id": "tests_test_prediction_service_testtesteprospectivo_test_exige_confirmacao_e_trava",
-      "label": ".test_exige_confirmacao_e_trava()",
+      "id": "src_ml_pipeline_export_dashboard_exportar_doenca",
+      "label": "exportar_doenca()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": ".test_exige_confirmacao_e_trava()",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L259"
+      "norm_label": "exportar_doenca()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L114"
+    },
+    {
+      "id": "src_ml_pipeline_export_dashboard_get_db_status",
+      "label": "get_db_status()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "export_dashboard.py",
+      "file_type": "code",
+      "norm_label": "get_db_status()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L33"
+    },
+    {
+      "id": "src_ml_pipeline_export_dashboard_historico",
+      "label": "_historico()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "export_dashboard.py",
+      "file_type": "code",
+      "norm_label": "_historico()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L90"
+    },
+    {
+      "id": "src_ml_pipeline_export_dashboard_mean",
+      "label": "_mean()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "export_dashboard.py",
+      "file_type": "code",
+      "norm_label": "_mean()",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L72"
     },
     {
       "id": "tests_test_ml_pipeline_testfeatureengineering_test_forecast_mode_excludes_current_month",
@@ -4343,7 +4271,7 @@
       "file_type": "code",
       "norm_label": "empacotar()",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L47"
+      "source_location": "L59"
     },
     {
       "id": "src_prediction_service_artefatos_extrair",
@@ -4355,7 +4283,7 @@
       "file_type": "code",
       "norm_label": "extrair()",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L63"
+      "source_location": "L79"
     },
     {
       "id": "src_prediction_service_artefatos_garantir",
@@ -4367,7 +4295,7 @@
       "file_type": "code",
       "norm_label": "garantir()",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L80"
+      "source_location": "L96"
     },
     {
       "id": "src_prediction_service_artefatos_sha256",
@@ -4380,6 +4308,18 @@
       "norm_label": "_sha256()",
       "source_file": "src/prediction_service/artefatos.py",
       "source_location": "L39"
+    },
+    {
+      "id": "src_prediction_service_artefatos_snapshot_banco",
+      "label": "_snapshot_banco()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "artefatos.py",
+      "file_type": "code",
+      "norm_label": "_snapshot_banco()",
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L47"
     },
     {
       "id": "tests_test_prediction_service_testartefatos_test_extrai_e_confere_hash",
@@ -4591,11 +4531,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "code",
       "norm_label": "_anomalia_expanding()",
       "source_file": "src/ml_pipeline/feature_engineering.py",
       "source_location": "L59"
+    },
+    {
+      "id": "src_ml_pipeline_feature_engineering_grupos_de_features",
+      "label": "grupos_de_features()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "grupos_de_features",
+      "file_type": "code",
+      "norm_label": "grupos_de_features()",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L385"
     },
     {
       "id": "src_ml_pipeline_feature_engineering_incidencia_vizinhos",
@@ -4603,7 +4555,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "code",
       "norm_label": "_incidencia_vizinhos()",
       "source_file": "src/ml_pipeline/feature_engineering.py",
@@ -4615,11 +4567,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "code",
       "norm_label": "_roll_shifted()",
       "source_file": "src/ml_pipeline/feature_engineering.py",
       "source_location": "L51"
+    },
+    {
+      "id": "tests_test_experimento_testfeaturesv5_test_grupos_v5",
+      "label": ".test_grupos_v5()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "grupos_de_features",
+      "file_type": "code",
+      "norm_label": ".test_grupos_v5()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L115"
     },
     {
       "id": "src_analise_efeito_dlnm_ajustar",
@@ -4814,12 +4778,60 @@
       "source_location": "L34"
     },
     {
+      "id": "src_ml_pipeline_experimento_v6_features_variantes",
+      "label": "features_variantes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "features_variantes()",
+      "source_file": "src/ml_pipeline/experimento_v6.py",
+      "source_location": "L76"
+    },
+    {
+      "id": "src_ml_pipeline_experimento_v6_rodar",
+      "label": "rodar()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "rodar()",
+      "source_file": "src/ml_pipeline/experimento_v6.py",
+      "source_location": "L82"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_expanding_window_splits",
+      "label": "_expanding_window_splits()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "_expanding_window_splits()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L77"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_limiares_por_cidade",
+      "label": "limiares_por_cidade()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "limiares_por_cidade()",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L55"
+    },
+    {
       "id": "tests_test_experimento_testsemvazamento_test_corte_p99_calculado_no_treino",
       "label": ".test_corte_p99_calculado_no_treino()",
       "_callable": true,
       "_origin": "ast",
       "community": 50,
-      "community_name": "TestSemVazamento",
+      "community_name": "experimento_v6.py",
       "file_type": "code",
       "norm_label": ".test_corte_p99_calculado_no_treino()",
       "source_file": "tests/test_experimento.py",
@@ -4831,7 +4843,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 50,
-      "community_name": "TestSemVazamento",
+      "community_name": "experimento_v6.py",
       "file_type": "code",
       "norm_label": ".test_holdout_fora_dos_folds()",
       "source_file": "tests/test_experimento.py",
@@ -4843,7 +4855,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 50,
-      "community_name": "TestSemVazamento",
+      "community_name": "experimento_v6.py",
       "file_type": "code",
       "norm_label": ".test_limiares_usam_so_o_treino()",
       "source_file": "tests/test_experimento.py",
@@ -4855,7 +4867,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 50,
-      "community_name": "TestSemVazamento",
+      "community_name": "experimento_v6.py",
       "file_type": "code",
       "norm_label": ".test_sem_clima_remove_todas_as_climaticas()",
       "source_file": "tests/test_experimento.py",
@@ -4898,12 +4910,36 @@
       "source_location": "L61"
     },
     {
+      "id": "tests_test_experimento_v7_painel_v7",
+      "label": "painel_v7()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "code",
+      "norm_label": "painel_v7()",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L13"
+    },
+    {
+      "id": "tests_test_experimento_v7_sorotipo_sint",
+      "label": "sorotipo_sint()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "code",
+      "norm_label": "sorotipo_sint()",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L32"
+    },
+    {
       "id": "tests_test_experimento_v7_testnivelregional_test_glm_recupera_coeficiente_conhecido",
       "label": ".test_glm_recupera_coeficiente_conhecido()",
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "TestNivelRegional",
+      "community_name": "test_experimento_v7.py",
       "file_type": "code",
       "norm_label": ".test_glm_recupera_coeficiente_conhecido()",
       "source_file": "tests/test_experimento_v7.py",
@@ -4915,7 +4951,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "TestNivelRegional",
+      "community_name": "test_experimento_v7.py",
       "file_type": "code",
       "norm_label": ".test_novidade_do_sorotipo()",
       "source_file": "tests/test_experimento_v7.py",
@@ -4927,7 +4963,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "TestNivelRegional",
+      "community_name": "test_experimento_v7.py",
       "file_type": "code",
       "norm_label": ".test_poucos_meses_nao_reconcilia()",
       "source_file": "tests/test_experimento_v7.py",
@@ -4939,43 +4975,19 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "TestNivelRegional",
+      "community_name": "test_experimento_v7.py",
       "file_type": "code",
       "norm_label": ".test_reconciliar_fecha_o_total_e_preserva_proporcoes()",
       "source_file": "tests/test_experimento_v7.py",
       "source_location": "L105"
     },
     {
-      "id": "src_ml_pipeline_feature_engineering_grupos_de_features",
-      "label": "grupos_de_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "grupos_de_features",
-      "file_type": "code",
-      "norm_label": "grupos_de_features()",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L385"
-    },
-    {
-      "id": "tests_test_experimento_testfeaturesv5_test_grupos_v5",
-      "label": ".test_grupos_v5()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "grupos_de_features",
-      "file_type": "code",
-      "norm_label": ".test_grupos_v5()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L115"
-    },
-    {
       "id": "src_prediction_service_monitoramento_avaliar",
       "label": "avaliar()",
       "_callable": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "avaliar()",
       "source_file": "src/prediction_service/monitoramento.py",
@@ -4986,8 +4998,8 @@
       "label": "_ler()",
       "_callable": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "_ler()",
       "source_file": "src/prediction_service/monitoramento.py",
@@ -4998,8 +5010,8 @@
       "label": "registrar()",
       "_callable": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "registrar()",
       "source_file": "src/prediction_service/monitoramento.py",
@@ -5010,8 +5022,8 @@
       "label": "executar()",
       "_callable": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "executar()",
       "source_file": "src/prediction_service/rotina_mensal.py",
@@ -5022,12 +5034,24 @@
       "label": "recarregar_servidor()",
       "_callable": true,
       "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "code",
       "norm_label": "recarregar_servidor()",
       "source_file": "src/prediction_service/rotina_mensal.py",
       "source_location": "L25"
+    },
+    {
+      "id": "tests_test_experimento_testmonitoramentopormodelo_test_modelos_separados_e_registro_antigo",
+      "label": ".test_modelos_separados_e_registro_antigo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "code",
+      "norm_label": ".test_modelos_separados_e_registro_antigo()",
+      "source_file": "tests/test_experimento.py",
+      "source_location": "L303"
     },
     {
       "id": "src_processamento_atualizacao_incremental_atualizar",
@@ -5376,18 +5400,6 @@
       "norm_label": "test_snapshot_guarda_ultimas_semanas_e_nao_duplica()",
       "source_file": "tests/test_atualizacao_incremental.py",
       "source_location": "L77"
-    },
-    {
-      "id": "tests_test_experimento_testmonitoramentopormodelo_test_modelos_separados_e_registro_antigo",
-      "label": ".test_modelos_separados_e_registro_antigo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "code",
-      "norm_label": ".test_modelos_separados_e_registro_antigo()",
-      "source_file": "tests/test_experimento.py",
-      "source_location": "L303"
     },
     {
       "id": "app_static_js_app_api",
@@ -5892,15 +5904,59 @@
       "source_location": ""
     },
     {
-      "id": "tests_test_prediction_service_py_fixture",
-      "label": "fixture",
+      "id": "src_ml_pipeline_teste_prospectivo",
+      "label": "teste_prospectivo.py",
       "_origin": "ast",
       "community": 10,
       "community_name": "experimento_v5.py",
       "file_type": "code",
-      "norm_label": "fixture",
+      "norm_label": "teste_prospectivo.py",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_py_dataframe",
+      "label": "DataFrame",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "dataframe",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_py_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_py_runtimeerror",
+      "label": "RuntimeError",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "runtimeerror",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "tests_test_prediction_service",
+      "label": "test_prediction_service.py",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "code",
+      "norm_label": "test_prediction_service.py",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L1"
     },
     {
       "id": "src_ml_pipeline_alerta_risco_rationale_1",
@@ -6002,6 +6058,50 @@
       "source_location": "L91"
     },
     {
+      "id": "src_ml_pipeline_teste_prospectivo_rationale_1",
+      "label": "Step 8 \u2014 Teste prospectivo \u00fanico em jan\u2013ago/2026 (docs/PROTOCOLO_V5.md). -\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "rationale",
+      "norm_label": "step 8 \u2014 teste prospectivo unico em jan\u2013ago/2026 (docs/protocolo_v5.md). -...",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_teste_prospectivo_rationale_44",
+      "label": "Meses de jan\u2013ago/2026 com \u2265 8 semanas entre o fim do m\u00eas e a ingest\u00e3o mais\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "rationale",
+      "norm_label": "meses de jan\u2013ago/2026 com \u2265 8 semanas entre o fim do mes e a ingestao mais...",
+      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "source_location": "L44"
+    },
+    {
+      "id": "src_prediction_service_predictor_rationale_68",
+      "label": "Intervalo de 90% a partir dos quantis de res\u00edduo log1p calibrados no OOF.",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "rationale",
+      "norm_label": "intervalo de 90% a partir dos quantis de residuo log1p calibrados no oof.",
+      "source_file": "src/prediction_service/predictor.py",
+      "source_location": "L68"
+    },
+    {
+      "id": "tests_test_prediction_service_rationale_1",
+      "label": "Testes do servi\u00e7o de previs\u00e3o v5 (alerta de risco): schemas, n\u00edveis, intervalo,\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "experimento_v5.py",
+      "file_type": "rationale",
+      "norm_label": "testes do servico de previsao v5 (alerta de risco): schemas, niveis, intervalo,...",
+      "source_file": "tests/test_prediction_service.py",
+      "source_location": "L1"
+    },
+    {
       "id": "tests_test_prediction_service_rationale_50",
       "label": "Experimento v5 + modelos de risco no painel sint\u00e9tico (com clima e\u2026",
       "_origin": "ast",
@@ -6044,17 +6144,6 @@
       "norm_label": "runtimeerror",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "app_server_rationale_107",
-      "label": "Previs\u00e3o de casos para um munic\u00edpio, doen\u00e7a e horizonte (1\u20133 meses). Rota\u2026",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": ".prever",
-      "file_type": "rationale",
-      "norm_label": "previsao de casos para um municipio, doenca e horizonte (1\u20133 meses). rota...",
-      "source_file": "app/server.py",
-      "source_location": "L107"
     },
     {
       "id": "src_prediction_service_predictor_rationale_211",
@@ -6389,6 +6478,17 @@
       "source_location": ""
     },
     {
+      "id": "src_prediction_service_cenarios",
+      "label": "cenarios.py",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "TestAplicacaoV51",
+      "file_type": "code",
+      "norm_label": "cenarios.py",
+      "source_file": "src/prediction_service/cenarios.py",
+      "source_location": "L1"
+    },
+    {
       "id": "src_prediction_service_cenarios_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
@@ -6420,6 +6520,17 @@
       "norm_label": "path",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "src_prediction_service_cenarios_rationale_1",
+      "label": "Longo prazo (at\u00e9 5 anos) \u2014 CEN\u00c1RIO, n\u00e3o previs\u00e3o (docs/PROTOCOLO_V5.md,\u2026",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "TestAplicacaoV51",
+      "file_type": "rationale",
+      "norm_label": "longo prazo (ate 5 anos) \u2014 cenario, nao previsao (docs/protocolo_v5.md,...",
+      "source_file": "src/prediction_service/cenarios.py",
+      "source_location": "L1"
     },
     {
       "id": "src_prediction_service_cenarios_rationale_103",
@@ -6492,10 +6603,21 @@
       "label": "baselines.py",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "code",
       "norm_label": "baselines.py",
       "source_file": "src/ml_pipeline/baselines.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_ml_pipeline",
+      "label": "test_ml_pipeline.py",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "test_ml_pipeline.py",
+      "file_type": "code",
+      "norm_label": "test_ml_pipeline.py",
+      "source_file": "tests/test_ml_pipeline.py",
       "source_location": "L1"
     },
     {
@@ -6503,7 +6625,7 @@
       "label": "Modelos de baseline para compara\u00e7\u00e3o com o XGBoost (multi-doen\u00e7a). Todos usam a\u2026",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "modelos de baseline para comparacao com o xgboost (multi-doenca). todos usam a...",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -6514,7 +6636,7 @@
       "label": "Avalia persist\u00eancia, naive sazonal e GLM NB com Expanding Window. Retorna lista\u2026",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "avalia persistencia, naive sazonal e glm nb com expanding window. retorna lista...",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -6525,7 +6647,7 @@
       "label": "Constr\u00f3i o nome da coluna de lag para a doen\u00e7a-alvo.",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "constroi o nome da coluna de lag para a doenca-alvo.",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -6536,7 +6658,7 @@
       "label": "Prever = \u00faltimo valor conhecido no momento da previs\u00e3o (<doen\u00e7a>_lag<h>). No\u2026",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "prever = ultimo valor conhecido no momento da previsao (<doenca>_lag<h>). no...",
       "source_file": "src/ml_pipeline/baselines.py",
@@ -6547,18 +6669,29 @@
       "label": "Prever = mesmo m\u00eas do ano anterior (<doen\u00e7a>_lag12).",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "prever = mesmo mes do ano anterior (<doenca>_lag12).",
       "source_file": "src/ml_pipeline/baselines.py",
       "source_location": "L44"
     },
     {
+      "id": "tests_test_ml_pipeline_rationale_1",
+      "label": "Testes unit\u00e1rios para o pipeline ML v4 (multi-doen\u00e7a). Testa a feature\u2026",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "test_ml_pipeline.py",
+      "file_type": "rationale",
+      "norm_label": "testes unitarios para o pipeline ml v4 (multi-doenca). testa a feature...",
+      "source_file": "tests/test_ml_pipeline.py",
+      "source_location": "L1"
+    },
+    {
       "id": "tests_test_ml_pipeline_rationale_112",
       "label": "Os baselines de persist\u00eancia usam o lag da doen\u00e7a correta.",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "os baselines de persistencia usam o lag da doenca correta.",
       "source_file": "tests/test_ml_pipeline.py",
@@ -6569,73 +6702,29 @@
       "label": "Testa que o pipeline funciona para cada doen\u00e7a suportada.",
       "_origin": "ast",
       "community": 17,
-      "community_name": "baselines.py",
+      "community_name": "test_ml_pipeline.py",
       "file_type": "rationale",
       "norm_label": "testa que o pipeline funciona para cada doenca suportada.",
       "source_file": "tests/test_ml_pipeline.py",
       "source_location": "L87"
     },
     {
-      "id": "src_ml_pipeline_model_training_py_series",
-      "label": "Series",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "_expanding_window_splits",
-      "file_type": "code",
-      "norm_label": "series",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "tests_test_ml_pipeline",
-      "label": "test_ml_pipeline.py",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "_expanding_window_splits",
-      "file_type": "code",
-      "norm_label": "test_ml_pipeline.py",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L1"
-    },
-    {
       "id": "src_ml_pipeline_model_training_rationale_46",
       "label": "Clipping P<percentile> **por cidade** usando o pr\u00f3prio df como refer\u00eancia.\u2026",
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "rationale",
       "norm_label": "clipping p<percentile> **por cidade** usando o proprio df como referencia....",
       "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L46"
     },
     {
-      "id": "src_ml_pipeline_model_training_rationale_78",
-      "label": "Gera splits Expanding Window (Walk Forward): Treina em anos < t, testa no ano\u2026",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "_expanding_window_splits",
-      "file_type": "rationale",
-      "norm_label": "gera splits expanding window (walk forward): treina em anos < t, testa no ano...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L78"
-    },
-    {
-      "id": "tests_test_ml_pipeline_rationale_1",
-      "label": "Testes unit\u00e1rios para o pipeline ML v4 (multi-doen\u00e7a). Testa a feature\u2026",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "_expanding_window_splits",
-      "file_type": "rationale",
-      "norm_label": "testes unitarios para o pipeline ml v4 (multi-doenca). testa a feature...",
-      "source_file": "tests/test_ml_pipeline.py",
-      "source_location": "L1"
-    },
-    {
       "id": "tests_test_ml_pipeline_rationale_131",
       "label": "Garante que clipping \u00e9 por cidade e n\u00e3o global.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "rationale",
       "norm_label": "garante que clipping e por cidade e nao global.",
       "source_file": "tests/test_ml_pipeline.py",
@@ -6646,7 +6735,7 @@
       "label": "Verifica que EW gera splits corretos.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "_expanding_window_splits",
+      "community_name": "clip_outliers_per_city",
       "file_type": "rationale",
       "norm_label": "verifica que ew gera splits corretos.",
       "source_file": "tests/test_ml_pipeline.py",
@@ -6662,39 +6751,6 @@
       "norm_label": "main.py",
       "source_file": "main.py",
       "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard",
-      "label": "export_dashboard.py",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "export_dashboard.py",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_py_dataframe",
-      "label": "DataFrame",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "dataframe",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_py_series",
-      "label": "Series",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "series",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "main_rationale_102",
@@ -6906,28 +6962,6 @@
       "source_location": "L219"
     },
     {
-      "id": "src_ml_pipeline_export_dashboard_rationale_1",
-      "label": "Exporta\u00e7\u00e3o dos resultados do pipeline v4 para o dashboard (multi-doen\u00e7a).\u2026",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "rationale",
-      "norm_label": "exportacao dos resultados do pipeline v4 para o dashboard (multi-doenca)....",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_rationale_78",
-      "label": "Converte numpy/NaN para tipos JSON.",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "main.py",
-      "file_type": "rationale",
-      "norm_label": "converte numpy/nan para tipos json.",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L78"
-    },
-    {
       "id": "app_static_js_api",
       "label": "api.js",
       "_origin": "ast",
@@ -6969,17 +7003,6 @@
       "file_type": "code",
       "norm_label": "ui.js",
       "source_file": "app/static/js/ui.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_ml_pipeline_experimento_v6",
-      "label": "experimento_v6.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "experimento_v6.py",
-      "source_file": "src/ml_pipeline/experimento_v6.py",
       "source_location": "L1"
     },
     {
@@ -7091,39 +7114,6 @@
       "norm_label": "ndarray",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "tests_test_experimento_v7",
-      "label": "test_experimento_v7.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "test_experimento_v7.py",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_experimento_v7_py_fixture",
-      "label": "fixture",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "code",
-      "norm_label": "fixture",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_experimento_v6_rationale_1",
-      "label": "Experimento v6 (docs/PROTOCOLO_V6.md) \u2014 responde H6a (formula\u00e7\u00e3o), H6b\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "rationale",
-      "norm_label": "experimento v6 (docs/protocolo_v6.md) \u2014 responde h6a (formulacao), h6b...",
-      "source_file": "src/ml_pipeline/experimento_v6.py",
-      "source_location": "L1"
     },
     {
       "id": "src_ml_pipeline_experimento_v6_rationale_132",
@@ -7357,28 +7347,6 @@
       "source_location": "L37"
     },
     {
-      "id": "tests_test_experimento_v7_rationale_1",
-      "label": "Protocolo v7: features de Rt, n\u00edvel regional (GLM + reconcilia\u00e7\u00e3o), sorotipo,\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "rationale",
-      "norm_label": "protocolo v7: features de rt, nivel regional (glm + reconciliacao), sorotipo,...",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_test_experimento_v7_rationale_14",
-      "label": "9 cidades (3 por UF) \u00d7 2010\u20132020, sazonal, com Rt; chikungunya s\u00f3 a partir de\u2026",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "experimento_v7.py",
-      "file_type": "rationale",
-      "norm_label": "9 cidades (3 por uf) \u00d7 2010\u20132020, sazonal, com rt; chikungunya so a partir de...",
-      "source_file": "tests/test_experimento_v7.py",
-      "source_location": "L14"
-    },
-    {
       "id": "src_ml_pipeline_interpretability",
       "label": "interpretability.py",
       "_origin": "ast",
@@ -7566,6 +7534,17 @@
       "source_location": ""
     },
     {
+      "id": "tests_test_prediction_service_py_fixture",
+      "label": "fixture",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "Preditor",
+      "file_type": "code",
+      "norm_label": "fixture",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "src_prediction_service_data_fetcher_rationale_120",
       "label": "Linhas de features do m\u00eas-alvo (\u00faltimo observado + h) de todas as cidades. Com\u2026",
       "_origin": "ast",
@@ -7610,28 +7589,6 @@
       "source_location": ""
     },
     {
-      "id": "src_prediction_service_cenarios",
-      "label": "cenarios.py",
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "predictor.py",
-      "file_type": "code",
-      "norm_label": "cenarios.py",
-      "source_file": "src/prediction_service/cenarios.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_prediction_service_data_fetcher",
-      "label": "data_fetcher.py",
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "predictor.py",
-      "file_type": "code",
-      "norm_label": "data_fetcher.py",
-      "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L1"
-    },
-    {
       "id": "src_prediction_service_init",
       "label": "prediction_service/__init__.py",
       "_origin": "ast",
@@ -7665,26 +7622,15 @@
       "source_location": "L1"
     },
     {
-      "id": "src_prediction_service_cenarios_rationale_1",
-      "label": "Longo prazo (at\u00e9 5 anos) \u2014 CEN\u00c1RIO, n\u00e3o previs\u00e3o (docs/PROTOCOLO_V5.md,\u2026",
+      "id": "app_server_rationale_180",
+      "label": "Cidades ordenadas pela probabilidade de risco alto (relativo ao hist\u00f3rico de\u2026",
       "_origin": "ast",
       "community": 24,
       "community_name": "predictor.py",
       "file_type": "rationale",
-      "norm_label": "longo prazo (ate 5 anos) \u2014 cenario, nao previsao (docs/protocolo_v5.md,...",
-      "source_file": "src/prediction_service/cenarios.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_prediction_service_data_fetcher_rationale_1",
-      "label": "Fonte de dados do servi\u00e7o de previs\u00e3o. A fonte de verdade \u00e9 o SQLite\u2026",
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "predictor.py",
-      "file_type": "rationale",
-      "norm_label": "fonte de dados do servico de previsao. a fonte de verdade e o sqlite...",
-      "source_file": "src/prediction_service/data_fetcher.py",
-      "source_location": "L1"
+      "norm_label": "cidades ordenadas pela probabilidade de risco alto (relativo ao historico de...",
+      "source_file": "app/server.py",
+      "source_location": "L180"
     },
     {
       "id": "src_prediction_service_init_rationale_1",
@@ -7850,17 +7796,6 @@
       "norm_label": "treina o modelo xgboost poisson com expanding window cv. parametros: df \u2014...",
       "source_file": "src/ml_pipeline/model_training.py",
       "source_location": "L170"
-    },
-    {
-      "id": "src_ml_pipeline_model_training_rationale_61",
-      "label": "Quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o\u2026",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "test_experimento.py",
-      "file_type": "rationale",
-      "norm_label": "quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o...",
-      "source_file": "src/ml_pipeline/model_training.py",
-      "source_location": "L61"
     },
     {
       "id": "src_ml_pipeline_model_training_rationale_98",
@@ -8289,6 +8224,17 @@
       "source_location": "L1"
     },
     {
+      "id": "app_server_rationale_107",
+      "label": "Previs\u00e3o de casos para um munic\u00edpio, doen\u00e7a e horizonte (1\u20133 meses). Rota\u2026",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "server.py",
+      "file_type": "rationale",
+      "norm_label": "previsao de casos para um municipio, doenca e horizonte (1\u20133 meses). rota...",
+      "source_file": "app/server.py",
+      "source_location": "L107"
+    },
+    {
       "id": "app_server_rationale_123",
       "label": "Resumo dos modelos de produ\u00e7\u00e3o carregados (config, m\u00e9tricas, data de retreino).",
       "_origin": "ast",
@@ -8309,17 +8255,6 @@
       "norm_label": "casos de um municipio em um mes. ate 3 meses apos o ultimo mes consolidado:...",
       "source_file": "app/server.py",
       "source_location": "L165"
-    },
-    {
-      "id": "app_server_rationale_180",
-      "label": "Cidades ordenadas pela probabilidade de risco alto (relativo ao hist\u00f3rico de\u2026",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "rationale",
-      "norm_label": "cidades ordenadas pela probabilidade de risco alto (relativo ao historico de...",
-      "source_file": "app/server.py",
-      "source_location": "L180"
     },
     {
       "id": "app_server_rationale_203",
@@ -8388,17 +8323,6 @@
       "source_location": "L31"
     },
     {
-      "id": "app_server_rationale_82",
-      "label": "Lista doen\u00e7as com resultados exportados.",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "rationale",
-      "norm_label": "lista doencas com resultados exportados.",
-      "source_file": "app/server.py",
-      "source_location": "L82"
-    },
-    {
       "id": "app_server_rationale_89",
       "label": "Retorna resultados v4 de uma doen\u00e7a espec\u00edfica.",
       "_origin": "ast",
@@ -8408,17 +8332,6 @@
       "norm_label": "retorna resultados v4 de uma doenca especifica.",
       "source_file": "app/server.py",
       "source_location": "L89"
-    },
-    {
-      "id": "src_ml_pipeline_export_dashboard_rationale_34",
-      "label": "Estat\u00edsticas do banco para o painel de status.",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "server.py",
-      "file_type": "rationale",
-      "norm_label": "estatisticas do banco para o painel de status.",
-      "source_file": "src/ml_pipeline/export_dashboard.py",
-      "source_location": "L34"
     },
     {
       "id": "src_ml_pipeline_combinacao",
@@ -8568,55 +8481,22 @@
       "label": "field_validator",
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "field_validator",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "tests_test_prediction_service",
-      "label": "test_prediction_service.py",
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "code",
-      "norm_label": "test_prediction_service.py",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L1"
-    },
-    {
       "id": "tests_test_prediction_service_py_parametrize",
       "label": "parametrize",
       "_origin": "ast",
       "community": 32,
-      "community_name": "test_prediction_service.py",
+      "community_name": "PredictRequest",
       "file_type": "code",
       "norm_label": "parametrize",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "src_prediction_service_predictor_rationale_68",
-      "label": "Intervalo de 90% a partir dos quantis de res\u00edduo log1p calibrados no OOF.",
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "rationale",
-      "norm_label": "intervalo de 90% a partir dos quantis de residuo log1p calibrados no oof.",
-      "source_file": "src/prediction_service/predictor.py",
-      "source_location": "L68"
-    },
-    {
-      "id": "tests_test_prediction_service_rationale_1",
-      "label": "Testes do servi\u00e7o de previs\u00e3o v5 (alerta de risco): schemas, n\u00edveis, intervalo,\u2026",
-      "_origin": "ast",
-      "community": 32,
-      "community_name": "test_prediction_service.py",
-      "file_type": "rationale",
-      "norm_label": "testes do servico de previsao v5 (alerta de risco): schemas, niveis, intervalo,...",
-      "source_file": "tests/test_prediction_service.py",
-      "source_location": "L1"
     },
     {
       "id": "src_ml_pipeline_baselines_py_dataframe",
@@ -8748,6 +8628,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_prediction_service_data_fetcher",
+      "label": "data_fetcher.py",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "get_feature_columns",
+      "file_type": "code",
+      "norm_label": "data_fetcher.py",
+      "source_file": "src/prediction_service/data_fetcher.py",
+      "source_location": "L1"
+    },
+    {
       "id": "src_ml_pipeline_feature_engineering_rationale_1",
       "label": "M\u00f3dulo de Feature Engineering v4 (multi-doen\u00e7a, multi-horizonte). Princ\u00edpios: -\u2026",
       "_origin": "ast",
@@ -8825,6 +8716,17 @@
       "source_location": "L328"
     },
     {
+      "id": "src_prediction_service_data_fetcher_rationale_1",
+      "label": "Fonte de dados do servi\u00e7o de previs\u00e3o. A fonte de verdade \u00e9 o SQLite\u2026",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "get_feature_columns",
+      "file_type": "rationale",
+      "norm_label": "fonte de dados do servico de previsao. a fonte de verdade e o sqlite...",
+      "source_file": "src/prediction_service/data_fetcher.py",
+      "source_location": "L1"
+    },
+    {
       "id": "deploy_hf_space_readme",
       "label": "hf_space/README.md",
       "_origin": "ast",
@@ -8859,70 +8761,81 @@
       "source_location": "L12"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo",
-      "label": "teste_prospectivo.py",
+      "id": "src_ml_pipeline_export_dashboard",
+      "label": "export_dashboard.py",
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "teste_prospectivo.py",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "norm_label": "export_dashboard.py",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_py_dataframe",
+      "id": "src_ml_pipeline_export_dashboard_py_dataframe",
       "label": "DataFrame",
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
       "norm_label": "dataframe",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_py_path",
-      "label": "Path",
+      "id": "src_ml_pipeline_export_dashboard_py_series",
+      "label": "Series",
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "code",
-      "norm_label": "path",
+      "norm_label": "series",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_py_runtimeerror",
-      "label": "RuntimeError",
+      "id": "app_server_rationale_82",
+      "label": "Lista doen\u00e7as com resultados exportados.",
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
-      "file_type": "code",
-      "norm_label": "runtimeerror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_ml_pipeline_teste_prospectivo_rationale_1",
-      "label": "Step 8 \u2014 Teste prospectivo \u00fanico em jan\u2013ago/2026 (docs/PROTOCOLO_V5.md). -\u2026",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "rationale",
-      "norm_label": "step 8 \u2014 teste prospectivo unico em jan\u2013ago/2026 (docs/protocolo_v5.md). -...",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
+      "norm_label": "lista doencas com resultados exportados.",
+      "source_file": "app/server.py",
+      "source_location": "L82"
+    },
+    {
+      "id": "src_ml_pipeline_export_dashboard_rationale_1",
+      "label": "Exporta\u00e7\u00e3o dos resultados do pipeline v4 para o dashboard (multi-doen\u00e7a).\u2026",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "export_dashboard.py",
+      "file_type": "rationale",
+      "norm_label": "exportacao dos resultados do pipeline v4 para o dashboard (multi-doenca)....",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
       "source_location": "L1"
     },
     {
-      "id": "src_ml_pipeline_teste_prospectivo_rationale_44",
-      "label": "Meses de jan\u2013ago/2026 com \u2265 8 semanas entre o fim do m\u00eas e a ingest\u00e3o mais\u2026",
+      "id": "src_ml_pipeline_export_dashboard_rationale_34",
+      "label": "Estat\u00edsticas do banco para o painel de status.",
       "_origin": "ast",
       "community": 38,
-      "community_name": "teste_prospectivo.py",
+      "community_name": "export_dashboard.py",
       "file_type": "rationale",
-      "norm_label": "meses de jan\u2013ago/2026 com \u2265 8 semanas entre o fim do mes e a ingestao mais...",
-      "source_file": "src/ml_pipeline/teste_prospectivo.py",
-      "source_location": "L44"
+      "norm_label": "estatisticas do banco para o painel de status.",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L34"
+    },
+    {
+      "id": "src_ml_pipeline_export_dashboard_rationale_78",
+      "label": "Converte numpy/NaN para tipos JSON.",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "export_dashboard.py",
+      "file_type": "rationale",
+      "norm_label": "converte numpy/nan para tipos json.",
+      "source_file": "src/ml_pipeline/export_dashboard.py",
+      "source_location": "L78"
     },
     {
       "id": "tests_test_ml_pipeline_rationale_25",
@@ -9145,18 +9058,6 @@
       "source_location": "L49"
     },
     {
-      "id": "docs_protocolo_v7",
-      "label": "PROTOCOLO_V7.md",
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "Protocolo v7 \u2014 Pr\u00e9-registro",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "protocolo_v7.md",
-      "source_file": "docs/PROTOCOLO_V7.md",
-      "source_location": "L1"
-    },
-    {
       "id": "docs_protocolo_v7_base_e_candidatas_fixas",
       "label": "Base e candidatas (fixas)",
       "_origin": "ast",
@@ -9308,18 +9209,6 @@
       "norm_label": "escreve um .dbf minimo (campos texto/data de tamanho fixo).",
       "source_file": "tests/test_sorotipo.py",
       "source_location": "L10"
-    },
-    {
-      "id": "docs_protocolo_v6",
-      "label": "PROTOCOLO_V6.md",
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "Protocolo v6 \u2014 Pr\u00e9-registro",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "protocolo_v6.md",
-      "source_file": "docs/PROTOCOLO_V6.md",
-      "source_location": "L1"
     },
     {
       "id": "docs_protocolo_v6_desvios",
@@ -9474,7 +9363,18 @@
       "source_location": "L32"
     },
     {
-      "id": "src_prediction_service_artefatos_rationale_64",
+      "id": "src_prediction_service_artefatos_rationale_48",
+      "label": "C\u00f3pia consistente do SQLite (API de backup), segura mesmo com uma ingest\u00e3o\u2026",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "artefatos.py",
+      "file_type": "rationale",
+      "norm_label": "copia consistente do sqlite (api de backup), segura mesmo com uma ingestao...",
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L48"
+    },
+    {
+      "id": "src_prediction_service_artefatos_rationale_80",
       "label": "Extrai o zip conferindo cada arquivo contra o manifesto. Recusa caminhos fora\u2026",
       "_origin": "ast",
       "community": 44,
@@ -9482,10 +9382,10 @@
       "file_type": "rationale",
       "norm_label": "extrai o zip conferindo cada arquivo contra o manifesto. recusa caminhos fora...",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L64"
+      "source_location": "L80"
     },
     {
-      "id": "src_prediction_service_artefatos_rationale_81",
+      "id": "src_prediction_service_artefatos_rationale_97",
       "label": "Garante modelos e banco locais. Retorna True se precisou baixar.",
       "_origin": "ast",
       "community": 44,
@@ -9493,7 +9393,7 @@
       "file_type": "rationale",
       "norm_label": "garante modelos e banco locais. retorna true se precisou baixar.",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L81"
+      "source_location": "L97"
     },
     {
       "id": "tests_test_ml_pipeline_py_parametrize",
@@ -9720,7 +9620,7 @@
       "label": "DataFrame",
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "code",
       "norm_label": "dataframe",
       "source_file": "",
@@ -9731,18 +9631,29 @@
       "label": "Series",
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "code",
       "norm_label": "series",
       "source_file": "",
       "source_location": ""
     },
     {
+      "id": "src_ml_pipeline_feature_engineering_rationale_386",
+      "label": "Grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "grupos_de_features",
+      "file_type": "rationale",
+      "norm_label": "grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
+      "source_file": "src/ml_pipeline/feature_engineering.py",
+      "source_location": "L386"
+    },
+    {
       "id": "src_ml_pipeline_feature_engineering_rationale_52",
       "label": "Rolling por cidade aplicado sobre a s\u00e9rie j\u00e1 deslocada (nunca inclui\u2026",
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "rationale",
       "norm_label": "rolling por cidade aplicado sobre a serie ja deslocada (nunca inclui...",
       "source_file": "src/ml_pipeline/feature_engineering.py",
@@ -9753,7 +9664,7 @@
       "label": "Anomalia = valor - m\u00e9dia do MESMO m\u00eas nos anos ANTERIORES da mesma cidade.\u2026",
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "rationale",
       "norm_label": "anomalia = valor - media do mesmo mes nos anos anteriores da mesma cidade....",
       "source_file": "src/ml_pipeline/feature_engineering.py",
@@ -9764,7 +9675,7 @@
       "label": "Incid\u00eancia agregada (casos / pop \u00d7 100 mil) das k cidades mais pr\u00f3ximas\u2026",
       "_origin": "ast",
       "community": 49,
-      "community_name": "DataFrame",
+      "community_name": "grupos_de_features",
       "file_type": "rationale",
       "norm_label": "incidencia agregada (casos / pop \u00d7 100 mil) das k cidades mais proximas...",
       "source_file": "src/ml_pipeline/feature_engineering.py",
@@ -9881,6 +9792,61 @@
       "source_location": "L1"
     },
     {
+      "id": "src_ml_pipeline_experimento_v6",
+      "label": "experimento_v6.py",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "experimento_v6.py",
+      "source_file": "src/ml_pipeline/experimento_v6.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_py_series",
+      "label": "Series",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "code",
+      "norm_label": "series",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_ml_pipeline_experimento_v6_rationale_1",
+      "label": "Experimento v6 (docs/PROTOCOLO_V6.md) \u2014 responde H6a (formula\u00e7\u00e3o), H6b\u2026",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "rationale",
+      "norm_label": "experimento v6 (docs/protocolo_v6.md) \u2014 responde h6a (formulacao), h6b...",
+      "source_file": "src/ml_pipeline/experimento_v6.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_61",
+      "label": "Quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o\u2026",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "rationale",
+      "norm_label": "quantil q (0\u20131) de `col` por cidade, calculado em df_ref (tipicamente o...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L61"
+    },
+    {
+      "id": "src_ml_pipeline_model_training_rationale_78",
+      "label": "Gera splits Expanding Window (Walk Forward): Treina em anos < t, testa no ano\u2026",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "experimento_v6.py",
+      "file_type": "rationale",
+      "norm_label": "gera splits expanding window (walk forward): treina em anos < t, testa no ano...",
+      "source_file": "src/ml_pipeline/model_training.py",
+      "source_location": "L78"
+    },
+    {
       "id": "tests_test_experimento_v7_py_parametrize",
       "label": "parametrize",
       "_origin": "ast",
@@ -9892,15 +9858,280 @@
       "source_location": ""
     },
     {
-      "id": "src_ml_pipeline_feature_engineering_rationale_386",
-      "label": "Grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
+      "id": "tests_test_experimento_v7",
+      "label": "test_experimento_v7.py",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "code",
+      "norm_label": "test_experimento_v7.py",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_experimento_v7_py_fixture",
+      "label": "fixture",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "code",
+      "norm_label": "fixture",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "tests_test_experimento_v7_rationale_1",
+      "label": "Protocolo v7: features de Rt, n\u00edvel regional (GLM + reconcilia\u00e7\u00e3o), sorotipo,\u2026",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "rationale",
+      "norm_label": "protocolo v7: features de rt, nivel regional (glm + reconciliacao), sorotipo,...",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_test_experimento_v7_rationale_14",
+      "label": "9 cidades (3 por UF) \u00d7 2010\u20132020, sazonal, com Rt; chikungunya s\u00f3 a partir de\u2026",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "test_experimento_v7.py",
+      "file_type": "rationale",
+      "norm_label": "9 cidades (3 por uf) \u00d7 2010\u20132020, sazonal, com rt; chikungunya so a partir de...",
+      "source_file": "tests/test_experimento_v7.py",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_prediction_service_monitoramento",
+      "label": "monitoramento.py",
       "_origin": "ast",
       "community": 53,
-      "community_name": "grupos_de_features",
+      "community_name": "avaliar",
+      "file_type": "code",
+      "norm_label": "monitoramento.py",
+      "source_file": "src/prediction_service/monitoramento.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_prediction_service_monitoramento_py_dataframe",
+      "label": "DataFrame",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "code",
+      "norm_label": "dataframe",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_prediction_service_monitoramento_py_path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "src_prediction_service_rotina_mensal",
+      "label": "rotina_mensal.py",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "code",
+      "norm_label": "rotina_mensal.py",
+      "source_file": "src/prediction_service/rotina_mensal.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_prediction_service_monitoramento_rationale_1",
+      "label": "Monitoramento ao vivo (docs/PROTOCOLO_V5.md, \"Produ\u00e7\u00e3o v5.1\"). 1. registrar():\u2026",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
       "file_type": "rationale",
-      "norm_label": "grupos do protocolo v5: casos (sempre), clima_parcimonioso e suscetibilidade.",
-      "source_file": "src/ml_pipeline/feature_engineering.py",
-      "source_location": "L386"
+      "norm_label": "monitoramento ao vivo (docs/protocolo_v5.md, \"producao v5.1\"). 1. registrar():...",
+      "source_file": "src/prediction_service/monitoramento.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_prediction_service_monitoramento_rationale_37",
+      "label": "Acrescenta as previs\u00f5es do lote; ignora as que j\u00e1 tinham sido emitidas. Retorna\u2026",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "rationale",
+      "norm_label": "acrescenta as previsoes do lote; ignora as que ja tinham sido emitidas. retorna...",
+      "source_file": "src/prediction_service/monitoramento.py",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_prediction_service_monitoramento_rationale_56",
+      "label": "Desempenho por doen\u00e7a \u00d7 horizonte das previs\u00f5es cujo m\u00eas-alvo j\u00e1 foi observado\u2026",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "rationale",
+      "norm_label": "desempenho por doenca \u00d7 horizonte das previsoes cujo mes-alvo ja foi observado...",
+      "source_file": "src/prediction_service/monitoramento.py",
+      "source_location": "L56"
+    },
+    {
+      "id": "src_prediction_service_rotina_mensal_rationale_1",
+      "label": "Rotina mensal da produ\u00e7\u00e3o v5.1 (python main.py atualizar-mensal). 1. Atualiza o\u2026",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "avaliar",
+      "file_type": "rationale",
+      "norm_label": "rotina mensal da producao v5.1 (python main.py atualizar-mensal). 1. atualiza o...",
+      "source_file": "src/prediction_service/rotina_mensal.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_protocolo_v5_an\u00e1lise_de_efeito_dlnm_responde_h1",
+      "label": "An\u00e1lise de efeito (DLNM) \u2014 responde H1",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "analise de efeito (dlnm) \u2014 responde h1",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L18"
+    },
+    {
+      "id": "docs_protocolo_v5_desvios",
+      "label": "Desvios",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "desvios",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L81"
+    },
+    {
+      "id": "docs_protocolo_v5_experimento_preditivo_responde_h2_e_h3",
+      "label": "Experimento preditivo \u2014 responde H2 e H3",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "experimento preditivo \u2014 responde h2 e h3",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L31"
+    },
+    {
+      "id": "docs_protocolo_v5_hip\u00f3teses",
+      "label": "Hip\u00f3teses",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "hipoteses",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "docs_protocolo_v5_holdout_prospectivo",
+      "label": "Holdout prospectivo",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "holdout prospectivo",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L60"
+    },
+    {
+      "id": "docs_protocolo_v5_produ\u00e7\u00e3o_v5_1_registrado_em_2026_11_06_depois_do_teste_de_2026_e_antes_do_retreino",
+      "label": "Produ\u00e7\u00e3o v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "producao v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L66"
+    },
+    {
+      "id": "docs_protocolo_v5_protocolo_v5_pr\u00e9_registro_fixado_antes_de_ingerir_dados_de_2026",
+      "label": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "protocolo v5 \u2014 pre-registro (fixado antes de ingerir dados de 2026)",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_protocolo_v5_regra_de_decis\u00e3o_fixa",
+      "label": "Regra de decis\u00e3o (fixa)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "regra de decisao (fixa)",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L53"
+    },
+    {
+      "id": "docs_protocolo_v5",
+      "label": "PROTOCOLO_V5.md",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "protocolo_v5.md",
+      "source_file": "docs/PROTOCOLO_V5.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_protocolo_v6",
+      "label": "PROTOCOLO_V6.md",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "protocolo_v6.md",
+      "source_file": "docs/PROTOCOLO_V6.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_protocolo_v7",
+      "label": "PROTOCOLO_V7.md",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "protocolo_v7.md",
+      "source_file": "docs/PROTOCOLO_V7.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "readme",
+      "label": "README.md",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "readme.md",
+      "source_file": "README.md",
+      "source_location": "L1"
     },
     {
       "id": "connection",
@@ -9923,50 +10154,6 @@
       "norm_label": "date",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "src_prediction_service_monitoramento",
-      "label": "monitoramento.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "code",
-      "norm_label": "monitoramento.py",
-      "source_file": "src/prediction_service/monitoramento.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_prediction_service_monitoramento_py_dataframe",
-      "label": "DataFrame",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "code",
-      "norm_label": "dataframe",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_prediction_service_monitoramento_py_path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "src_prediction_service_rotina_mensal",
-      "label": "rotina_mensal.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "code",
-      "norm_label": "rotina_mensal.py",
-      "source_file": "src/prediction_service/rotina_mensal.py",
-      "source_location": "L1"
     },
     {
       "id": "src_processamento_atualizacao_incremental",
@@ -10032,50 +10219,6 @@
       "file_type": "code",
       "norm_label": "test_atualizacao_incremental.py",
       "source_file": "tests/test_atualizacao_incremental.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_prediction_service_monitoramento_rationale_1",
-      "label": "Monitoramento ao vivo (docs/PROTOCOLO_V5.md, \"Produ\u00e7\u00e3o v5.1\"). 1. registrar():\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "rationale",
-      "norm_label": "monitoramento ao vivo (docs/protocolo_v5.md, \"producao v5.1\"). 1. registrar():...",
-      "source_file": "src/prediction_service/monitoramento.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_prediction_service_monitoramento_rationale_37",
-      "label": "Acrescenta as previs\u00f5es do lote; ignora as que j\u00e1 tinham sido emitidas. Retorna\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "rationale",
-      "norm_label": "acrescenta as previsoes do lote; ignora as que ja tinham sido emitidas. retorna...",
-      "source_file": "src/prediction_service/monitoramento.py",
-      "source_location": "L37"
-    },
-    {
-      "id": "src_prediction_service_monitoramento_rationale_56",
-      "label": "Desempenho por doen\u00e7a \u00d7 horizonte das previs\u00f5es cujo m\u00eas-alvo j\u00e1 foi observado\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "rationale",
-      "norm_label": "desempenho por doenca \u00d7 horizonte das previsoes cujo mes-alvo ja foi observado...",
-      "source_file": "src/prediction_service/monitoramento.py",
-      "source_location": "L56"
-    },
-    {
-      "id": "src_prediction_service_rotina_mensal_rationale_1",
-      "label": "Rotina mensal da produ\u00e7\u00e3o v5.1 (python main.py atualizar-mensal). 1. Atualiza o\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "atualizacao_incremental.py",
-      "file_type": "rationale",
-      "norm_label": "rotina mensal da producao v5.1 (python main.py atualizar-mensal). 1. atualiza o...",
-      "source_file": "src/prediction_service/rotina_mensal.py",
       "source_location": "L1"
     },
     {
@@ -10222,126 +10365,6 @@
       "source_location": "L1"
     },
     {
-      "id": "docs_protocolo_v5",
-      "label": "PROTOCOLO_V5.md",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "protocolo_v5.md",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "docs_protocolo_v5_an\u00e1lise_de_efeito_dlnm_responde_h1",
-      "label": "An\u00e1lise de efeito (DLNM) \u2014 responde H1",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "analise de efeito (dlnm) \u2014 responde h1",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L18"
-    },
-    {
-      "id": "docs_protocolo_v5_desvios",
-      "label": "Desvios",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "desvios",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L81"
-    },
-    {
-      "id": "docs_protocolo_v5_experimento_preditivo_responde_h2_e_h3",
-      "label": "Experimento preditivo \u2014 responde H2 e H3",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "experimento preditivo \u2014 responde h2 e h3",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L31"
-    },
-    {
-      "id": "docs_protocolo_v5_hip\u00f3teses",
-      "label": "Hip\u00f3teses",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "hipoteses",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L8"
-    },
-    {
-      "id": "docs_protocolo_v5_holdout_prospectivo",
-      "label": "Holdout prospectivo",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "holdout prospectivo",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L60"
-    },
-    {
-      "id": "docs_protocolo_v5_produ\u00e7\u00e3o_v5_1_registrado_em_2026_11_06_depois_do_teste_de_2026_e_antes_do_retreino",
-      "label": "Produ\u00e7\u00e3o v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "producao v5.1 (registrado em 2026-11-06, depois do teste de 2026 e antes do retreino)",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L66"
-    },
-    {
-      "id": "docs_protocolo_v5_protocolo_v5_pr\u00e9_registro_fixado_antes_de_ingerir_dados_de_2026",
-      "label": "Protocolo v5 \u2014 Pr\u00e9-registro (fixado antes de ingerir dados de 2026)",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "protocolo v5 \u2014 pre-registro (fixado antes de ingerir dados de 2026)",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "docs_protocolo_v5_regra_de_decis\u00e3o_fixa",
-      "label": "Regra de decis\u00e3o (fixa)",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "regra de decisao (fixa)",
-      "source_file": "docs/PROTOCOLO_V5.md",
-      "source_location": "L53"
-    },
-    {
-      "id": "readme",
-      "label": "README.md",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "readme.md",
-      "source_file": "README.md",
-      "source_location": "L1"
-    },
-    {
       "id": "readme_a_aplica\u00e7\u00e3o",
       "label": "A aplica\u00e7\u00e3o",
       "_origin": "ast",
@@ -10351,7 +10374,7 @@
       "node_kind": "heading",
       "norm_label": "a aplicacao",
       "source_file": "README.md",
-      "source_location": "L67"
+      "source_location": "L87"
     },
     {
       "id": "readme_arquitetura",
@@ -10363,7 +10386,7 @@
       "node_kind": "heading",
       "norm_label": "arquitetura",
       "source_file": "README.md",
-      "source_location": "L128"
+      "source_location": "L149"
     },
     {
       "id": "readme_clima_arboviroses",
@@ -10387,7 +10410,19 @@
       "node_kind": "heading",
       "norm_label": "como a ia foi usada, e onde ela foi barrada",
       "source_file": "README.md",
-      "source_location": "L116"
+      "source_location": "L137"
+    },
+    {
+      "id": "readme_depois_de_2026_o_diagn\u00f3stico_a_v6_e_a_v7",
+      "label": "Depois de 2026: o diagn\u00f3stico, a v6 e a v7",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "\ud83e\udd9f Clima \u00d7 Arboviroses",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "depois de 2026: o diagnostico, a v6 e a v7",
+      "source_file": "README.md",
+      "source_location": "L68"
     },
     {
       "id": "readme_em_30_segundos",
@@ -10411,7 +10446,7 @@
       "node_kind": "heading",
       "norm_label": "engenharia de dados",
       "source_file": "README.md",
-      "source_location": "L103"
+      "source_location": "L123"
     },
     {
       "id": "readme_estrutura",
@@ -10423,7 +10458,7 @@
       "node_kind": "heading",
       "norm_label": "estrutura",
       "source_file": "README.md",
-      "source_location": "L166"
+      "source_location": "L187"
     },
     {
       "id": "readme_limita\u00e7\u00f5es",
@@ -10435,7 +10470,7 @@
       "node_kind": "heading",
       "norm_label": "limitacoes",
       "source_file": "README.md",
-      "source_location": "L188"
+      "source_location": "L212"
     },
     {
       "id": "readme_o_calor_aumenta_a_dengue_no_sul_do_brasil_mas_isso_ajuda_a_prever_o_pr\u00f3ximo_surto",
@@ -10459,7 +10494,7 @@
       "node_kind": "heading",
       "norm_label": "o efeito do clima",
       "source_file": "README.md",
-      "source_location": "L39"
+      "source_location": "L40"
     },
     {
       "id": "readme_o_que_a_api_entrega",
@@ -10471,7 +10506,7 @@
       "node_kind": "heading",
       "norm_label": "o que a api entrega",
       "source_file": "README.md",
-      "source_location": "L82"
+      "source_location": "L102"
     },
     {
       "id": "readme_o_que_aprendemos_sobre_previs\u00e3o_incluindo_o_que_deu_errado",
@@ -10483,7 +10518,7 @@
       "node_kind": "heading",
       "norm_label": "o que aprendemos sobre previsao (incluindo o que deu errado)",
       "source_file": "README.md",
-      "source_location": "L55"
+      "source_location": "L56"
     },
     {
       "id": "readme_pr\u00f3ximos_passos",
@@ -10495,7 +10530,7 @@
       "node_kind": "heading",
       "norm_label": "proximos passos",
       "source_file": "README.md",
-      "source_location": "L179"
+      "source_location": "L200"
     },
     {
       "id": "readme_rodando",
@@ -10507,7 +10542,7 @@
       "node_kind": "heading",
       "norm_label": "rodando",
       "source_file": "README.md",
-      "source_location": "L142"
+      "source_location": "L163"
     },
     {
       "id": "docs_plano_experimento_final",
@@ -15382,7 +15417,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L50",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "src_prediction_service_artefatos_empacotar",
+      "target": "src_prediction_service_artefatos_py_path",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "src_prediction_service_artefatos_empacotar",
+      "target": "src_prediction_service_artefatos_snapshot_banco",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -15394,7 +15453,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L54",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -15406,7 +15465,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L89",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -15418,7 +15477,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -23758,7 +23817,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L63",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -24614,7 +24673,7 @@
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_artefatos_empacotar",
+      "source": "src_prediction_service_artefatos_snapshot_banco",
       "target": "src_prediction_service_artefatos_py_path",
       "relation": "references",
       "_origin": "ast",
@@ -26685,13 +26744,24 @@
     },
     {
       "source": "readme_clima_arboviroses",
+      "target": "readme_o_que_a_api_entrega",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_clima_arboviroses",
       "target": "readme_engenharia_de_dados",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L103",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -26702,7 +26772,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L116",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -26713,7 +26783,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L128",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -26724,7 +26794,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L142",
+      "source_location": "L163",
       "weight": 1.0
     },
     {
@@ -26735,7 +26805,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L166",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -26746,7 +26816,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L179",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -26757,7 +26827,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L188",
+      "source_location": "L212",
       "weight": 1.0
     },
     {
@@ -26779,7 +26849,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -26801,7 +26871,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L55",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_clima_arboviroses",
+      "target": "readme_depois_de_2026_o_diagn\u00f3stico_a_v6_e_a_v7",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -26812,18 +26893,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L67",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_clima_arboviroses",
-      "target": "readme_o_que_a_api_entrega",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": "L82",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -28632,7 +28702,7 @@
     },
     {
       "source": "src_prediction_service_artefatos",
-      "target": "src_prediction_service_artefatos_empacotar",
+      "target": "src_prediction_service_artefatos_snapshot_banco",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -28643,13 +28713,24 @@
     },
     {
       "source": "src_prediction_service_artefatos",
+      "target": "src_prediction_service_artefatos_empacotar",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "src_prediction_service_artefatos",
       "target": "src_prediction_service_artefatos_extrair",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L63",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -28660,7 +28741,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L80",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -32866,25 +32947,36 @@
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_artefatos_rationale_64",
+      "source": "src_prediction_service_artefatos_rationale_48",
+      "target": "src_prediction_service_artefatos_snapshot_banco",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/prediction_service/artefatos.py",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "src_prediction_service_artefatos_rationale_80",
       "target": "src_prediction_service_artefatos_extrair",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L64",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
-      "source": "src_prediction_service_artefatos_rationale_81",
+      "source": "src_prediction_service_artefatos_rationale_97",
       "target": "src_prediction_service_artefatos_garantir",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/prediction_service/artefatos.py",
-      "source_location": "L81",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -33709,7 +33801,40 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L121",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "readme",
+      "target": "docs_protocolo_v6",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "readme",
+      "target": "docs_resultados_v6_relatorio",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "readme",
+      "target": "docs_protocolo_v7",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -34559,5 +34684,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3db9e8f98ec79e629f8e533005784d41c4632437"
+  "built_at_commit": "39a8d3e7ca8ed85e3a458d885e6549b800f6a43a"
 }

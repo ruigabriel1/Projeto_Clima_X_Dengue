@@ -12,7 +12,7 @@ e uma aplicação web + API que entrega **alerta de risco** e casos previstos po
 ![XGBoost](https://img.shields.io/badge/XGBoost-Poisson-EB5E28)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20de%20previsão-009688?logo=fastapi&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-ingestão%20idempotente-003B57?logo=sqlite&logoColor=white)
-![Testes](https://img.shields.io/badge/pytest-74%20testes-0A9EDC?logo=pytest&logoColor=white)
+![Testes](https://img.shields.io/badge/pytest-105%20testes-0A9EDC?logo=pytest&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-pronto-2496ED?logo=docker&logoColor=white)
 ![Protocolo](https://img.shields.io/badge/protocolo-pré--registrado-6f42c1)
 
@@ -27,9 +27,10 @@ e uma aplicação web + API que entrega **alerta de risco** e casos previstos po
 | **O clima afeta o risco?** | **Sim.** Um mês quente (P90, ~24,5 °C) eleva o risco de dengue em **46%** nos 3 meses seguintes | DLNM, IC 95% [1,07–1,99] |
 | **O clima ajuda a prever?** | **Pouco.** Melhora a previsão de dengue em ~1% e a de chikungunya em 0% | Experimento controlado, IC por bootstrap |
 | **O que ajuda de verdade?** | O histórico de casos e a **imunidade acumulada** da população (−1% a −3,5% de erro) | Mesmo experimento |
-| **O alerta funciona?** | **Supera o alerta oficial do InfoDengue** em todas as combinações (AUC 0,76–0,82 contra 0,52–0,68) | Validação 2018–2024 |
-| **E no futuro de verdade?** | No teste único de 2026 (meses nunca vistos), ainda supera o InfoDengue (AUC 0,62–0,80 contra 0,53–0,60), mas **perde para "repetir o último mês"** na dengue e superestimou o ano de baixa em 1,5× a 3,5× | Teste prospectivo jan–ago/2026 |
+| **O alerta funciona?** | Ordena o risco melhor que **o último alerta do InfoDengue usado como previsão** (AUC 0,76–0,82 contra 0,52–0,68). O alerta oficial descreve a semana atual, não prevê; a comparação é com quem o usasse para antecipar | Validação 2018–2024 |
+| **E no futuro de verdade?** | No teste único de 2026 (meses nunca vistos), ainda supera o último alerta do InfoDengue (AUC 0,62–0,80 contra 0,53–0,60), mas **perde para "repetir o último mês"** na dengue e superestimou o ano de baixa em 1,5× a 3,5× | Teste prospectivo jan–ago/2026 |
 | **Onde ele perde?** | Depois de um ano epidêmico, espera outra temporada grande: errou do mesmo jeito em 2025 e 2026. Nenhum modelo acerta o **tamanho** dos surtos | Dois testes únicos fora da amostra |
+| **Por quê?** | O erro está no **tamanho da temporada em cada estado**, não na escolha das cidades: com o total de cada estado correto, o mesmo modelo erraria 4,2/6,0/7,3 casos por cidade-mês e venceria a persistência (5,8/8,7/10,8) | Diagnóstico do teste de 2026 |
 
 > **Tese:** o clima tem efeito mensurável sobre as arboviroses, mas acrescenta pouco à previsão de curto
 > prazo além do histórico de casos. A previsão útil é de **risco relativo**, não de magnitude.
@@ -63,6 +64,25 @@ do mosquito somado à incubação e à notificação.
   o modelo previu outra temporada grande, e 2025 caiu 68% na região inteira.
 - **Versão atual:** só 2 variáveis de clima escolhidas antes de ver os dados, imunidade acumulada como
   feature e foco em risco relativo. O ganho do clima ficou pequeno mas real; o do El Niño era ilusão.
+
+## Depois de 2026: o diagnóstico, a v6 e a v7
+
+<p align="center"><img src="docs/resultados_v7/diagnostico_nivel_regional_2026.png" width="820" alt="Erro do modelo, da persistência e do modelo com o total de cada estado correto, por horizonte"></p>
+
+O modelo divide bem o risco entre as cidades, mas chega atrasado à **virada da temporada**: nos anos de epidemia
+(2019–2024) previu só 20% a 50% dos casos; em 2026, ano de queda, previu 1,5 a 3,5 vezes o real. A barra verde é
+um oráculo (usa o total real de cada estado), o teto do que um modelo de nível regional poderia ganhar.
+
+- **v6** ([protocolo](docs/PROTOCOLO_V6.md), [resultados](docs/resultados_v6/relatorio.md)): três ideias testadas pela
+  regra pré-registrada. Partir da persistência e aprender só a mudança reduziu o erro da dengue em 23% a 1 mês e
+  4% a 2 meses (e piorou 5% a 3 meses); vizinhos e imunidade de 4–5 anos foram rejeitados. Não corrigiu a queda
+  pós-epidemia e baixou a AUC; por isso a v6 roda **em modo sombra** ao lado da v5.1 até ago/2027, sem aparecer
+  na aplicação.
+- **v7** ([protocolo](docs/PROTOCOLO_V7.md)), pré-registrada antes de qualquer execução: histórico desde 2010 (mais
+  ciclos de subida e queda), o Rt estimado pelo InfoDengue e um modelo do **total de cada estado** redistribuído entre
+  as cidades. A regra agora exige reduzir o erro **sem** piorar a ordem de risco (ΔAUC ≥ −0,01). O sorotipo
+  circulante (SINAN) foi reprovado no portão de cobertura fixado antes: só 55% das janelas de 3 meses tinham
+  exames suficientes. Coleta dos dados de 2010–2014 em andamento; teste em modo sombra em jan–ago/2027.
 
 ## A aplicação
 
@@ -104,14 +124,15 @@ Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez 
 
 | Etapa | Como foi feito |
 |---|---|
-| **Ingestão** | 4 APIs públicas (InfoDengue, Open-Meteo, NOAA, IBGE) para 1.190 municípios; semanas e dias agregados em meses |
+| **Ingestão** | 5 fontes públicas (InfoDengue, Open-Meteo, NOAA, IBGE e microdados do SINAN/DATASUS) para 1.190 municípios; semanas e dias agregados em meses |
 | **Carga** | Incremental e **idempotente** no SQLite: upsert por município × ano × mês, índice único, retomada após falha ou limite de requisições |
 | **Histórico imutável** | Meses já usados em análises nunca são sobrescritos; o ano corrente só entra com meses fechados e consolidados |
 | **Qualidade** | Checagem de duplicatas, faixas físicas, cobertura e colunas que vazariam o alvo; 2015–2025 conferido contra a fonte (totais idênticos) |
 | **Features** | Lags, médias móveis, incidência acumulada e clima defasado, todos calculados só com informação até t − h |
-| **Monitoramento** | Toda previsão mensal é registrada **antes** de o mês acontecer e comparada com o real quando os dados consolidam; só a primeira emissão conta |
+| **Monitoramento** | Toda previsão mensal é registrada **antes** de o mês acontecer e comparada com o real quando os dados consolidam; só a primeira emissão conta. Versões candidatas (v6, v7) emitem em modo sombra |
+| **Versões dos dados** | O InfoDengue recalcula o histórico; a cada coleta, as últimas 12 semanas são guardadas como estavam naquela data, para avaliar correções de atraso (nowcast) no futuro |
 | **Empacotamento** | Docker com dependências fixas; modelos e snapshot do banco publicados como Release e conferidos por SHA-256 na inicialização |
-| **Testes** | 74 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API, cenários, artefatos |
+| **Testes** | 105 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API, cenários, artefatos |
 
 ## Como a IA foi usada, e onde ela foi barrada
 
@@ -160,7 +181,7 @@ python main.py modelo-risco --producao  # modelos de produção v5.1 (todos os m
 python main.py atualizar-mensal         # rotina mensal: dados novos + monitoramento + previsões
 python main.py serve                    # aplicação + API em http://localhost:8000
 python main.py empacotar                # zip de modelos + banco para a Release
-python -m pytest -q                     # 74 testes, só com dados sintéticos
+python -m pytest -q                     # 105 testes, só com dados sintéticos
 ```
 
 ## Estrutura
@@ -181,8 +202,11 @@ tests/                   pytest
 - [x] Teste prospectivo **único** em jan–ago/2026 (resultado em [`docs/resultados_v5/`](docs/resultados_v5/teste_prospectivo_2026.md))
 - [x] Combinação modelo + persistência (ajuda a 1 mês; não passou na regra pré-registrada)
 - [x] Aplicação web, monitoramento ao vivo e empacotamento Docker
-- [ ] Corrigir o viés pós-epidemia (v6, com novo pré-registro e teste em 2027)
-- [ ] Correção de atraso de notificação (nowcasting) nos meses recentes
+- [x] Diagnóstico do erro de 2026: o problema é o nível da temporada por estado
+- [x] v6 testada pela regra pré-registrada; em modo sombra até ago/2027
+- [x] v7 pré-registrada (histórico 2010+, Rt, nível regional); sorotipo reprovado no portão de cobertura
+- [ ] v7: concluir a coleta de 2010–2014, rodar o experimento e emitir em modo sombra (teste jan–ago/2027)
+- [ ] Correção de atraso de notificação (nowcasting) com as cópias semanais do InfoDengue
 - [ ] Artigo científico com os resultados
 
 ## Limitações

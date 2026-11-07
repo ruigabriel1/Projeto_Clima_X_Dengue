@@ -44,18 +44,34 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def _snapshot_banco(destino: Path) -> Path:
+    """Cópia consistente do SQLite (API de backup), segura mesmo com uma ingestão gravando no banco."""
+    import sqlite3
+    origem, copia = sqlite3.connect(DB_PATH, timeout=120), sqlite3.connect(destino)
+    try:
+        origem.backup(copia)
+    finally:          # o "with" do sqlite3 não fecha a conexão; no Windows o arquivo ficaria preso
+        copia.close()
+        origem.close()
+    return destino
+
+
 def empacotar(destino: Path = BASE_DIR / "dist") -> Path:
     destino.mkdir(parents=True, exist_ok=True)
     zpath = destino / NOME_ZIP
     arquivos = _arquivos()
     meta = json.loads((OUTPUT_DIR / "models" / "final_v5" / "dengue" / "metadata.json").read_text(encoding="utf-8"))
-    manifesto = {"versao": VERSAO, "criado_em": time.strftime("%Y-%m-%d %H:%M:%S"),
-                 "periodo_treino": meta.get("periodo_treino"), "git_commit": meta.get("git_commit"),
-                 "arquivos": {p.relative_to(BASE_DIR).as_posix(): _sha256(p) for p in arquivos}}
-    with zipfile.ZipFile(zpath, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for p in arquivos:
-            z.write(p, p.relative_to(BASE_DIR).as_posix())
-        z.writestr(MANIFESTO, json.dumps(manifesto, indent=1, ensure_ascii=False))
+    with tempfile.TemporaryDirectory() as tmp:
+        fontes = {p.relative_to(BASE_DIR).as_posix(): p for p in arquivos}
+        if DB_PATH in arquivos:
+            fontes[DB_PATH.relative_to(BASE_DIR).as_posix()] = _snapshot_banco(Path(tmp) / DB_PATH.name)
+        manifesto = {"versao": VERSAO, "criado_em": time.strftime("%Y-%m-%d %H:%M:%S"),
+                     "periodo_treino": meta.get("periodo_treino"), "git_commit": meta.get("git_commit"),
+                     "arquivos": {rel: _sha256(p) for rel, p in fontes.items()}}
+        with zipfile.ZipFile(zpath, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+            for rel, p in fontes.items():
+                z.write(p, rel)
+            z.writestr(MANIFESTO, json.dumps(manifesto, indent=1, ensure_ascii=False))
     logger.info(f"{zpath} ({zpath.stat().st_size / 1e6:.1f} MB, {len(arquivos)} arquivos)")
     return zpath
 
