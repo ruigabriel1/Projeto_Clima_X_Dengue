@@ -12,7 +12,7 @@ e uma aplicação web + API que entrega **alerta de risco** e casos previstos po
 ![XGBoost](https://img.shields.io/badge/XGBoost-Poisson-EB5E28)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20de%20previsão-009688?logo=fastapi&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-ingestão%20idempotente-003B57?logo=sqlite&logoColor=white)
-![Testes](https://img.shields.io/badge/pytest-105%20testes-0A9EDC?logo=pytest&logoColor=white)
+[![Testes](https://github.com/ruigabriel1/Projeto_Clima_X_Dengue/actions/workflows/testes.yml/badge.svg)](https://github.com/ruigabriel1/Projeto_Clima_X_Dengue/actions/workflows/testes.yml)
 ![Docker](https://img.shields.io/badge/Docker-pronto-2496ED?logo=docker&logoColor=white)
 ![Protocolo](https://img.shields.io/badge/protocolo-pré--registrado-6f42c1)
 
