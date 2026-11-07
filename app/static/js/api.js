@@ -10,7 +10,8 @@ export async function fetchStatus() {
 
 export async function fetchResultados() {
   try {
-    const r = await fetch("/api/resultados");
+    // versão estática (GitHub Pages): o mesmo JSON, servido como arquivo
+    const r = await fetch(window.PRODIGIA_ESTATICO ? "dados/resultados_dengue.json" : "/api/resultados");
     const data = await r.json();
     if (data.error) throw new Error(data.error);
     return data;

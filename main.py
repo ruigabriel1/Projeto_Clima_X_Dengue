@@ -157,6 +157,15 @@ def command_empacotar(args):
     print(empacotar())
 
 
+def command_exportar_site(args):
+    """Versão estática da aplicação (GitHub Pages): site/ com as respostas da API já calculadas."""
+    import logging
+    from src.prediction_service.site_estatico import exportar   # só dependências da API (requirements-api.txt)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    r = exportar(limite_cidades=args.limite)
+    print(f"site/ gerado: {r['tamanho_mb']} MB de dados em {r['duracao_s']} s; {r['doencas']}")
+
+
 def command_dlnm(args):
     """Protocolo v5 (H1): efeito defasado do clima por DLNM (Poisson condicional)."""
     from src.analise_efeito.dlnm import main as dlnm_main
@@ -278,6 +287,10 @@ def main():
 
     p_em = subparsers.add_parser("empacotar", help="v5.1: zip de modelos + banco para a Release / Docker.")
     p_em.set_defaults(func=command_empacotar)
+
+    p_si = subparsers.add_parser("exportar-site", help="Versão estática da aplicação para o GitHub Pages (site/).")
+    p_si.add_argument("--limite", type=int, default=None, help="Só N municípios (teste rápido)")
+    p_si.set_defaults(func=command_exportar_site)
 
     p_dl = subparsers.add_parser("dlnm", help="Efeito do clima por DLNM (Poisson condicional).")
     p_dl.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")

@@ -1,6 +1,6 @@
-import { fetchStatus, fetchResultados } from './api.js?v=5.3.5';
-import { renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.3.5';
-import { showLoader, updateStats, populateTable } from './ui.js?v=5.3.5';
+import { fetchStatus, fetchResultados } from './api.js?v=5.4.1';
+import { renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.4.1';
+import { showLoader, updateStats, populateTable } from './ui.js?v=5.4.1';
 
 let cachedData = null;
 

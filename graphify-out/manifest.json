@@ -12,10 +12,10 @@
     "semantic_hash": ""
   },
   "app/static/js/api.js": {
-    "mtime": 1791065844.3629208,
-    "seen": 1791066522.0166922,
-    "ast_hash": "fb37fc581a2980c938afe7315e7e8ed9",
-    "semantic_hash": "fb37fc581a2980c938afe7315e7e8ed9"
+    "mtime": 1794072444.6496344,
+    "seen": 1794074124.851824,
+    "ast_hash": "93fe670d6d9c390365d88e4cfb552bb2",
+    "semantic_hash": ""
   },
   "app/static/js/charts.js": {
     "mtime": 1794067522.7889495,
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "app/static/js/main.js": {
-    "mtime": 1794070976.0705302,
-    "seen": 1794071060.298806,
-    "ast_hash": "edbee4dabf35b357f67d601078fcf432",
+    "mtime": 1794073827.1307242,
+    "seen": 1794074124.851824,
+    "ast_hash": "4c80e97eb6f41c6cf1b02c13a13a0b7a",
     "semantic_hash": ""
   },
   "app/static/js/ui.js": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "main.py": {
-    "mtime": 1794017744.3039641,
-    "seen": 1794017848.743975,
-    "ast_hash": "681c5d7e9a2fc156084be3189982b550",
+    "mtime": 1794072503.56465,
+    "seen": 1794074124.851824,
+    "ast_hash": "e94b5aeda913c0f8e41ee54015fda227",
     "semantic_hash": ""
   },
   "src/config.py": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/templates/index.html": {
-    "mtime": 1794070976.059012,
-    "seen": 1794071060.298806,
-    "ast_hash": "ac51b39cea5bf900c901158db23d75d1",
+    "mtime": 1794073827.1125886,
+    "seen": 1794074124.851824,
+    "ast_hash": "1a07ab150210807a9c4b82e48a1bd9f2",
     "semantic_hash": ""
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
@@ -138,9 +138,9 @@
     "semantic_hash": ""
   },
   ".claude/launch.json": {
-    "mtime": 1793806811.7169447,
-    "seen": 1793819820.3750954,
-    "ast_hash": "d1f45f71f4094619eb115c19fc6ce301",
+    "mtime": 1794073711.470328,
+    "seen": 1794074124.851824,
+    "ast_hash": "fda3e0992da1ae134537f47c312bffea",
     "semantic_hash": ""
   },
   "src/analise_efeito/__init__.py": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "app/static/js/app.js": {
-    "mtime": 1794070974.9504824,
-    "seen": 1794071060.298806,
-    "ast_hash": "6936dbcc2887e2c52cce67968bef9a54",
+    "mtime": 1794073825.3347619,
+    "seen": 1794074124.851824,
+    "ast_hash": "55db60e8be1ec69810a0340062c8a117",
     "semantic_hash": ""
   },
   "src/prediction_service/artefatos.py": {
@@ -417,6 +417,24 @@
     "mtime": 1794019412.2937386,
     "seen": 1794019416.664294,
     "ast_hash": "5fcd8546c9d008a57542baf72b20feb4",
+    "semantic_hash": ""
+  },
+  "src/prediction_service/site_estatico.py": {
+    "mtime": 1794073824.1284213,
+    "seen": 1794074124.851824,
+    "ast_hash": "870f60993fa0caef87c17b4dfecc88c7",
+    "semantic_hash": ""
+  },
+  "tests/test_site_estatico.py": {
+    "mtime": 1794072458.660904,
+    "seen": 1794074124.851824,
+    "ast_hash": "829e4858abe67e575698bd4035a03385",
+    "semantic_hash": ""
+  },
+  ".github/workflows/site.yml": {
+    "mtime": 1794072483.6494663,
+    "seen": 1794074124.851824,
+    "ast_hash": "6cf9ac6bcf68d13e8b5c18971a3690d2",
     "semantic_hash": ""
   }
 }

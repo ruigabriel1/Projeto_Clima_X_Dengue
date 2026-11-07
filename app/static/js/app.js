@@ -44,10 +44,105 @@ let ultimoConsolidado = null;  // {dengue: "2026-09", ...}
 const seq = { pv: 0, rk: 0, ce: 0, cf: 0 };   // só a resposta da requisição mais recente de cada aba é desenhada
 
 async function api(path) {
+  if (window.PRODIGIA_ESTATICO) return apiEstatica(path);
   const r = await fetch(path);
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.detail ? (typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail)) : `Erro ${r.status}`);
   return j;
+}
+
+// ------------------------------------------------------------------ versão estática (GitHub Pages)
+// As respostas da API foram calculadas antes (src/prediction_service/site_estatico.py) e ficam em dados/*.json.
+// Aqui elas são lidas e, quando o conteúdo é repetitivo, remontadas com as mesmas regras do servidor.
+const cacheDados = new Map();
+async function dados(arq) {
+  if (!cacheDados.has(arq)) {
+    cacheDados.set(arq, fetch(`dados/${arq}`).then((r) => {
+      if (r.status === 404) throw new Error("Município fora da área de cobertura ou sem histórico suficiente para prever.");
+      if (!r.ok) throw new Error(`Erro ${r.status} ao carregar os dados.`);
+      return r.json();
+    }));
+  }
+  try { return await cacheDados.get(arq); } catch (e) { cacheDados.delete(arq); throw e; }
+}
+
+const H_MAX = 3, DIAS_CONSOLIDACAO = 28;
+const idxMes = (ym) => { const [a, m] = ym.split("-").map(Number); return a * 12 + m - 1; };
+
+function cenarioMontado(cen, delta) {
+  const base = cen.base;
+  if (!delta) return base;
+  const d = cen.deltas[String(delta)];
+  const pontos = base.pontos.map((p) => {   // valores exatos do servidor, por mês do calendário
+    const [p10, p50, p90, f, lo, hi] = d.meses[String(Number(p.mes.slice(5)))];
+    return { ...p, p10, p50, p90, fator_clima: f, fator_clima_lo: lo, fator_clima_hi: hi };
+  });
+  return { ...base, delta_temp: delta, pontos, avisos: d.avisos, nota: d.nota || base.nota };
+}
+
+// Mês além do horizonte do modelo: a mesma resposta "cenario" que o servidor monta em Preditor.prever_mes
+function previsaoFaixa(local, codigo, doenca, ano, mes) {
+  const algum = Object.values(local.previsoes)[0];
+  const ult = algum.ultimo_mes_observado;
+  const alvo = ano * 12 + mes - 1;
+  const h = alvo - idxMes(ult);
+  const nomeMesAno = `${MESES_LONGO[mes - 1]} de ${ano}`;
+  const base = { codigo_ibge: codigo, cidade: algum.cidade, doenca, mes_alvo: `${ano}-${String(mes).padStart(2, "0")}`,
+    ultimo_mes_observado: ult, previsao: null, casos_reais: null, desempenho_horizonte: null };
+  if (h <= 0) {
+    const obs = local.historico.find((x) => x.mes === base.mes_alvo);
+    return { ...base, modo: "observado", horizonte_meses: null, casos_persistencia: null, faixa_historica: null,
+      disponivel_a_partir_de: null, casos_reais: obs ? obs.casos : null,
+      nota: `${nomeMesAno.charAt(0).toUpperCase() + nomeMesAno.slice(1)} já foi observado (InfoDengue/SINAN).` };
+  }
+  const ponto = local.cenario.base.pontos.find((p) => Number(p.mes.slice(5)) === mes);
+  const anos = local.cenario.base.anos_historico;
+  const dIdx = alvo - H_MAX, y = Math.floor(dIdx / 12), m0 = dIdx % 12;
+  const fimMes = new Date(Date.UTC(y, m0 + 1, 0));
+  fimMes.setUTCDate(fimMes.getUTCDate() + DIAS_CONSOLIDACAO);
+  return { ...base, modo: "cenario", horizonte_meses: h, casos_persistencia: algum.casos_persistencia,
+    faixa_historica: { mes_calendario: mes, p10: ponto.p10, p50: ponto.p50, p90: ponto.p90 },
+    disponivel_a_partir_de: fimMes.toISOString().slice(0, 10),
+    nota: `O modelo prevê até ${H_MAX} meses à frente; ${nomeMesAno} está a ${h} meses do último dado consolidado. ` +
+      `Até lá, o que existe é a faixa histórica: em ${MESES_LONGO[mes - 1]}, de ${anos[0]} a ${anos[1]}, ` +
+      "80% dos anos ficaram entre P10 e P90. Isto não é previsão." };
+}
+
+async function apiEstatica(path) {
+  const u = new URL(path, "https://x");
+  const q = Object.fromEntries(u.searchParams);
+  const rota = u.pathname.split("/").pop();
+  const cod = (c) => (c === "sul" ? "sul" : String(c).slice(0, 6));
+  switch (rota) {
+    case "municipios": return dados("municipios.json");
+    case "confiabilidade": return dados(`confiabilidade_${q.doenca}.json`);
+    case "ranking": {
+      const r = await dados(`ranking_${q.doenca}_h${q.h}.json`);
+      const itens = r.itens.filter((i) => (!q.uf || i.uf === q.uf) && i.populacao >= Number(q.pop_min || 0));
+      return { ...r, itens: itens.slice(0, Number(q.limite || 20)) };
+    }
+    case "historico": {
+      const l = await dados(`local/${q.doenca}/${cod(q.codigo)}.json`);
+      return l.historico.slice(-Number(q.meses || 36));
+    }
+    case "cenario": {
+      const l = await dados(`local/${q.doenca}/${cod(q.codigo)}.json`);
+      return cenarioMontado(l.cenario, Number(q.delta_temp || 0));
+    }
+    case "previsao": {
+      const l = await dados(`local/${q.doenca}/${cod(q.codigo)}.json`);
+      const ym = `${q.ano}-${String(q.mes).padStart(2, "0")}`;
+      const r = l.previsoes?.[ym];
+      if (r) {
+        if (r.modo !== "previsao") return r;
+        const desemp = await dados(`desempenho_${q.doenca}.json`);
+        return { ...r, desempenho_horizonte: desemp[`h${r.horizonte_meses}`] };
+      }
+      if (!l.previsoes) throw new Error("Município sem histórico suficiente para prever.");
+      return previsaoFaixa(l, cod(q.codigo), q.doenca, Number(q.ano), Number(q.mes));
+    }
+    default: throw new Error(`Rota não disponível na versão estática: ${rota}`);
+  }
 }
 
 // Spinner por aba: só cobre a tela se a aba visível estiver carregando
