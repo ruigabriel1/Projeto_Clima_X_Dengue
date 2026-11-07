@@ -370,5 +370,11 @@
     "seen": 1794009267.8357923,
     "ast_hash": "070ce50b97c9a4c85ce2c57f36a95aa4",
     "semantic_hash": ""
+  },
+  "docs/PROTOCOLO_V7.md": {
+    "mtime": 1794016679.1290786,
+    "seen": 1794016684.794219,
+    "ast_hash": "ec41ed2fcb041f7973c8d1ef44bba45d",
+    "semantic_hash": ""
   }
 }
