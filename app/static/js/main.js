@@ -1,6 +1,6 @@
-import { fetchStatus, fetchResultados } from './api.js?v=5.4.1';
-import { renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.4.1';
-import { showLoader, updateStats, populateTable } from './ui.js?v=5.4.1';
+import { fetchStatus, fetchResultados } from './api.js?v=5.5.0';
+import { renderChartSazonal, renderChartHeatmap } from './charts.js?v=5.5.0';
+import { showLoader, updateStats, populateTable } from './ui.js?v=5.5.0';
 
 let cachedData = null;
 
@@ -29,6 +29,8 @@ function renderAll(data) {
   renderChartSazonal(data.dist_sazonal);
   renderChartHeatmap(data.dist_sazonal);
 }
+
+window.addEventListener("prodigia:tema", () => renderAll(cachedData));   // troca de tema: redesenha
 
 document.addEventListener("DOMContentLoaded", () => {
   loadAndRender();

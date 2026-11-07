@@ -36,6 +36,37 @@ const layoutBase = {
   hoverlabel: { bgcolor: "#fffdf9", bordercolor: COR.grade, font: { family: "Inter, sans-serif", color: "#1c1b18" } },
 };
 const titulo = (t) => ({ ...layoutBase.title, text: t });
+
+// Cores dos gráficos vêm do tema atual (variáveis do CSS), para os gráficos acompanharem o claro/escuro
+function lerCores() {
+  const css = getComputedStyle(document.documentElement);
+  const v = (n) => css.getPropertyValue(n).trim();
+  const escuro = document.documentElement.dataset.theme === "dark";
+  Object.assign(COR, { modelo: v("--modelo"), persist: v("--pers"), info: v("--info"), real: v("--tinta"),
+    grade: v("--linha"), texto: v("--tinta-2"), sup: v("--sup"), apagado: v("--apagado"),
+    faixa: escuro ? "rgba(70,184,170,0.20)" : "rgba(15,110,110,0.14)" });
+  layoutBase.font.color = COR.texto;
+  layoutBase.title.font.color = COR.real;
+  layoutBase.xaxis.linecolor = COR.grade;
+  Object.assign(layoutBase.yaxis, { gridcolor: COR.grade, linecolor: COR.grade });
+  Object.assign(layoutBase.hoverlabel, { bgcolor: COR.sup, bordercolor: COR.grade });
+  layoutBase.hoverlabel.font.color = COR.real;
+}
+
+function redesenhar() {   // depois de trocar o tema: só o que já estava carregado
+  if ($("pvResultado").querySelector(".big")) carregarPrevisao();
+  if ($("rkTabela").dataset.ok) carregarRanking();
+  if ($("ceGrafico").dataset.ok) carregarCenario();
+  if ($("cfTabela").dataset.ok) carregarConfiabilidade();
+  window.dispatchEvent(new Event("prodigia:tema"));   // aba Histórico (main.js)
+}
+
+function aplicarTema(t, salvar) {
+  document.documentElement.dataset.theme = t;
+  if (salvar) { try { localStorage.setItem("prodigia_tema", t); } catch (_) { /* sem storage */ } }
+  lerCores();
+  redesenhar();
+}
 const cfgPlot = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
 
 let municipios = [];           // [{codigo, nome, uf, populacao}]
@@ -180,6 +211,14 @@ function ativarAba(nome) {
 
 // ------------------------------------------------------------------ inicialização
 async function iniciar() {
+  lerCores();
+  $("temaBtn").addEventListener("click", () =>
+    aplicarTema(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true));
+  window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", (e) => {
+    let salvo = null;
+    try { salvo = localStorage.getItem("prodigia_tema"); } catch (_) { /* sem storage */ }
+    if (!salvo) aplicarTema(e.matches ? "dark" : "light", false);   // segue o sistema até a pessoa escolher
+  });
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => ativarAba(b.dataset.tab)));
   $("pvBotao").addEventListener("click", carregarPrevisao);
   $("rkBotao").addEventListener("click", carregarRanking);
@@ -384,8 +423,8 @@ function cartaoPrevisao(r) {
         <span class="rotulo">O que costuma acontecer em ${mesNome}</span>
         <div class="big faixa-num">${fmt(f.p10)} – ${fmt(f.p90)}<small>casos (80% dos anos)</small></div>
         ${faixaIntervalo({ lo: f.p10, hi: f.p90, centro: f.p50, pers: r.casos_persistencia, hist: true })}
-        <div class="legenda"><span><i style="background:#55524b"></i>Mediana histórica: ${fmt(f.p50)}</span>
-          <span><i style="background:#e9e6de;border:1px solid #d3cec2"></i>80% dos anos: ${fmt(f.p10)} a ${fmt(f.p90)}</span>
+        <div class="legenda"><span><i style="background:var(--tinta-2)"></i>Mediana histórica: ${fmt(f.p50)}</span>
+          <span><i style="background:var(--hist-faixa);border:1px solid var(--linha-forte)"></i>80% dos anos: ${fmt(f.p10)} a ${fmt(f.p90)}</span>
           <span><i style="background:var(--pers)"></i>Último mês observado (${nomeMes(r.ultimo_mes_observado)}): ${fmt(r.casos_persistencia)}</span></div>
       </section>
       <section class="card-resultado"><span class="rotulo">Previsão do modelo</span>
@@ -444,7 +483,7 @@ function graficoPrevisao(r, hist) {
   if (r.modo === "previsao") {
     const p = r.previsao;
     traces.push({ x: [alvo], y: [p.casos_previstos], name: "Previsão (intervalo de 90%)", mode: "markers",
-      marker: { color: COR.modelo, size: 12, line: { color: "#fffdf9", width: 2 } }, error_y: { type: "data", symmetric: false,
+      marker: { color: COR.modelo, size: 12, line: { color: COR.sup, width: 2 } }, error_y: { type: "data", symmetric: false,
         array: [p.intervalo_confianca[1] - p.casos_previstos], arrayminus: [p.casos_previstos - p.intervalo_confianca[0]],
         color: COR.modelo, thickness: 2, width: 8 },
       hovertemplate: `%{x|%b %Y}: %{y:,.0f} casos previstos (${fmt(p.intervalo_confianca[0])} a ${fmt(p.intervalo_confianca[1])})<extra></extra>` });
@@ -532,7 +571,7 @@ async function carregarCenario() {
       xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y" },
       annotations: cortado ? [{ x: picoObs.mes + "-15", y: topo, yanchor: "top", showarrow: false,
         text: `pico de ${nomeMes(picoObs.mes)}: ${fmt(picoObs.casos)} (fora da escala)`,
-        font: { size: 11, color: COR.texto }, bgcolor: "#fffdf9" }] : [] }, cfgPlot);
+        font: { size: 11, color: COR.texto }, bgcolor: COR.sup }] : [] }, cfgPlot);
     $("ceGrafico").dataset.ok = "1";
 
     // Com aquecimento: quantos casos a mais em cada mês, em relação ao clima atual (mediana)
@@ -545,7 +584,7 @@ async function carregarCenario() {
         type: "bar", x: anos12.map((p) => p.mes + "-15"), y: extra, marker: { color: COR.info },
         customdata: anos12.map((p, i) => [base.pontos[i].p50, p.p50, (p.fator_clima - 1) * 100]),
         text: extra.map((v) => (v >= 1 ? `+${fmt(v)}` : "")), textposition: "outside", cliponaxis: false,
-        textfont: { size: 10, color: "#1c1b18" },
+        textfont: { size: 10, color: COR.real },
         hovertemplate: "%{x|%b %Y}: +%{y:,.0f} casos (%{customdata[0]:,.0f} → %{customdata[1]:,.0f}; +%{customdata[2]:.0f}%)<extra></extra>",
       }], { ...layoutBase, title: titulo(`Casos a mais por mês com +${delta} °C, em relação ao clima atual (mediana, próximos 12 meses)`),
         showlegend: false, margin: { ...layoutBase.margin, t: 40, b: 36 },
@@ -584,7 +623,7 @@ async function carregarConfiabilidade() {
         <span class="stat-value">${fmt(h1.razao_previsto_real, 1)}× o real</span><span class="muted">ano de baixa após epidemia: o modelo esperou mais casos</span></div>`;
     const rot = hs.map((h) => `${h.slice(1)} ${h === "h1" ? "mês" : "meses"} à frente`);
     const barra = (nome, ys, cor) => ({ type: "bar", name: nome, x: rot, y: ys, marker: { color: cor },
-      text: ys.map((v) => fmt(v, 2)), textposition: "outside", textfont: { size: 11, color: "#1c1b18" },
+      text: ys.map((v) => fmt(v, 2)), textposition: "outside", textfont: { size: 11, color: COR.real },
       hovertemplate: `${nome}: %{y:.2f}<extra></extra>` });
     Plotly.react("cfGrafico", [
       barra("Modelo", hs.map((h) => t(h).modelo?.auc), COR.modelo),
@@ -593,7 +632,7 @@ async function carregarConfiabilidade() {
     ], { ...layoutBase, barmode: "group", bargap: 0.3, bargroupgap: 0.08,
       title: titulo("Acerto na ordem de risco (AUC) no teste de 2026 · 0,5 = acaso, 1 = perfeito"),
       yaxis: { ...layoutBase.yaxis, range: [0.4, 1], title: "AUC" },
-      shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 0.5, y1: 0.5, line: { dash: "dot", color: "#8a867c" } }] }, cfgPlot);
+      shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 0.5, y1: 0.5, line: { dash: "dot", color: COR.apagado } }] }, cfgPlot);
     const linhas = [
       ["AUC (ordem de risco)", (x) => fmt(x?.auc, 2)],
       ["Erro médio por cidade-mês (casos)", (x) => fmt(x?.mae, 1)],

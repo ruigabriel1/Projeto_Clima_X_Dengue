@@ -7,10 +7,11 @@ function getPlotlyConfig() {
 }
 
 function getPlotlyLayout(title, yTitle) {
-  const fontColor = "#55524b";
+  const css = getComputedStyle(document.documentElement);   // cores do tema atual
+  const fontColor = css.getPropertyValue("--tinta-2").trim();
   const paperBg = "transparent";
   const plotBg = "transparent";
-  const gridColor = "#e4e0d6";
+  const gridColor = css.getPropertyValue("--linha").trim();
 
   return {
     title: { text: title, font: { color: fontColor, size: 15, family: "'Source Serif 4', Georgia, serif" } },
@@ -29,7 +30,9 @@ export function renderChartSazonal(data) {
   
   const mesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const maxCasos = Math.max(...data.casos_mean);
-  const colors = data.casos_mean.map(v => v === maxCasos ? "#c2410c" : "#0f6e6e");
+  const css = getComputedStyle(document.documentElement);
+  const cor = (n) => css.getPropertyValue(n).trim();
+  const colors = data.casos_mean.map(v => v === maxCasos ? cor("--alto") : cor("--modelo"));
 
   // Dois gráficos empilhados com o mesmo eixo de meses (nunca dois eixos y no mesmo gráfico)
   const casos = [{
@@ -43,7 +46,7 @@ export function renderChartSazonal(data) {
 
   const temp = [{
     x: mesNomes, y: data.temp_mean, type: "scatter", mode: "lines+markers", name: "Temperatura média",
-    line: { color: "#b07a1d", width: 2 }, marker: { size: 6 },
+    line: { color: cor("--info"), width: 2 }, marker: { size: 6 },
     hovertemplate: "%{x}: %{y:.1f} °C<extra></extra>",
   }];
   const lTemp = getPlotlyLayout("Temperatura média por mês do ano", "°C");
