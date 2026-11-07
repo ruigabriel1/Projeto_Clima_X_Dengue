@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "app/static/js/main.js": {
-    "mtime": 1794067923.5654087,
-    "seen": 1794068010.6034703,
-    "ast_hash": "00238be9437303bd36bc8333ec4abfd9",
+    "mtime": 1794069664.588379,
+    "seen": 1794069905.8745072,
+    "ast_hash": "49589fcf20be6c847dcd4c33a6668989",
     "semantic_hash": ""
   },
   "app/static/js/ui.js": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/templates/index.html": {
-    "mtime": 1794067923.551407,
-    "seen": 1794068010.6034703,
-    "ast_hash": "4309b982febec7ab804963b5c49c5ed6",
+    "mtime": 1794069664.5773726,
+    "seen": 1794069905.8745072,
+    "ast_hash": "a52d4440be62bbc17f4514b399f109be",
     "semantic_hash": ""
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
