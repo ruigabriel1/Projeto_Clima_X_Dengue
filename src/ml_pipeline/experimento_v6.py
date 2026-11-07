@@ -57,7 +57,7 @@ def protocolo_registrado(path: Path = PROTOCOLO) -> str:
                        capture_output=True, text=True).stdout.strip()
     sujo = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", rel], cwd=BASE_DIR).returncode != 0
     if not h or sujo:
-        raise ProtocoloNaoRegistrado(f"{rel} precisa estar commitado (e sem alterações) antes de rodar o experimento v6.")
+        raise ProtocoloNaoRegistrado(f"{rel} precisa estar commitado (e sem alterações) antes de rodar o experimento.")
     return h
 
 

@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/feature_engineering.py": {
-    "mtime": 1794005683.3985019,
-    "seen": 1794006205.9516234,
-    "ast_hash": "2fdfcec95b92c0280e03e034e5dd88fc",
+    "mtime": 1794017270.140324,
+    "seen": 1794017647.7292354,
+    "ast_hash": "f842b116181ebd954a634ec0d9cea64a",
     "semantic_hash": ""
   },
   "src/ml_pipeline/ml_orchestrator.py": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "src/ml_pipeline/experimento_v6.py": {
-    "mtime": 1794005977.7645535,
-    "seen": 1794006205.9506216,
-    "ast_hash": "1bfcf4bab0910e962eb08744c2b7fd81",
+    "mtime": 1794017494.0578437,
+    "seen": 1794017647.7292354,
+    "ast_hash": "b7ceb3faa91b3ee37b0f7bde9d6d74a7",
     "semantic_hash": ""
   },
   "docs/PROTOCOLO_V6.md": {
@@ -393,6 +393,24 @@
     "mtime": 1794017165.8149688,
     "seen": 1794017177.2886434,
     "ast_hash": "5837cf0d2c511801c4692717e48dac23",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/experimento_v7.py": {
+    "mtime": 1794017440.9049542,
+    "seen": 1794017647.7292354,
+    "ast_hash": "069d8bbbf49d08cc8cad3778247de637",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/nivel_regional.py": {
+    "mtime": 1794017344.6478453,
+    "seen": 1794017647.7292354,
+    "ast_hash": "c9bb7e3195d2a35193e8c09b6fe062d1",
+    "semantic_hash": ""
+  },
+  "tests/test_experimento_v7.py": {
+    "mtime": 1794017560.0279815,
+    "seen": 1794017647.7292354,
+    "ast_hash": "c3f0a1161d3a06d3d12e8f11bb083863",
     "semantic_hash": ""
   }
 }

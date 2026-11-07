@@ -232,6 +232,24 @@ def build_ml_features(panel: pd.DataFrame, doenca: str = "dengue", horizonte: in
                 d[f"{p_alvo}_viz_incid_media3_lag{h}"] = _roll_shifted(d, "_inc_viz", h, 3, 2)
         d = d.drop(columns=[c for c in ("_incid", "_inc_uf", "_inc_viz") if c in d.columns])
 
+    # ---------- 6d. Protocolo v7: Rt do InfoDengue (grupo R) ----------
+    # Só existe se o painel veio com incluir_rt=True. Desligado por padrão em get_feature_columns (rt=False).
+    # O Rt do próprio mês (colunas brutas) nunca é feature; aqui só entra defasado em h.
+    p_alvo = PREFIXOS[alvo]
+    brutas = [c for c in (f"{p_alvo}_rt_medio", f"{p_alvo}_rt_ult", f"{p_alvo}_prt1") if c in d.columns]
+    if brutas:
+        gc = d.groupby("code", sort=False)
+        for c in brutas:
+            d[f"{c}_lag{h}"] = gc[c].shift(h)
+        rt = d[f"{p_alvo}_rt_medio"] if f"{p_alvo}_rt_medio" in d.columns else None
+        if rt is not None and has_pop:
+            uf = d["code"].astype(str).str[:2]
+            chave = [uf, d["year"], d["month"]]
+            w = pop.where(rt.notna())
+            d["_rt_uf"] = (rt * w).groupby(chave).transform("sum") / w.groupby(chave).transform("sum")
+            d[f"{p_alvo}_rt_uf_lag{h}"] = d.groupby("code", sort=False)["_rt_uf"].shift(h)
+            d = d.drop(columns=["_rt_uf"])
+
     # ---------- 7. Estáticas da cidade ----------
     if has_pop:
         d["log_pop"] = np.log1p(d["populacao"].fillna(0))
@@ -286,6 +304,16 @@ def is_imunidade_longa(col: str) -> bool:
     return "_imun_" in col
 
 
+def is_rt(col: str) -> bool:
+    """Protocolo v7, grupo R: Rt do InfoDengue defasado em h."""
+    return re.search(r"_(rt_medio|rt_ult|prt1|rt_uf)_lag\d+$", col) is not None
+
+
+def is_rt_bruto(col: str) -> bool:
+    """Rt do PRÓPRIO mês (desconhecido na previsão): nunca é feature."""
+    return re.fullmatch(r"(dengue|chik|zika)_(rt_medio|rt_ult|prt1)", col) is not None
+
+
 def get_feature_columns(
     df: pd.DataFrame,
     forecast: bool = True,
@@ -295,6 +323,7 @@ def get_feature_columns(
     suscetibilidade: bool = False,
     vizinhos: bool = False,
     imunidade_longa: bool = False,
+    rt: bool = False,
 ) -> list[str]:
     """
     Features do Modelo A (previsão).
@@ -330,6 +359,7 @@ def get_feature_columns(
         and pd.api.types.is_numeric_dtype(df[c])
         and _clima_ok(c) and (suscetibilidade or not is_suscetibilidade(c))
         and (vizinhos or not is_vizinhos(c)) and (imunidade_longa or not is_imunidade_longa(c))
+        and (rt or not is_rt(c)) and not is_rt_bruto(c)
     ]
 
     # Menor lag disponível por doença (depende do horizonte)
