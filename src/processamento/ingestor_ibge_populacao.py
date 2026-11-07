@@ -23,9 +23,9 @@ DB_PATH = DATA_PROCESSED_DIR / "dengue_analytics.db"
 ANOS = list(range(2015, 2026))
 
 
-def fetch_populacao_ibge(codigo_ibge_7: str) -> pd.DataFrame:
+def fetch_populacao_ibge(codigo_ibge_7: str, anos: list[int] | None = None) -> pd.DataFrame:
     """Busca população estimada do IBGE via API SIDRA (tabela 6579)."""
-    periodos = ",".join(str(a) for a in ANOS)
+    periodos = ",".join(str(a) for a in (anos or ANOS))
     url = (
         f"https://apisidra.ibge.gov.br/values/t/6579/n6/{codigo_ibge_7}"
         f"/v/9324/p/{periodos}/f/n"
@@ -54,6 +54,43 @@ def fetch_populacao_ibge(codigo_ibge_7: str) -> pd.DataFrame:
     df = pd.DataFrame(records)
     logger.info(f"[IBGE] {len(df)} registros de população obtidos para {codigo_ibge_7}.")
     return df
+
+
+# Backfill do protocolo v7. A tabela 6579 não tem 2010 (ano do Censo): o painel interpola 2010
+# entre 2009 e 2011 (build_base_panel já interpola anos faltantes por cidade).
+ANOS_BACKFILL = [2009, 2011, 2012, 2013, 2014]
+
+
+def backfill_populacao(anos: list[int] = ANOS_BACKFILL, db_path=DB_PATH, pausa: float = 0.3,
+                       fetch=None) -> int:
+    """Só insere (cidade, ano) que ainda não existem; nunca altera os anos já gravados. Retomável."""
+    fetch = fetch or fetch_populacao_ibge
+    with sqlite3.connect(db_path) as conn:
+        cidades = pd.read_sql_query("SELECT DISTINCT CODIGO_MUNICIPIO FROM ingestao_saude", conn)
+        existentes = pd.read_sql_query("SELECT CODIGO_MUNICIPIO, ANO FROM ingestao_populacao", conn)
+    tem = set(zip(existentes["CODIGO_MUNICIPIO"].astype(str).str[:6], existentes["ANO"].astype(int)))
+    novas = 0
+    codigos = sorted(cidades["CODIGO_MUNICIPIO"].astype(str).str[:6].unique())
+    for i, code_6 in enumerate(codigos, 1):
+        faltam = [a for a in anos if (code_6, a) not in tem]
+        if not faltam:
+            continue
+        try:
+            df = fetch(get_ibge_7(code_6), anos=faltam)
+        except Exception as e:
+            logger.error(f"[IBGE] Erro para {code_6}: {e}")
+            continue
+        if not df.empty:
+            df = df[df["ANO"].isin(faltam)]
+            with sqlite3.connect(db_path) as conn:
+                df[["CODIGO_MUNICIPIO", "ANO", "POPULACAO"]].to_sql("ingestao_populacao", conn,
+                                                                    if_exists="append", index=False)
+            novas += len(df)
+        if i % 100 == 0:
+            logger.info(f"[IBGE] backfill {i}/{len(codigos)} cidades, {novas} registros novos")
+        time.sleep(pausa)
+    logger.info(f"[IBGE] backfill concluído: {novas} registros novos")
+    return novas
 
 
 def get_ibge_7(code):

@@ -111,10 +111,22 @@ def agregar_infodengue_mensal(df: pd.DataFrame, geocode, disease='dengue') -> pd
     agg_rules = {k: v for k, v in agg_rules.items() if k in df.columns}
     df_grouped = df.groupby(['ANO', 'MES']).agg(agg_rules).reset_index()
 
+    # Rt estimado pelo InfoDengue (protocolo v7): média das semanas do mês, última semana e média do p_rt1
+    if 'Rt' in df.columns:
+        r = df.assign(Rt=pd.to_numeric(df['Rt'], errors='coerce'),
+                      p_rt1=pd.to_numeric(df['p_rt1'], errors='coerce') if 'p_rt1' in df.columns
+                      else float('nan')).sort_values('data')
+        g = r.groupby(['ANO', 'MES'])
+        rt = pd.DataFrame({'rt_medio': g['Rt'].mean(), 'rt_ult': g['Rt'].last(), 'prt1': g['p_rt1'].mean()})
+        df_grouped = df_grouped.merge(rt.reset_index(), on=['ANO', 'MES'], how='left')
+
     df_grouped = df_grouped.rename(columns={
         'casos': f'CASOS_{disease.upper()}',
         'casos_est': f'CASOS_EST_{disease.upper()}',
         'nivel': f'NIVEL_{disease.upper()}',
+        'rt_medio': f'RT_MEDIO_{disease.upper()}',
+        'rt_ult': f'RT_ULT_{disease.upper()}',
+        'prt1': f'P_RT1_{disease.upper()}',
     })
 
     df_grouped['CODIGO_MUNICIPIO'] = geocode

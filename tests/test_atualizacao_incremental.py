@@ -101,3 +101,79 @@ def test_agregacao_mensal_igual_a_fetch_infodengue():
     assert {"CASOS_DENGUE", "CASOS_EST_DENGUE", "NIVEL_DENGUE", "receptivo"} <= set(a.columns)
     assert a["CASOS_DENGUE"].sum() == sem["casos"].sum()
     assert ing.agregar_infodengue_mensal(pd.DataFrame(), 1).empty
+
+
+# ------------------------------------------------------------------ backfill e Rt (v7, Fase 2)
+def _banco_2015(tmp_path):
+    db = tmp_path / "b.db"
+    hist = pd.DataFrame({
+        "ANO": [2014, 2015], "MES": [12, 1], "CASOS_DENGUE": [3.0, 4.0],
+        "CODIGO_MUNICIPIO": [410690, 410690], "LATITUDE": [-25.4] * 2, "LONGITUDE": [-49.3] * 2,
+        "FAIXA_LATITUDE": [2, 2], "NOME_MUNICIPIO": ["Curitiba"] * 2,
+    })
+    with sqlite3.connect(db) as c:
+        hist.to_sql("ingestao_saude", c, index=False)
+    return db
+
+
+def test_backfill_so_insere_meses_antigos_inexistentes(tmp_path, monkeypatch):
+    db = _banco_2015(tmp_path)
+
+    def falso(cidade, hoje):
+        df = pd.DataFrame({"ANO": [2013, 2014, 2015], "MES": [5, 12, 1], "CASOS_DENGUE": [7.0, 999.0, 999.0],
+                           "RT_MEDIO_DENGUE": [1.2, 1.3, 1.4]})
+        for c in ("CODIGO_MUNICIPIO", "LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO"):
+            df[c] = cidade[c]
+        return df
+
+    monkeypatch.setitem(ai.COLETORES, "backfill-infodengue", falso)
+    monkeypatch.setitem(ai.PAUSA, "backfill-infodengue", 0)
+    ai.atualizar("backfill-infodengue", "b1", db_path=db)
+    ai.atualizar("backfill-infodengue", "b2", db_path=db)
+    with sqlite3.connect(db) as c:
+        df = pd.read_sql("SELECT * FROM ingestao_saude ORDER BY ANO, MES", c)
+    assert len(df) == 3 and not df.duplicated(["CODIGO_MUNICIPIO", "ANO", "MES"]).any()
+    assert df["CASOS_DENGUE"].tolist() == [7.0, 3.0, 4.0]     # 2013 inserido; 2014 e 2015 intocados
+    assert df["RT_MEDIO_DENGUE"].isna().tolist() == [False, True, True]   # backfill nunca faz UPDATE
+
+
+def test_rt_acrescentado_ao_historico_sem_mudar_casos(tmp_path):
+    db = _banco_2015(tmp_path)
+    novo = pd.DataFrame({"ANO": [2015], "MES": [1], "CASOS_DENGUE": [999.0], "RT_MEDIO_DENGUE": [0.8],
+                         "P_RT1_DENGUE": [0.1], "CODIGO_MUNICIPIO": [410690]})
+    with sqlite3.connect(db) as c:
+        ai.upsert(c, "ingestao_saude", novo)
+        r = pd.read_sql("SELECT * FROM ingestao_saude WHERE ANO = 2015", c).iloc[0]
+    assert r["CASOS_DENGUE"] == 4.0 and r["RT_MEDIO_DENGUE"] == 0.8 and r["P_RT1_DENGUE"] == 0.1
+
+
+def test_agregacao_do_rt():
+    from src.processamento import ingestor_api_sul as ing
+    sem = _semanal_falso(1)
+    sem["Rt"] = [0.5 + 0.1 * i for i in range(14)]
+    sem["p_rt1"] = [0.1 * (i % 10) for i in range(14)]
+    a = ing.agregar_infodengue_mensal(sem, 1, "dengue").set_index("MES")
+    jan = sem[sem["data"].dt.month == 1]
+    assert abs(a.loc[1, "RT_MEDIO_DENGUE"] - jan["Rt"].mean()) < 1e-9
+    assert abs(a.loc[1, "RT_ULT_DENGUE"] - jan["Rt"].iloc[-1]) < 1e-9
+    assert abs(a.loc[1, "P_RT1_DENGUE"] - jan["p_rt1"].mean()) < 1e-9
+
+
+def test_backfill_populacao_so_insere(tmp_path):
+    from src.processamento.ingestor_ibge_populacao import backfill_populacao
+    db = _banco_2015(tmp_path)
+    with sqlite3.connect(db) as c:
+        pd.DataFrame({"CODIGO_MUNICIPIO": ["410690"], "ANO": [2015], "POPULACAO": [100]}).to_sql(
+            "ingestao_populacao", c, index=False)
+    chamadas = []
+
+    def fetch(cod7, anos):
+        chamadas.append(list(anos))
+        return pd.DataFrame({"CODIGO_MUNICIPIO": cod7[:6], "ANO": anos, "POPULACAO": [90] * len(anos)})
+
+    assert backfill_populacao([2009, 2011], db_path=db, pausa=0, fetch=fetch) == 2
+    assert backfill_populacao([2009, 2011], db_path=db, pausa=0, fetch=fetch) == 0   # nada falta
+    with sqlite3.connect(db) as c:
+        p = pd.read_sql("SELECT * FROM ingestao_populacao ORDER BY ANO", c)
+    assert p["ANO"].tolist() == [2009, 2011, 2015] and p.loc[p.ANO == 2015, "POPULACAO"].item() == 100
+    assert chamadas == [[2009, 2011]]

@@ -29,12 +29,23 @@ DOENCAS = {
 }
 
 
-def build_base_panel(root_dir: Path, modo: str = "regional") -> pd.DataFrame:
+ANO_MIN_PADRAO = 2015          # início da série dos experimentos v4–v6 e da produção v5.1
+COLS_RT_BRUTAS = {f"{c}_{d}": f"{p}_{n}" for d, p in (("DENGUE", "dengue"), ("CHIKUNGUNYA", "chik"), ("ZIKA", "zika"))
+                  for c, n in (("RT_MEDIO", "rt_medio"), ("RT_ULT", "rt_ult"), ("P_RT1", "prt1"))}
+
+
+def build_base_panel(root_dir: Path, modo: str = "regional", ano_min: int = ANO_MIN_PADRAO,
+                     incluir_rt: bool = False) -> pd.DataFrame:
     """
     Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado,
     pronto para a engenharia de features.
 
     Tabelas lidas: ingestao_saude, ingestao_clima, ingestao_enso, ingestao_populacao.
+
+    ano_min: o backfill do protocolo v7 acrescentou 2010–2014 (dengue) e 2009-07+ (clima). O padrão 2015
+    devolve exatamente o painel dos experimentos v4–v6 (as imputações por cidade × mês usam só esses anos).
+    incluir_rt: colunas de Rt do InfoDengue DO PRÓPRIO MÊS (dengue_rt_medio, dengue_rt_ult, dengue_prt1...).
+    Só a engenharia de features da v7 as usa, sempre defasadas; desligado, ficam fora do painel.
     """
     db_path = root_dir / "data" / "processed" / "dengue_analytics.db"
 
@@ -80,6 +91,18 @@ def build_base_panel(root_dir: Path, modo: str = "regional") -> pd.DataFrame:
     if df_saude.empty and df_clima.empty:
         raise ValueError("Nenhuma tabela tem dados. Rode o ingestor primeiro.")
 
+    # ---------- Recorte de anos e Rt ----------
+    if not df_saude.empty:
+        df_saude = df_saude[df_saude["ANO"] >= ano_min]
+        rt = [c for c in COLS_RT_BRUTAS if c in df_saude.columns]
+        df_saude = df_saude.rename(columns=COLS_RT_BRUTAS) if incluir_rt else df_saude.drop(columns=rt)
+    # Com histórico estendido (ano_min < 2015), o clima de até 1 ano antes entra como "meses de aquecimento"
+    # (sem casos): só para que as defasagens climáticas dos primeiros meses existam. O alvo ausente os tira
+    # do treino.
+    aquecimento = ano_min < ANO_MIN_PADRAO
+    if not df_clima.empty:
+        df_clima = df_clima[df_clima["ANO"] >= (ano_min - 1 if aquecimento else ano_min)]
+
     # ---------- Merge Saúde + Clima ----------
     if not df_saude.empty and not df_clima.empty:
         # Remover colunas redundantes do clima (já presentes na saúde). INGERIDO_EM fica só o da saúde:
@@ -88,6 +111,17 @@ def build_base_panel(root_dir: Path, modo: str = "regional") -> pd.DataFrame:
         cols_to_drop = ["LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO", "INGERIDO_EM"]
         df_clima = df_clima.drop(columns=[c for c in cols_to_drop if c in df_clima.columns])
         panel = pd.merge(df_saude, df_clima, on=["CODIGO_MUNICIPIO", "ANO", "MES"], how="inner")
+        if aquecimento:
+            idx = df_saude["ANO"] * 12 + df_saude["MES"]
+            inicio = idx.groupby(df_saude["CODIGO_MUNICIPIO"]).min()
+            ic = df_clima["ANO"] * 12 + df_clima["MES"]
+            pre = df_clima[ic < df_clima["CODIGO_MUNICIPIO"].map(inicio)]
+            meta = df_saude.groupby("CODIGO_MUNICIPIO")[
+                [c for c in ("LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO") if c in df_saude.columns]
+            ].first()
+            pre = pre.join(meta, on="CODIGO_MUNICIPIO")
+            panel = pd.concat([pre, panel], ignore_index=True).sort_values(
+                ["CODIGO_MUNICIPIO", "ANO", "MES"]).reset_index(drop=True)
     else:
         panel = df_saude if not df_saude.empty else df_clima
 

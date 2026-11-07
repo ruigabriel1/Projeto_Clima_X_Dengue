@@ -54,9 +54,9 @@
     "semantic_hash": "308739d2b59c30f3b11a7733a0d22135"
   },
   "src/ml_pipeline/data_ingestion.py": {
-    "mtime": 1793985597.0496635,
-    "seen": 1793986054.421719,
-    "ast_hash": "12b6c6687fae2bd865e7daaa11c86e31",
+    "mtime": 1794016887.823983,
+    "seen": 1794016982.6220834,
+    "ast_hash": "153228985d41c64826593de5fd6de38d",
     "semantic_hash": ""
   },
   "src/ml_pipeline/export_dashboard.py": {
@@ -84,16 +84,16 @@
     "semantic_hash": ""
   },
   "src/processamento/ingestor_api_sul.py": {
-    "mtime": 1794015523.8641346,
-    "seen": 1794015642.0754435,
-    "ast_hash": "279545be0cfa6f06147dfda3391709e5",
+    "mtime": 1794016780.0234072,
+    "seen": 1794016982.6220834,
+    "ast_hash": "15cf16d9e5d3ecb302091cd559680174",
     "semantic_hash": ""
   },
   "src/processamento/ingestor_ibge_populacao.py": {
-    "mtime": 1790550951.8683813,
-    "seen": 1791066522.0166922,
-    "ast_hash": "52399b0bd841768587c007c5ded0ff82",
-    "semantic_hash": "52399b0bd841768587c007c5ded0ff82"
+    "mtime": 1794016848.6940687,
+    "seen": 1794016982.6220834,
+    "ast_hash": "d4d672a27702526956513c69959a6aa5",
+    "semantic_hash": ""
   },
   "tests/test_ml_pipeline.py": {
     "mtime": 1793806611.385218,
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "src/processamento/atualizacao_incremental.py": {
-    "mtime": 1794015573.255152,
-    "seen": 1794015642.0754435,
-    "ast_hash": "96acac47c28799f9b5b433d74f7a9501",
+    "mtime": 1794016815.6280718,
+    "seen": 1794016982.6220834,
+    "ast_hash": "a0c4ef319569e1f6bcc89a54c7292357",
     "semantic_hash": ""
   },
   "tests/conftest.py": {
@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "tests/test_atualizacao_incremental.py": {
-    "mtime": 1794015574.081912,
-    "seen": 1794015642.0754435,
-    "ast_hash": "54011fba849da6afca8075dba1093092",
+    "mtime": 1794016926.3288033,
+    "seen": 1794016982.6220834,
+    "ast_hash": "841400683382b4bdc84afdac6c69d9fd",
     "semantic_hash": ""
   },
   "tests/test_dlnm.py": {
@@ -375,6 +375,12 @@
     "mtime": 1794016679.1290786,
     "seen": 1794016684.794219,
     "ast_hash": "ec41ed2fcb041f7973c8d1ef44bba45d",
+    "semantic_hash": ""
+  },
+  "tests/test_painel_v7.py": {
+    "mtime": 1794016926.3518105,
+    "seen": 1794016982.6220834,
+    "ast_hash": "02185a1bfbc2d20c5c45af6a91c97690",
     "semantic_hash": ""
   }
 }

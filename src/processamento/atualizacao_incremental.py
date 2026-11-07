@@ -36,9 +36,19 @@ logger = logging.getLogger(__name__)
 
 ANO_CORTE = 2026
 CHAVES = ["CODIGO_MUNICIPIO", "ANO", "MES"]
-TABELAS = {"infodengue": "ingestao_saude", "openmeteo": "ingestao_clima"}
-COLS_HISTORICO = {"ingestao_saude": ["NIVEL_DENGUE", "NIVEL_CHIKUNGUNYA", "NIVEL_ZIKA"], "ingestao_clima": []}
-PAUSA = {"infodengue": 0.3, "openmeteo": 1.0}
+TABELAS = {"infodengue": "ingestao_saude", "openmeteo": "ingestao_clima",
+           "backfill-infodengue": "ingestao_saude", "backfill-openmeteo": "ingestao_clima"}
+# Colunas que podem ser acrescentadas a meses já gravados com ANO < ANO_CORTE (casos e clima nunca):
+# o alerta NIVEL_* (benchmark) e, pelo protocolo v7, o Rt estimado pelo InfoDengue.
+COLS_RT = [f"{c}_{d}" for d in ("DENGUE", "CHIKUNGUNYA") for c in ("RT_MEDIO", "RT_ULT", "P_RT1")]
+COLS_HISTORICO = {"ingestao_saude": ["NIVEL_DENGUE", "NIVEL_CHIKUNGUNYA", "NIVEL_ZIKA", *COLS_RT],
+                  "ingestao_clima": []}
+
+# Backfill do protocolo v7: anos anteriores à série dos experimentos v4–v6, só inserção.
+ANO_INICIO_SERIE = 2015
+BACKFILL_SAUDE = (2010, 2014)                     # dengue; chikungunya sem vigilância antes de 2015
+BACKFILL_CLIMA = ("2009-07-01", "2014-12-31")     # 6 meses antes, para as defasagens de jan/2010
+PAUSA = {"infodengue": 0.3, "openmeteo": 1.0, "backfill-infodengue": 0.3, "backfill-openmeteo": 1.0}
 TABELA_SNAPSHOT = "ingestao_infodengue_snapshot"
 DOENCAS_SNAPSHOT = ("dengue", "chikungunya")   # zika fora do projeto
 
@@ -84,6 +94,26 @@ def upsert(conn: sqlite3.Connection, tabela: str, df: pd.DataFrame, ano_corte: i
         f"INSERT INTO {tabela} ({todas}) SELECT {todas} FROM {tmp} AS s "
         f"WHERE s.ANO >= {ano_corte} AND NOT EXISTS (SELECT 1 FROM {tabela} WHERE {on})"
     )
+    conn.execute(f"DROP TABLE {tmp}")
+    return {"inseridas": cur.rowcount}
+
+
+def inserir_historico(conn: sqlite3.Connection, tabela: str, df: pd.DataFrame,
+                      ano_limite: int = ANO_INICIO_SERIE) -> dict:
+    """Backfill: só INSERE meses com ANO < ano_limite que ainda não existem. Nunca faz UPDATE."""
+    if df.empty:
+        return {"inseridas": 0}
+    df = df[df["ANO"] < ano_limite].copy()
+    if df.empty:
+        return {"inseridas": 0}
+    df["INGERIDO_EM"] = datetime.now().isoformat(timespec="seconds")
+    preparar_esquema(conn, tabela, list(df.columns))
+    tmp = f"_tmp_backfill_{tabela}_{os.getpid()}"
+    df.to_sql(tmp, conn, if_exists="replace", index=False)
+    on = " AND ".join(f"{tabela}.{k} = s.{k}" for k in CHAVES)
+    todas = ", ".join(f'"{c}"' for c in df.columns)
+    cur = conn.execute(f"INSERT INTO {tabela} ({todas}) SELECT {todas} FROM {tmp} AS s "
+                       f"WHERE s.ANO < {ano_limite} AND NOT EXISTS (SELECT 1 FROM {tabela} WHERE {on})")
     conn.execute(f"DROP TABLE {tmp}")
     return {"inseridas": cur.rowcount}
 
@@ -167,7 +197,34 @@ def coletar_clima(cidade: pd.Series, hoje: date) -> pd.DataFrame:
     return _meses_fechados(df, hoje)
 
 
-COLETORES = {"infodengue": coletar_saude, "openmeteo": coletar_clima}
+def coletar_saude_historico(cidade: pd.Series, hoje: date) -> pd.DataFrame:
+    """Backfill v7: dengue de 2010–2014 (casos, receptividade, umidade, alerta, Rt). Sem chik/zika."""
+    cod7 = ing.get_ibge_7(int(cidade["CODIGO_MUNICIPIO"]))
+    a0, a1 = BACKFILL_SAUDE
+    df = ing.fetch_infodengue(cod7, disease="dengue", start_year=a0, end_year=a1)
+    if df.empty:
+        return df
+    df = df[(df["ANO"] >= a0) & (df["ANO"] <= a1)].drop(columns=["CODIGO_MUNICIPIO"])
+    for c in ("CODIGO_MUNICIPIO", "LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO"):
+        df[c] = cidade[c]
+    return df
+
+
+def coletar_clima_historico(cidade: pd.Series, hoje: date) -> pd.DataFrame:
+    """Backfill v7: clima de 2009-07 a 2014-12, mesmas variáveis e agregação mensal da série atual."""
+    ini, fim = BACKFILL_CLIMA
+    df = ing.fetch_clima(cidade["LATITUDE"], cidade["LONGITUDE"], int(cidade["CODIGO_MUNICIPIO"]),
+                         start_date=ini, end_date=fim)
+    if df.empty:
+        return df
+    for c in ("LATITUDE", "LONGITUDE", "FAIXA_LATITUDE", "NOME_MUNICIPIO"):
+        df[c] = cidade[c]
+    return df
+
+
+COLETORES = {"infodengue": coletar_saude, "openmeteo": coletar_clima,
+             "backfill-infodengue": coletar_saude_historico, "backfill-openmeteo": coletar_clima_historico}
+GRAVAR = {"backfill-infodengue": inserir_historico, "backfill-openmeteo": inserir_historico}
 
 
 # ------------------------------------------------------------------ orquestração
@@ -196,7 +253,7 @@ def atualizar(alvo: str, rodada: str, limite: int | None = None, hoje: date | No
         res = COLETORES[alvo](cidade, hoje)
         df, extras = res if isinstance(res, tuple) else (res, {})
         with sqlite3.connect(db_path, timeout=120) as conn:
-            total += upsert(conn, tabela, df)["inseridas"]
+            total += GRAVAR.get(alvo, upsert)(conn, tabela, df)["inseridas"]
             n_snap += gravar_snapshot(conn, extras.get(TABELA_SNAPSHOT), hoje)
             conn.execute("INSERT INTO ingestao_progresso VALUES (?, ?, ?, ?)",
                          (alvo, rodada, int(cidade["CODIGO_MUNICIPIO"]), datetime.now().isoformat(timespec="seconds")))
@@ -215,7 +272,9 @@ def atualizar_enso():
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Atualização incremental idempotente do banco")
-    ap.add_argument("--alvo", choices=["infodengue", "openmeteo", "noaa", "todos"], required=True)
+    ap.add_argument("--alvo", choices=["infodengue", "openmeteo", "noaa", "todos", "backfill", "backfill-infodengue",
+                                       "backfill-openmeteo", "backfill-populacao"], required=True,
+                    help="backfill = protocolo v7: dengue 2010–2014, clima 2009-07..2014-12 e população (só insere)")
     ap.add_argument("--rodada", default=date.today().isoformat(), help="Identificador para retomar")
     ap.add_argument("--limite", type=int, default=None, help="Processar só N cidades (teste)")
     args = ap.parse_args(argv)
@@ -224,10 +283,14 @@ def main(argv=None):
     except AttributeError:
         pass
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
-    alvos = ["noaa", "infodengue", "openmeteo"] if args.alvo == "todos" else [args.alvo]
+    alvos = {"todos": ["noaa", "infodengue", "openmeteo"],
+             "backfill": ["backfill-populacao", "backfill-infodengue", "backfill-openmeteo"]}.get(args.alvo, [args.alvo])
     for a in alvos:
         if a == "noaa":
             atualizar_enso()
+        elif a == "backfill-populacao":
+            from src.processamento.ingestor_ibge_populacao import backfill_populacao
+            backfill_populacao()
         else:
             atualizar(a, args.rodada, args.limite)
 
