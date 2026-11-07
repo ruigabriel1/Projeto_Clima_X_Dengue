@@ -1,22 +1,22 @@
 # Graph Report - Projeto_Clima_X_Dengue  (2026-11-07)
 
 ## Corpus Check
-- 66 files · ~60,458 words
+- 66 files · ~60,774 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 940 nodes · 2054 edges · 55 communities (45 shown, 5 thin omitted)
+- 941 nodes · 2055 edges · 57 communities (47 shown, 5 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 72 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2e175b8d`
+- Built from commit: `f4589c80`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - test_experimento.py
-- experimento_horizontes.py
+- build_base_panel
 - charts.js
 - server.py
 - ingestor_api_sul.py
@@ -30,20 +30,20 @@
 - Plano v5 — Limpeza e Resultado Publicável
 - ingestor_sinan_sorotipo.py
 - TestAplicacaoV51
-- ml_orchestrator.py
-- .features_previsao
+- evaluate_baselines
+- TestModelTraining
 - main.py
 - experimento_v7.py
 - run_interpretability
 - build_ml_features
 - Preditor
 - predictor.py
-- fit_predict_fold
+- experimento_v6.py
 - Experimento v6 — formulação, vizinhos e imunidade longa (protocolo v6)
 - analise_experimento.py
 - CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)
 - Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão
-- avaliar
+- combinar
 - mini_panel
 - test_prediction_service.py
 - export_dashboard.py
@@ -60,8 +60,10 @@
 - artefatos.py
 - .test_pipeline_end_to_end
 - TestRt
-- experimento_v6.py
+- modelo_final.py
+- test_painel_v7.py
 - main.js
+- artefatos
 - avaliar
 - Protocolo v5 — Pré-registro (fixado antes de ingerir dados de 2026)
 - painel_grade
@@ -93,15 +95,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (55 total, 5 thin omitted)
+## Communities (57 total, 5 thin omitted)
 
 ### Community 0 - "test_experimento.py"
-Cohesion: 0.14
-Nodes (18): avaliar_criterios(), calcular_metricas(), ndarray, As 5 métricas do experimento final (fixadas ANTES de rodar — ver…, Calcula as 5 métricas. Todos os argumentos são arrays alinhados (uma linha =…, Aplica os critérios de aceitação do plano a um dicionário de métricas., avaliar_2025(), HoldoutJaUsado (+10 more)
+Cohesion: 0.10
+Nodes (32): git_commit(), _linha(), metricas_de_oof(), nome_config(), preparar_dados(), DataFrame, Path, Fase 1 — Experimento controlado (docs/PLANO_EXPERIMENTO_FINAL.md). Fatores:… (+24 more)
 
-### Community 1 - "experimento_horizontes.py"
-Cohesion: 0.27
-Nodes (10): _linha(), metricas_de_oof(), DataFrame, Path, Fase 1 — Experimento controlado (docs/PLANO_EXPERIMENTO_FINAL.md). Fatores:…, Métricas agregadas (todas as linhas do OOF) para cada modelo e baseline., Executa o experimento completo e grava os resultados. Retorna o DataFrame de…, Roda os 4 modelos + 2 baselines em todos os folds. Retorna (oof_wide,… (+2 more)
+### Community 1 - "build_base_panel"
+Cohesion: 0.20
+Nodes (15): build_base_panel(), Path, Módulo responsável por construir o painel base a partir do banco de dados…, Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto…, avaliar(), HoldoutJaUsado, markdown(), meses_consolidados() (+7 more)
 
 ### Community 2 - "charts.js"
 Cohesion: 0.80
@@ -124,8 +126,8 @@ Cohesion: 0.08
 Nodes (47): Connection, date, atualizar(), atualizar_enso(), cidades_do_banco(), coletar_clima(), coletar_clima_historico(), coletar_saude() (+39 more)
 
 ### Community 7 - "🦟 Clima × Arboviroses"
-Cohesion: 0.13
-Nodes (15): A aplicação, Arquitetura, 🦟 Clima × Arboviroses, Como a IA foi usada, e onde ela foi barrada, Depois de 2026: o diagnóstico, a v6 e a v7, Em 30 segundos, Engenharia de dados, Estrutura (+7 more)
+Cohesion: 0.12
+Nodes (16): A aplicação, Arquitetura, 🦟 Clima × Arboviroses, Como a IA foi usada, e onde ela foi barrada, Depois de 2026: o diagnóstico, a v6 e a v7, El Niño e La Niña: fora da versão atual, exploratório para as próximas, Em 30 segundos, Engenharia de dados (+8 more)
 
 ### Community 8 - "Plano de Experimento Final — Clima × Arboviroses"
 Cohesion: 0.10
@@ -136,11 +138,11 @@ Cohesion: 0.15
 Nodes (34): alerta(), api(), ativarAba(), atualizarLoader(), carregando, carregarCenario(), carregarConfiabilidade(), carregarPrevisao() (+26 more)
 
 ### Community 10 - "experimento_v5.py"
-Cohesion: 0.17
-Nodes (18): Combinação modelo + persistência (docs/PROTOCOLO_V5.md, desvio de 2026-11-04,…, calibrar_temporal(), decidir(), efeitos(), nome(), preparar(), DataFrame, Path (+10 more)
+Cohesion: 0.18
+Nodes (18): Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():…, calibrar_temporal(), decidir(), efeitos(), nome(), preparar(), DataFrame, Path (+10 more)
 
 ### Community 11 - ".prever"
-Cohesion: 0.17
+Cohesion: 0.20
 Nodes (11): CidadeNaoEncontrada, _fmt_mes(), margem_modelo(), ModeloIndisponivel, DataFrame, ndarray, RuntimeError, "Quantos casos em <mês>?". Até 3 meses após o último mês consolidado: previsão… (+3 more)
 
 ### Community 12 - "Plano v5 — Limpeza e Resultado Publicável"
@@ -155,49 +157,49 @@ Nodes (16): agregar(), baixar(), contar(), dir_cache(), executar(), ler_campos_d
 Cohesion: 0.09
 Nodes (14): LookupError, Cenarios, CurvaClima, DataFrame, ndarray, Path, Longo prazo (até 5 anos) — CENÁRIO, não previsão (docs/PROTOCOLO_V5.md,…, Fator (e envelope) por mês-calendário. Na região: média dos fatores das cidades… (+6 more)
 
-### Community 17 - "ml_orchestrator.py"
-Cohesion: 0.05
-Nodes (39): evaluate_baselines(), GLMBinomialNegativa, _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, DataFrame, ndarray, Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a… (+31 more)
+### Community 17 - "evaluate_baselines"
+Cohesion: 0.10
+Nodes (19): evaluate_baselines(), GLMBinomialNegativa, _lag_col_name(), NaiveSazonalBaseline, PersistenciaBaseline, DataFrame, ndarray, Prediz casos a partir do GLM ajustado. (+11 more)
 
-### Community 18 - ".features_previsao"
-Cohesion: 0.33
-Nodes (3): DataFrame, Linhas de features do mês-alvo (último observado + h) de todas as cidades. Com…, Painel + h meses futuros por cidade (após o último mês com alvo observado).
+### Community 18 - "TestModelTraining"
+Cohesion: 0.40
+Nodes (3): Garante que clipping é por cidade e não global., Verifica que EW gera splits corretos., TestModelTraining
 
 ### Community 19 - "main.py"
 Cohesion: 0.06
 Nodes (58): command_analise(), command_atualizar_dados(), command_atualizar_mensal(), command_dlnm(), command_empacotar(), command_experimento(), command_experimento_v5(), command_experimento_v6() (+50 more)
 
 ### Community 20 - "experimento_v7.py"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (63): metricas(), base_v51(), decidir(), efeito(), preparar(), protocolo_registrado(), ProtocoloNaoRegistrado, DataFrame (+55 more)
 
 ### Community 21 - "run_interpretability"
-Cohesion: 0.25
-Nodes (17): compute_shap_values(), plot_partial_dependence(), plot_shap_importance(), plot_top_pdps(), DataFrame, ndarray, Path, Módulo de interpretabilidade do modelo XGBoost (v4 multi-doença). Fornece: -… (+9 more)
+Cohesion: 0.14
+Nodes (26): DataFrame, Valida o painel base e retorna um dicionário-relatório de qualidade. Levanta…, validate_panel(), compute_shap_values(), plot_partial_dependence(), plot_shap_importance(), plot_top_pdps(), DataFrame (+18 more)
 
 ### Community 22 - "build_ml_features"
 Cohesion: 0.23
 Nodes (5): build_ml_features(), Constrói as features a partir do painel base. Args: panel: saída de…, parametrize, TestFeaturesV5, TestFeaturesV6
 
 ### Community 23 - "Preditor"
-Cohesion: 0.12
-Nodes (9): FonteDados, Nível de alerta oficial do InfoDengue (1–4) no mês informado, se disponível., Preditor, Path, TestExperimentoV6, TestExperimentoV7, fixture, TestAPI (+1 more)
+Cohesion: 0.09
+Nodes (13): FonteDados, DataFrame, Fonte de dados do serviço de previsão. A fonte de verdade é o SQLite…, Linhas de features do mês-alvo (último observado + h) de todas as cidades. Com…, Nível de alerta oficial do InfoDengue (1–4) no mês informado, se disponível., Painel + h meses futuros por cidade (após o último mês com alvo observado)., Serviço de previsão de arboviroses (Fase 4 do plano do experimento final)., Preditor (+5 more)
 
 ### Community 24 - "predictor.py"
-Cohesion: 0.22
-Nodes (12): BaseModel, Serviço de previsão de arboviroses (Fase 4 do plano do experimento final)., Preditor de produção v5 — ALERTA DE RISCO (docs/PROTOCOLO_V5.md). Produto…, CenarioResponse, FaixaMes, PontoCenario, PredictResponse, PrevisaoMesResponse (+4 more)
+Cohesion: 0.27
+Nodes (11): BaseModel, Preditor de produção v5 — ALERTA DE RISCO (docs/PROTOCOLO_V5.md). Produto…, CenarioResponse, FaixaMes, PontoCenario, PredictResponse, PrevisaoMesResponse, RankingItem (+3 more)
 
-### Community 25 - "fit_predict_fold"
-Cohesion: 0.12
-Nodes (26): rodar(), alvo_treino(), _build_base_margin(), clip_outliers_per_city(), _expanding_window_splits(), fit_predict_fold(), limiares_por_cidade(), margem_persistencia() (+18 more)
+### Community 25 - "experimento_v6.py"
+Cohesion: 0.11
+Nodes (28): features_variantes(), Experimento v6 (docs/PROTOCOLO_V6.md) — responde H6a (formulação), H6b…, rodar(), alvo_treino(), _build_base_margin(), clip_outliers_per_city(), _expanding_window_splits(), fit_predict_fold() (+20 more)
 
 ### Community 26 - "Experimento v6 — formulação, vizinhos e imunidade longa (protocolo v6)"
 Cohesion: 0.33
 Nodes (5): Chikungunya, Dengue, Efeitos (ΔMAE com − sem, IC 95% bootstrap por município), Efeitos (ΔMAE com − sem, IC 95% bootstrap por município), Experimento v6 — formulação, vizinhos e imunidade longa (protocolo v6)
 
 ### Community 27 - "analise_experimento.py"
-Cohesion: 0.19
-Nodes (21): bootstrap_delta_mae(), decidir_config(), diagnostico_grupos_clima(), _fmt(), plot_skill(), DataFrame, Path, Fase 2 — Análise e decisão (docs/PLANO_EXPERIMENTO_FINAL.md). Lê… (+13 more)
+Cohesion: 0.17
+Nodes (20): Caminhos e constantes do projeto. Nenhum efeito colateral além de criar os…, bootstrap_delta_mae(), decidir_config(), diagnostico_grupos_clima(), _fmt(), plot_skill(), DataFrame, Path (+12 more)
 
 ### Community 28 - "CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)"
 Cohesion: 0.29
@@ -207,25 +209,25 @@ Nodes (6): Arquitetura, CLAUDE.md — Projeto Clima × Arboviroses (Região Sul)
 Cohesion: 0.33
 Nodes (5): 1. Bronze — ingestão, 2. Silver — painel, 3. Gold — duas análises separadas, 4. Evolução histórica, Arquitetura de Dados — APIs públicas → SQLite → Painel → Efeito e Previsão
 
-### Community 30 - "avaliar"
-Cohesion: 0.10
-Nodes (25): aplicar(), combinar(), escolher_peso(), pesos_cross_fit(), DataFrame, ndarray, Path, w · modelo + (1 − w) · persistência; persistência ausente conta como zero… (+17 more)
+### Community 30 - "combinar"
+Cohesion: 0.18
+Nodes (14): aplicar(), combinar(), escolher_peso(), pesos_cross_fit(), DataFrame, ndarray, Path, w · modelo + (1 − w) · persistência; persistência ausente conta como zero… (+6 more)
 
 ### Community 31 - "mini_panel"
 Cohesion: 0.40
 Nodes (4): mini_panel(), fixture, Fixtures compartilhados: painel sintético (não depende do banco)., Cria um painel sintético com 2 cidades × 72 meses (6 anos) e 3 doenças.
 
 ### Community 32 - "test_prediction_service.py"
-Cohesion: 0.13
-Nodes (15): field_validator, nivel_por_probabilidade(), Remove meses ingeridos menos de `dias` após o fim do mês: o InfoDengue ainda…, remover_meses_nao_consolidados(), aplicar_intervalo(), Intervalo de 90% a partir dos quantis de resíduo log1p calibrados no OOF., PredictRequest, artefatos() (+7 more)
+Cohesion: 0.12
+Nodes (14): field_validator, nivel_por_probabilidade(), Remove meses ingeridos menos de `dias` após o fim do mês: o InfoDengue ainda…, remover_meses_nao_consolidados(), aplicar_intervalo(), Intervalo de 90% a partir dos quantis de resíduo log1p calibrados no OOF., PredictRequest, parametrize (+6 more)
 
 ### Community 33 - "export_dashboard.py"
 Cohesion: 0.27
 Nodes (10): _clean(), _code6(), exportar_dados_dashboard(), exportar_doenca(), _historico(), _mean(), DataFrame, Series (+2 more)
 
 ### Community 36 - "get_feature_columns"
-Cohesion: 0.12
-Nodes (19): Caminhos e constantes do projeto. Nenhum efeito colateral além de criar os…, Produto v5: alerta de risco (docs/PROTOCOLO_V5.md). 1. benchmark_infodengue():…, get_feature_columns(), is_clima_parcimonioso(), is_imunidade_longa(), is_rt(), is_rt_bruto(), is_suscetibilidade() (+11 more)
+Cohesion: 0.13
+Nodes (18): Modelos de baseline para comparação com o XGBoost (multi-doença). Todos usam a…, get_feature_columns(), is_clima_parcimonioso(), is_imunidade_longa(), is_rt(), is_rt_bruto(), is_suscetibilidade(), is_vizinhos() (+10 more)
 
 ### Community 38 - "test_experimento_v7.py"
 Cohesion: 0.20
@@ -259,9 +261,17 @@ Nodes (13): _arquivos(), empacotar(), extrair(), garantir(), Path, Artefatos de 
 Cohesion: 0.25
 Nodes (5): parametrize, Testa o fluxo completo: features → treino → predição, por doença., build_ml_features roda sem erro para cada doença., Features de uma doença NÃO devem incluir a coluna-alvo de outra., TestIntegration
 
-### Community 48 - "experimento_v6.py"
-Cohesion: 0.13
-Nodes (21): build_base_panel(), Path, Lê as tabelas desacopladas do SQLite e devolve um DataFrame unificado, pronto…, git_commit(), features_variantes(), Experimento v6 (docs/PROTOCOLO_V6.md) — responde H6a (formulação), H6b…, Modelo v6 do modo sombra: configuração decidida em decisao.json, treinada com…, treinar_producao() (+13 more)
+### Community 48 - "modelo_final.py"
+Cohesion: 0.17
+Nodes (15): Modelo v6 do modo sombra: configuração decidida em decisao.json, treinada com…, treinar_producao(), calibrar_intervalo(), estatisticas_cidades(), main(), DataFrame, ndarray, Path (+7 more)
+
+### Community 50 - "test_painel_v7.py"
+Cohesion: 0.60
+Nodes (4): _raiz(), Painel com histórico estendido e Rt (protocolo v7): o padrão continua sendo o…, test_historico_estendido_com_rt_e_meses_de_aquecimento(), test_padrao_igual_ao_painel_dos_experimentos()
+
+### Community 52 - "artefatos"
+Cohesion: 0.50
+Nodes (3): artefatos(), fixture, Experimento v5 + modelos de risco no painel sintético (com clima e…
 
 ### Community 53 - "avaliar"
 Cohesion: 0.25
@@ -283,11 +293,11 @@ Nodes (3): painel_grade(), fixture, 12 cidades numa grade de coordenadas × 4 an
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `build_ml_features()` connect `build_ml_features` to `test_experimento.py`, `experimento_horizontes.py`, `get_feature_columns`, `test_experimento_v7.py`, `TestFeatureEngineering`, `grupos_de_features`, `experimento_v5.py`, `.test_pipeline_end_to_end`, `TestRt`, `experimento_v6.py`, `ml_orchestrator.py`, `.features_previsao`, `main.py`, `experimento_v7.py`, `fit_predict_fold`, `analise_experimento.py`, `avaliar`?**
+- **Why does `build_ml_features()` connect `build_ml_features` to `test_experimento.py`, `build_base_panel`, `get_feature_columns`, `test_experimento_v7.py`, `TestFeatureEngineering`, `grupos_de_features`, `experimento_v5.py`, `.test_pipeline_end_to_end`, `TestRt`, `evaluate_baselines`, `main.py`, `experimento_v7.py`, `run_interpretability`, `Preditor`, `experimento_v6.py`?**
   _High betweenness centrality (0.066) - this node is a cross-community bridge._
-- **Why does `Preditor` connect `Preditor` to `test_experimento.py`, `test_prediction_service.py`, `server.py`, `test_experimento_v7.py`, `.prever`, `TestAplicacaoV51`, `avaliar`, `predictor.py`?**
+- **Why does `Preditor` connect `Preditor` to `test_experimento.py`, `test_prediction_service.py`, `server.py`, `test_experimento_v7.py`, `.prever`, `TestAplicacaoV51`, `artefatos`, `avaliar`, `predictor.py`?**
   _High betweenness centrality (0.058) - this node is a cross-community bridge._
-- **Why does `build_base_panel()` connect `experimento_v6.py` to `test_experimento.py`, `experimento_horizontes.py`, `get_feature_columns`, `dlnm.py`, `experimento_v5.py`, `ml_orchestrator.py`, `.features_previsao`, `main.py`, `experimento_v7.py`, `analise_experimento.py`, `avaliar`?**
+- **Why does `build_base_panel()` connect `build_base_panel` to `test_experimento.py`, `get_feature_columns`, `dlnm.py`, `experimento_v5.py`, `modelo_final.py`, `test_painel_v7.py`, `main.py`, `experimento_v7.py`, `run_interpretability`, `Preditor`, `experimento_v6.py`, `analise_experimento.py`?**
   _High betweenness centrality (0.046) - this node is a cross-community bridge._
 - **Are the 10 inferred relationships involving `Preditor` (e.g. with `Cenarios` and `FonteDados`) actually correct?**
   _`Preditor` has 10 INFERRED edges - model-reasoned connections that need verification._
@@ -296,4 +306,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `MESES_LONGO`, `ICONE`, `NIVEIS` to the rest of the system?**
   _87 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `test_experimento.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.13538461538461538 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1 - nodes in this community are weakly interconnected._

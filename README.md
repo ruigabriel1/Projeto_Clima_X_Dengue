@@ -84,6 +84,26 @@ um oráculo (usa o total real de cada estado), o teto do que um modelo de nível
   circulante (SINAN) foi reprovado no portão de cobertura fixado antes: só 55% das janelas de 3 meses tinham
   exames suficientes. Coleta dos dados de 2010–2014 em andamento; teste em modo sombra em jan–ago/2027.
 
+### El Niño e La Niña: fora da versão atual, exploratório para as próximas
+
+**Status: exploratório.** O índice do El Niño/La Niña (ONI, da NOAA) continua sendo coletado, mas **não entra** na
+previsão (v5.1, v6 e v7) nem nos cenários de 5 anos.
+
+**Por que foi retirado:**
+- É **um único número por mês para as 1.190 cidades**. Como os surtos também acontecem em anos específicos, o
+  modelo usava esse valor como um "identificador do ano" e **decorava** em que anos houve epidemia, em vez de
+  aprender um efeito do clima. Com ele, o erro da dengue piorava em até 8%.
+- De 2015 a 2026 houve só 2 ou 3 episódios de El Niño, e cada um coincidiu com outras causas de surto (sorotipo novo,
+  imunidade baixa). Com tão poucos casos, não dá para separar o efeito do El Niño do efeito desses fatores.
+- No DLNM (efeito do clima), o controle por estado × ano já absorve o que muda de um ano para outro, incluindo o El
+  Niño. Por isso o efeito da temperatura (+46%) não se confunde com "ano de El Niño".
+- Nos cenários de 5 anos, a faixa histórica já mistura anos de El Niño, La Niña e neutros, mas não separa um do outro.
+
+**O que precisaria para voltar:** uma hipótese nova, registrada antes de testar, usando o índice onde ele não vira
+identificador de ano (por exemplo, no modelo do total de cada estado, com o histórico desde 2010), avaliada pela
+mesma regra pré-registrada e num teste prospectivo próprio. Até lá, qualquer análise com El Niño ou La Niña é
+rotulada como exploratória.
+
 ## A aplicação
 
 Aplicação web (FastAPI + Plotly) servida pelo mesmo processo da API, com o modelo de produção **v5.1**
@@ -207,6 +227,7 @@ tests/                   pytest
 - [x] v7 pré-registrada (histórico 2010+, Rt, nível regional); sorotipo reprovado no portão de cobertura
 - [ ] v7: concluir a coleta de 2010–2014, rodar o experimento e emitir em modo sombra (teste jan–ago/2027)
 - [ ] Correção de atraso de notificação (nowcasting) com as cópias semanais do InfoDengue
+- [ ] **Exploratório (próximas versões):** El Niño e La Niña no modelo do total por estado, com pré-registro e teste próprio
 - [ ] Artigo científico com os resultados
 
 ## Limitações
@@ -215,6 +236,7 @@ tests/                   pytest
 - O clima é da reanálise ERA5 no centro de cada município, não de estações locais.
 - Só ~10 anos de dinâmica entre anos: sorotipo e imunidade dominam e não são observados diretamente.
 - O efeito da temperatura ainda cresce no lag 3: a janela de 0–3 meses pode ser curta.
+- El Niño e La Niña não estão no modelo (ver acima): o efeito deles sobre as arboviroses no Sul não foi estimado.
 
 ---
 
