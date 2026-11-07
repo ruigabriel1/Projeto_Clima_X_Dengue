@@ -3,7 +3,8 @@
 # (modelos v5.1 + snapshot do banco), conferindo o SHA-256 de cada arquivo.
 FROM python:3.12-slim
 
-ARG VERSAO=modelo-v5.1
+# Código: branch main (interface atual). Modelos e banco: sempre da Release modelo-v5.1, conferidos por SHA-256.
+ARG VERSAO=main
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PORT=7860
 
 RUN apt-get update && apt-get install -y --no-install-recommends git libgomp1 \
