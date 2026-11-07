@@ -145,3 +145,19 @@ adotado, a v7 é igual à v6 e isso é reportado.
 ## Desvios
 
 Qualquer desvio é registrado aqui, com data e motivo, antes de rodar a análise afetada.
+
+**2026-11-06: esclarecimentos de implementação, registrados antes de qualquer execução do experimento nos
+dados reais.** Nenhum muda uma hipótese, uma candidata ou a regra de decisão.
+
+1. **Alvo de risco único.** O P75 de cada cidade usa os anos de treino do fold a partir de 2015, para todas as
+   variantes (H inclusive), para que a AUC compare as mesmas linhas com o mesmo alvo. Na produção da v7, o P75
+   também usa os meses a partir de 2015, como na v5.1 e na v6.
+2. **Linhas de teste de H.** As features das linhas de teste de H vêm do painel 2010+. As janelas de
+   suscetibilidade de 2018 em diante passam a enxergar 2014, e isso faz parte do efeito de H. As linhas
+   avaliadas são as mesmas de F (mesmas chaves cidade × mês).
+3. **Meses de aquecimento do clima.** Com o painel 2010+, os meses de clima de 2009 entram sem casos, só para
+   as defasagens. O alvo ausente os tira do treino.
+4. **Reconciliação incompleta.** Uma UF × mês com algum preditor do GLM ausente (por exemplo, Rt da UF ausente)
+   não é reconciliada (fator 1), assim como um fold com menos de 24 meses completos por UF.
+5. **Portão do sorotipo.** É calculado só com as contagens de casos sorotipados (sem desfecho) e gravado em
+   `portao_sorotipo.json` no início da execução, antes de qualquer modelo.

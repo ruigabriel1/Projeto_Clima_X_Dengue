@@ -1,7 +1,7 @@
 # Graph Report - Projeto_Clima_X_Dengue  (2026-11-06)
 
 ## Corpus Check
-- 66 files · ~58,758 words
+- 66 files · ~59,132 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `cddb6576`
+- Built from commit: `3db9e8f9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

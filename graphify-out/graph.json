@@ -8077,7 +8077,7 @@
       "node_kind": "heading",
       "norm_label": "arquitetura",
       "source_file": "CLAUDE.md",
-      "source_location": "L35"
+      "source_location": "L41"
     },
     {
       "id": "claude_claude_md_projeto_clima_arboviroses_regi\u00e3o_sul",
@@ -8101,7 +8101,7 @@
       "node_kind": "heading",
       "norm_label": "comandos",
       "source_file": "CLAUDE.md",
-      "source_location": "L15"
+      "source_location": "L17"
     },
     {
       "id": "claude_conven\u00e7\u00f5es",
@@ -8113,7 +8113,7 @@
       "node_kind": "heading",
       "norm_label": "convencoes",
       "source_file": "CLAUDE.md",
-      "source_location": "L98"
+      "source_location": "L109"
     },
     {
       "id": "claude_grafo_do_c\u00f3digo_graphify_consulte_antes_de_abrir_arquivos",
@@ -8125,7 +8125,7 @@
       "node_kind": "heading",
       "norm_label": "grafo do codigo (graphify): consulte antes de abrir arquivos",
       "source_file": "CLAUDE.md",
-      "source_location": "L62"
+      "source_location": "L72"
     },
     {
       "id": "claude_regras_metodol\u00f3gicas_n\u00e3o_violar",
@@ -8137,7 +8137,7 @@
       "node_kind": "heading",
       "norm_label": "regras metodologicas (nao violar)",
       "source_file": "CLAUDE.md",
-      "source_location": "L82"
+      "source_location": "L92"
     },
     {
       "id": "docs_arquitetura_de_dados",
@@ -25640,13 +25640,24 @@
     },
     {
       "source": "claude_claude_md_projeto_clima_arboviroses_regi\u00e3o_sul",
+      "target": "claude_conven\u00e7\u00f5es",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_claude_md_projeto_clima_arboviroses_regi\u00e3o_sul",
       "target": "claude_comandos",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L15",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -25657,7 +25668,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L35",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -25668,7 +25679,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L62",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -25679,18 +25690,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L82",
-      "weight": 1.0
-    },
-    {
-      "source": "claude_claude_md_projeto_clima_arboviroses_regi\u00e3o_sul",
-      "target": "claude_conven\u00e7\u00f5es",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": "L98",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -34559,5 +34559,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "cddb6576a51de4da20ae4c2beaea8023e1d999ee"
+  "built_at_commit": "3db9e8f98ec79e629f8e533005784d41c4632437"
 }

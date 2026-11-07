@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793987557.435598,
-    "seen": 1793987567.2056117,
-    "ast_hash": "32c442c8b88b6175243f0c3452d818e9",
+    "mtime": 1794017893.0732,
+    "seen": 1794017904.2333412,
+    "ast_hash": "fbcd73b6e145c5a33a4d6da3a8a92c59",
     "semantic_hash": ""
   },
   "docs/PLANO_EXPERIMENTO_FINAL.md": {
@@ -372,9 +372,9 @@
     "semantic_hash": ""
   },
   "docs/PROTOCOLO_V7.md": {
-    "mtime": 1794016679.1290786,
-    "seen": 1794016684.794219,
-    "ast_hash": "ec41ed2fcb041f7973c8d1ef44bba45d",
+    "mtime": 1794017874.8269515,
+    "seen": 1794017904.2333412,
+    "ast_hash": "a37e4ffa84535a7ef6c5960864979b3e",
     "semantic_hash": ""
   },
   "tests/test_painel_v7.py": {
