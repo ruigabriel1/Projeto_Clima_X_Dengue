@@ -86,6 +86,12 @@ def command_atualizar_dados(args):
     at_main(["--alvo", args.alvo] + (["--rodada", args.rodada] if args.rodada else []))
 
 
+def command_sorotipo(args):
+    """Protocolo v7 (H7d): sorotipo da dengue por UF e mês a partir dos microdados do SINAN."""
+    from src.processamento.ingestor_sinan_sorotipo import main as s_main
+    s_main((["--anos", *map(str, args.anos)] if args.anos else []))
+
+
 def command_experimento_v5(args):
     """Protocolo v5: clima parcimonioso × suscetibilidade, alvo de risco, 2025 como 2ª validação."""
     from src.ml_pipeline.experimento_v5 import main as v5_main
@@ -216,9 +222,15 @@ def main():
 
     # ---------- Protocolo v5 (docs/PROTOCOLO_V5.md) ----------
     p_at = subparsers.add_parser("atualizar-dados", help="Atualização incremental idempotente do banco.")
-    p_at.add_argument("--alvo", choices=["infodengue", "openmeteo", "noaa", "todos"], default="todos")
+    p_at.add_argument("--alvo", choices=["infodengue", "openmeteo", "noaa", "todos", "backfill", "backfill-infodengue",
+                                         "backfill-openmeteo", "backfill-populacao"], default="todos",
+                      help="backfill = v7: dengue 2010–2014, clima 2009-07..2014-12 e população (só insere)")
     p_at.add_argument("--rodada", default=None, help="Identificador para retomar uma rodada interrompida")
     p_at.set_defaults(func=command_atualizar_dados)
+
+    p_so = subparsers.add_parser("sorotipo", help="v7: sorotipo da dengue por UF e mês (SINAN/DATASUS).")
+    p_so.add_argument("--anos", type=int, nargs="*", default=None)
+    p_so.set_defaults(func=command_sorotipo)
 
     p_v5 = subparsers.add_parser("experimento-v5", help="Experimento v5: clima × suscetibilidade, risco.")
     p_v5.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")

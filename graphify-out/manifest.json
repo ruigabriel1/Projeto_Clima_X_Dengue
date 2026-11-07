@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "main.py": {
-    "mtime": 1794005988.9354486,
-    "seen": 1794006205.9506216,
-    "ast_hash": "c3a7702668ba692202422eccea1624a3",
+    "mtime": 1794017164.8844519,
+    "seen": 1794017177.2886434,
+    "ast_hash": "bc8bd2d69ff2ba0e5bee4085499758cd",
     "semantic_hash": ""
   },
   "src/config.py": {
@@ -381,6 +381,18 @@
     "mtime": 1794016926.3518105,
     "seen": 1794016982.6220834,
     "ast_hash": "02185a1bfbc2d20c5c45af6a91c97690",
+    "semantic_hash": ""
+  },
+  "src/processamento/ingestor_sinan_sorotipo.py": {
+    "mtime": 1794017136.685107,
+    "seen": 1794017177.2886434,
+    "ast_hash": "463b2f876773b9c0861723cc0773c4a7",
+    "semantic_hash": ""
+  },
+  "tests/test_sorotipo.py": {
+    "mtime": 1794017165.8149688,
+    "seen": 1794017177.2886434,
+    "ast_hash": "5837cf0d2c511801c4692717e48dac23",
     "semantic_hash": ""
   }
 }
