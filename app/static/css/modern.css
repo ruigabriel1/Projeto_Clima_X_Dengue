@@ -83,6 +83,20 @@ strong, b { font-weight: 600; }
 
 /* ------------------------------------------------------------------ barras de filtros */
 .form-row .campo-largo input, .form-row .campo-largo select { min-width: 240px; }
+
+/* lista de sugestões dos municípios (no lugar do datalist do navegador) */
+.ac-campo { position: relative; }
+.sugestoes {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 40; margin-top: 4px; list-style: none;
+  max-height: 300px; overflow-y: auto; padding: 4px; background: var(--sup); border: 1px solid var(--linha-forte);
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(28, 27, 24, 0.12);
+  font: 500 14px var(--sans); letter-spacing: 0; text-transform: none; color: var(--tinta);
+}
+.sugestoes li { padding: 8px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sugestoes li:hover, .sugestoes li.ativo { background: var(--modelo-claro); color: var(--modelo); }
+.sugestoes li[aria-selected="true"] { font-weight: 600; }
+.sugestoes li.vazio { color: var(--apagado); cursor: default; }
+.sugestoes li.vazio:hover { background: none; color: var(--apagado); }
 .form-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 20px; }
 .form-row label, .seg legend { display: flex; flex-direction: column; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--apagado); }
 .form-row input, .form-row select {

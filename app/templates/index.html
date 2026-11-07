@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css?v=5.3.0">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.3.2">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
@@ -49,14 +49,13 @@
             <select id="pvDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
           </label>
           <label class="campo-largo">Município
-            <input id="pvCidade" list="listaCidades" placeholder="Digite o nome (ex.: Curitiba)" autocomplete="off">
+            <input id="pvCidade" placeholder="Digite o nome (ex.: Curitiba)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
           </label>
           <label class="campo-largo">Mês
             <select id="pvMes"><option>Carregando…</option></select>
           </label>
           <button class="btn-primary" id="pvBotao">Ver resposta</button>
         </div>
-        <datalist id="listaCidades"></datalist>
         <div id="pvResultado" class="result-area">
           <div class="aquecendo" role="status">
             <div class="spinner"></div>
@@ -108,7 +107,7 @@
         <div class="top-bar"><h2>Próximos 5 anos: cenário, não previsão</h2></div>
         <div class="form-row">
           <label>Local
-            <input id="ceCidade" list="listaCidadesSul" placeholder="Região Sul ou município" value="Região Sul (PR, SC, RS)" autocomplete="off">
+            <input id="ceCidade" placeholder="Região Sul ou município" value="Região Sul (PR, SC, RS)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
           </label>
           <label>Doença
             <select id="ceDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
@@ -123,7 +122,6 @@
           </fieldset>
           <button class="btn-primary" id="ceBotao">Ver cenário</button>
         </div>
-        <datalist id="listaCidadesSul"></datalist>
         <div class="callout">
           O modelo de previsão depende dos casos dos últimos meses, então só enxerga até 3 meses à frente.
           Aqui, a faixa sombreada mostra o que <strong>costuma</strong> acontecer em cada mês (80% dos anos
@@ -235,7 +233,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/static/js/main.js?v=5.3.0"></script>
-  <script type="module" src="/static/js/app.js?v=5.3.0"></script>
+  <script type="module" src="/static/js/main.js?v=5.3.2"></script>
+  <script type="module" src="/static/js/app.js?v=5.3.2"></script>
 </body>
 </html>

@@ -109,16 +109,87 @@ async function iniciar() {
     erro($("pvResultado"), `Modelo indisponível: ${e.message}`);
     return;
   }
-  const opts = municipios.map((m) => { const r = `${m.nome} (${m.uf})`; porRotulo.set(r, m.codigo); return `<option value="${esc(r)}">`; });
-  $("listaCidades").innerHTML = opts.join("");
-  $("listaCidadesSul").innerHTML = `<option value="${REGIAO}">` + opts.join("");
+  const rotulos = municipios.map((m) => { const r = `${m.nome} (${m.uf})`; porRotulo.set(r, m.codigo); return r; });
   porRotulo.set(REGIAO, "sul");
+  autocompletar($("pvCidade"), rotulos);
+  autocompletar($("ceCidade"), [REGIAO, ...rotulos]);
   preencherMeses();
   $("pvCidade").value = "Curitiba (PR)";
   let aba = "previsao";
   try { aba = localStorage.getItem("prodigia_aba") || aba; } catch (_) { /* sem storage */ }
   ativarAba(aba);
   carregarPrevisao();
+}
+
+// ------------------------------------------------------------------ lista de sugestões dos municípios
+// Substitui o <datalist>, que o Chrome desenha como uma janela escura e solta, sem aceitar estilo.
+const semAcento = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const MAX_SUGESTOES = 60;
+
+function autocompletar(input, opcoes) {
+  const chaves = opcoes.map((o) => [o, semAcento(o)]);
+  const lista = document.createElement("ul");
+  lista.className = "sugestoes";
+  lista.id = `${input.id}-sugestoes`;
+  lista.setAttribute("role", "listbox");
+  lista.hidden = true;
+  input.setAttribute("aria-controls", lista.id);
+  input.parentElement.classList.add("ac-campo");
+  input.parentElement.appendChild(lista);
+  let itens = [], ativo = -1;
+
+  const fechar = () => { lista.hidden = true; input.setAttribute("aria-expanded", "false"); ativo = -1; };
+  const marcar = (i) => {
+    ativo = i;
+    [...lista.children].forEach((li, k) => li.classList.toggle("ativo", k === i));
+    if (i >= 0) {
+      const li = lista.children[i];   // rola só a lista (scrollIntoView rolaria a página inteira)
+      if (li.offsetTop < lista.scrollTop) lista.scrollTop = li.offsetTop - 4;
+      else if (li.offsetTop + li.offsetHeight > lista.scrollTop + lista.clientHeight) lista.scrollTop = li.offsetTop + li.offsetHeight - lista.clientHeight + 4;
+      input.setAttribute("aria-activedescendant", li.id);
+    }
+  };
+  const escolher = (valor) => {
+    input.value = valor;
+    fechar();
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const abrir = () => {
+    const q = semAcento(input.value.trim());
+    const exato = chaves.some(([o]) => o === input.value);   // já escolhido: mostra a lista toda
+    const comeca = [], contem = [];
+    for (const [o, k] of chaves) {
+      if (!q || exato) comeca.push(o);
+      else if (k.startsWith(q)) comeca.push(o);
+      else if (k.includes(q)) contem.push(o);
+    }
+    itens = exato ? comeca : [...comeca, ...contem].slice(0, MAX_SUGESTOES);   // escolhido: lista toda, na posição dele
+    lista.innerHTML = itens.length
+      ? itens.map((o, k) => `<li role="option" id="${lista.id}-${k}" data-v="${esc(o)}"${o === input.value ? ' aria-selected="true"' : ""}>${esc(o)}</li>`).join("")
+      : `<li class="vazio">Nenhum município com esse nome</li>`;
+    lista.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    lista.scrollTop = 0;
+    const i = itens.indexOf(input.value);
+    marcar(i >= 0 ? i : (q ? 0 : -1));   // digitando: a 1ª sugestão já fica pronta para o Enter
+    if (i >= 0) lista.scrollTop = Math.max(0, lista.children[i].offsetTop - lista.clientHeight / 2);
+  };
+
+  input.addEventListener("focus", () => { input.select(); abrir(); });
+  input.addEventListener("input", abrir);
+  input.addEventListener("blur", () => setTimeout(fechar, 120));
+  input.addEventListener("keydown", (e) => {
+    if (lista.hidden && (e.key === "ArrowDown" || e.key === "ArrowUp")) { abrir(); e.preventDefault(); return; }
+    if (e.key === "ArrowDown") { marcar(Math.min(itens.length - 1, ativo + 1)); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { marcar(Math.max(0, ativo - 1)); e.preventDefault(); }
+    else if (e.key === "Enter" && !lista.hidden && itens.length) { escolher(itens[Math.max(0, ativo)]); e.preventDefault(); }
+    else if (e.key === "Escape") fechar();
+  });
+  lista.addEventListener("mousedown", (e) => e.preventDefault());   // não perde o foco antes do clique
+  lista.addEventListener("click", (e) => {
+    const li = e.target.closest("li[data-v]");
+    if (li) escolher(li.dataset.v);
+  });
 }
 
 function preencherMeses() {
