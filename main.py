@@ -126,6 +126,21 @@ def command_modelo_v6(args):
     print("Modelo v6 (modo sombra) em output/models/final_v6/")
 
 
+def command_experimento_v7(args):
+    """Protocolo v7: histórico 2010+, Rt, nível regional, sorotipo (portão). Exige protocolo commitado."""
+    from src.ml_pipeline.experimento_v7 import main as v7_main
+    v7_main(["--doenca", args.doenca])
+
+
+def command_modelo_v7(args):
+    """Protocolo v7: modelo de produção do modo sombra (output/models/final_v7/)."""
+    from src.ml_pipeline.experimento_horizontes import configurar_log
+    from src.ml_pipeline.experimento_v7 import carregar_sorotipo, treinar_producao
+    configurar_log()
+    treinar_producao(sorotipo=carregar_sorotipo())
+    print("Modelo v7 (modo sombra) em output/models/final_v7/")
+
+
 def command_atualizar_mensal(args):
     """Produção v5.1: atualiza dados, avalia previsões passadas e emite/registra as novas."""
     from src.ml_pipeline.experimento_horizontes import configurar_log
@@ -249,6 +264,13 @@ def main():
 
     p_m6 = subparsers.add_parser("modelo-v6", help="v6: treina o modelo do modo sombra com a decisão do experimento.")
     p_m6.set_defaults(func=command_modelo_v6)
+
+    p_v7 = subparsers.add_parser("experimento-v7", help="v7: histórico 2010+ × Rt × nível regional × sorotipo (pré-registrado).")
+    p_v7.add_argument("--doenca", choices=["dengue", "chikungunya", "todas"], default="todas")
+    p_v7.set_defaults(func=command_experimento_v7)
+
+    p_m7 = subparsers.add_parser("modelo-v7", help="v7: treina o modelo do modo sombra com a decisão do experimento.")
+    p_m7.set_defaults(func=command_modelo_v7)
 
     p_am = subparsers.add_parser("atualizar-mensal", help="v5.1: ingestão + monitoramento + previsões do mês.")
     p_am.add_argument("--sem-ingestao", action="store_true", help="Não baixa dados novos (só emite e avalia)")

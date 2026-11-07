@@ -165,3 +165,30 @@ class TestExperimentoV7:
         x = oof[(uf == "41") & (oof.year == 2019) & (oof.month == 3)]
         assert (x["pred_F_N"].rank().values == x["pred_F"].rank().values).all()
         assert set(dec) == {"dengue", "chikungunya"} and not dec["chikungunya"]["historico_2010"]
+
+    def test_producao_com_nivel_regional_e_preditor(self, painel_v7, tmp_path):
+        from src.ml_pipeline import experimento_v7 as v7
+        from src.ml_pipeline import nivel_regional as nr2
+        from src.prediction_service.data_fetcher import FonteDados
+        from src.prediction_service.predictor import Preditor
+        paineis = {"2015": painel_v7[painel_v7.year >= 2015].reset_index(drop=True), "2010": painel_v7}
+        base = {"dengue": {"clima": "parcimonioso", "suscetibilidade": True, "offset": "persistencia"}}
+        exp = tmp_path / "exp"
+        v7.run(paineis_=paineis, out_dir=exp, doencas=("dengue",), horizontes=(1, 2), base=base,
+               exigir_registro=False, docs_dir=None)
+        dec = {"dengue": {"historico_2010": True, "rt": True, "nivel_regional": True, "sorotipo": False,
+                          "offset": "persistencia", "ano_min": 2010, "cidade": "F_HR", "modelo": "F_HR_N"}}
+        (exp / "decisao.json").write_text(json.dumps(dec), encoding="utf-8")
+        meta = v7.treinar_producao(paineis_=paineis, exp_dir=exp, out_dir=tmp_path / "mod", horizontes=(1, 2), base=base)
+        hm = meta["dengue"]["horizontes"]["h2"]
+        assert meta["dengue"]["versao"] == "v7" and hm["nivel_regional"]["nomes"][-1] == "x_acum24"
+        assert any("rt_" in f for f in hm["features"])
+        p = Preditor(model_dir=tmp_path / "mod", fonte=FonteDados(paineis["2015"]))
+        lote = p.prever_lote("dengue", 2)
+        tot = nr2.total_previsto(hm["nivel_regional"], nr2.serie_uf(paineis["2015"], "dengue"), 2)
+        assert lote["mes_alvo"].iloc[0] == "2021-02"
+        soma = lote.groupby("uf")["casos_previstos"].sum()
+        for uf, t in tot.set_index("uf")["T_hat"].items():
+            assert abs(soma[uf] - t) <= 3                                   # arredondamento por cidade
+        um = p.prever("410000", "dengue", 2)
+        assert um.casos_previstos == int(lote.set_index("codigo_ibge").loc["410000", "casos_previstos"])

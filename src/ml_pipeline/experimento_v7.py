@@ -288,6 +288,76 @@ def run(paineis_: dict | None = None, out_dir: Path = OUT_V7, doencas=DOENCAS_EX
     return resultados, ef, dec
 
 
+OUT_MODELOS_V7 = OUTPUT_DIR / "models" / "final_v7"
+
+
+def treinar_producao(paineis_: dict | None = None, exp_dir: Path = OUT_V7, out_dir: Path = OUT_MODELOS_V7,
+                     horizontes=HORIZONTES, base: dict | None = None, sorotipo: pd.DataFrame | None = None) -> dict:
+    """
+    Modelo v7 do modo sombra: configuração de decisao.json treinada com todos os meses consolidados.
+    Mesmo formato de metadata da v5.1/v6; com nível regional, cada horizonte leva os coeficientes do GLM
+    (ajustado em todos os meses) em "nivel_regional". Calibrador e intervalo vêm do OOF da variante decidida.
+    O limiar de risco (P75) usa os meses a partir de 2015, como na v5.1/v6 e no experimento.
+    """
+    import joblib
+    from sklearn.isotonic import IsotonicRegression
+
+    from src.ml_pipeline.alerta_risco import FAIXAS_PROB
+    from src.ml_pipeline.modelo_final import calibrar_intervalo
+
+    dec = json.loads((exp_dir / "decisao.json").read_text(encoding="utf-8"))
+    paineis_ = paineis_ or paineis(tuple(dec))
+    base = base or base_v6()
+    todas = {}
+    for doenca, i in dec.items():
+        alvo = DOENCA_PARA_COL[doenca]
+        persist = i["offset"] == "persistencia"
+        panel = paineis_["2010" if i["historico_2010"] else "2015"]
+        dest = out_dir / doenca
+        dest.mkdir(parents=True, exist_ok=True)
+        obs = panel.dropna(subset=[alvo]).sort_values(["year", "month"])
+        ini, fim = obs.iloc[[0, -1]][["year", "month"]].astype(int).values
+        meta = {"versao": "v7", "doenca": doenca, "modelo": i["modelo"], "offset": i["offset"],
+                "historico_2010": i["historico_2010"], "rt": i["rt"], "nivel_regional": i["nivel_regional"],
+                "sorotipo": i["sorotipo"], "incluir_rt": True, **{k: base[doenca][k] for k in ("clima", "suscetibilidade")},
+                "treinado_em": time.strftime("%Y-%m-%d %H:%M:%S"), "git_commit": git_commit(),
+                "anos_treino": [int(ini[0]), int(fim[0])], "periodo_treino": f"{ini[0]}-{ini[1]:02d} a {fim[0]}-{fim[1]:02d}",
+                "xgb_params": XGB_PARAMS, "q_risco": Q_RISCO_V5, "eps_incid": EPS_INCID,
+                "faixas_probabilidade": FAIXAS_PROB, "horizontes": {}}
+        serie = nr.serie_uf(paineis_["2010" if doenca == "dengue" else "2015"], doenca) if i["nivel_regional"] else None
+        for h in horizontes:
+            col_p = f"{PREFIXOS[alvo]}_lag{h}"
+            df = preparar(panel, doenca, h)
+            feats = _feats(df, doenca, base[doenca], i["rt"])
+            model, _ = fit_predict_fold(df, df.iloc[:1], feats, alvo, use_pop_offset=not persist,
+                                        offset_persistencia=col_p if persist else None)
+            joblib.dump(model, dest / f"h{h}.joblib")
+            oof = pd.read_csv(exp_dir / f"oof_{doenca}_h{h}.csv.gz", dtype={"code": str})
+            ref = i["modelo"]
+            iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(oof[f"escore_{ref}"].fillna(0), oof["risco_alto"])
+            joblib.dump(iso, dest / f"h{h}_calibrador.joblib")
+            hm = {"arquivo": f"h{h}.joblib", "calibrador": f"h{h}_calibrador.joblib", "features": feats,
+                  "calibracao_de": ref, "intervalo_contagem": calibrar_intervalo(oof["y_true"], oof[f"pred_{ref}"])}
+            if i["nivel_regional"]:
+                des = nr.desenho(serie, h, sorotipo if i["sorotipo"] else None)
+                glm = nr.ajustar(des, np.ones(len(des), bool), com_s=i["sorotipo"])
+                if glm is None:
+                    raise RuntimeError(f"GLM regional sem meses suficientes ({doenca}, h={h})")
+                hm["nivel_regional"] = glm
+            meta["horizontes"][f"h{h}"] = hm
+            logger.info(f"v7 produção {doenca} h={h}: {i['modelo']}, {len(feats)} features, offset {i['offset']}")
+        p15 = paineis_["2015"]
+        hist = p15.dropna(subset=[alvo]).assign(_inc=lambda x: x[alvo] / x["populacao"] * 1e5)
+        q = hist.groupby("code").agg(p75_incid=("_inc", lambda s: s.quantile(Q_RISCO_V5)),
+                                     meses_com_caso=(alvo, lambda s: int((s > 0).sum())),
+                                     nome=("city_name", "last"), populacao=("populacao", "last"))
+        meta["cidades"] = {str(c): {"nome": r.nome, "populacao": int(r.populacao), "p75_incid": float(r.p75_incid),
+                                    "meses_com_caso": int(r.meses_com_caso)} for c, r in q.iterrows()}
+        (dest / "metadata.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+        todas[doenca] = meta
+    return todas
+
+
 def relatorio(res: pd.DataFrame, ef: pd.DataFrame, dec: dict, portao: dict) -> str:
     def f(v, n=3):
         return "—" if pd.isna(v) else f"{v:.{n}f}"

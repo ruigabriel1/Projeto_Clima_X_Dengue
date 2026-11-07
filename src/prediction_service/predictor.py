@@ -142,6 +142,10 @@ class Preditor:
         modelo = self._carregar(doenca, hm["arquivo"])
         margem = margem_modelo(meta, linha, doenca, h)
         pred = float(max(0.0, modelo.predict(linha[hm["features"]], base_margin=margem)[0]))
+        if hm.get("nivel_regional"):          # v7 (N): reconcilia com o total previsto da UF
+            X = self._lote_x(meta, doenca, h)
+            fat = self._fatores_nivel(hm, X, self._pred_bruta(meta, hm, X, doenca, h), doenca, h)
+            pred *= float(fat[list(X.index).index(code)]) if code in X.index else 1.0
         incid = pred / pop * 100_000
         escore = incid / (cid["p75_incid"] + meta["eps_incid"])
         prob = float(self._carregar(doenca, hm["calibrador"]).predict([escore])[0])
@@ -248,17 +252,35 @@ class Preditor:
                   f"Até lá, o que existe é a faixa histórica: em {MESES_PT[mes - 1]}, de {anos[0]} a {anos[1]}, "
                   "80% dos anos ficaram entre P10 e P90. Isto não é previsão."))
 
+    def _lote_x(self, meta: dict, doenca: str, h: int) -> pd.DataFrame:
+        X = self.fonte.features_previsao(doenca, h)
+        return X[X.index.isin(list(meta["cidades"].keys())) & (X["populacao"] > 0)]
+
+    def _pred_bruta(self, meta: dict, hm: dict, X: pd.DataFrame, doenca: str, h: int) -> np.ndarray:
+        return np.maximum(0.0, self._carregar(doenca, hm["arquivo"]).predict(
+            X[hm["features"]], base_margin=margem_modelo(meta, X, doenca, h)))
+
+    def _fatores_nivel(self, hm: dict, X: pd.DataFrame, pred: np.ndarray, doenca: str, h: int) -> np.ndarray:
+        """v7 (N): fator por cidade = T̂ da UF ÷ soma das previsões das cidades da UF. 1 sem nível regional."""
+        nivel = hm.get("nivel_regional")
+        if not nivel:
+            return np.ones(len(X))
+        from src.ml_pipeline import nivel_regional as nr
+        tot = nr.total_previsto(nivel, nr.serie_uf(self.fonte.panel, doenca), h)
+        cid = pd.DataFrame({"code": X.index.astype(str), "year": X["year"].to_numpy(int),
+                            "month": X["month"].to_numpy(int), "pred": pred})
+        return nr.reconciliar(cid, tot)[1]
+
     def prever_lote(self, doenca: str, h: int) -> pd.DataFrame:
         """Previsão de todas as cidades para o horizonte h (ranking de risco)."""
         meta = self.metadata(doenca)
         hm = meta["horizontes"].get(f"h{h}")
         if hm is None:
             raise ModeloIndisponivel(f"Sem modelo para horizonte {h}.")
-        X = self.fonte.features_previsao(doenca, h)
-        X = X[X.index.isin(list(meta["cidades"].keys())) & (X["populacao"] > 0)]
+        X = self._lote_x(meta, doenca, h)
         pop = X["populacao"].to_numpy(float)
-        pred = np.maximum(0.0, self._carregar(doenca, hm["arquivo"]).predict(
-            X[hm["features"]], base_margin=margem_modelo(meta, X, doenca, h)))
+        pred = self._pred_bruta(meta, hm, X, doenca, h)
+        pred = pred * self._fatores_nivel(hm, X, pred, doenca, h)
         p75 = np.array([meta["cidades"][c]["p75_incid"] for c in X.index])
         incid = pred / pop * 100_000
         prob = self._carregar(doenca, hm["calibrador"]).predict(incid / (p75 + meta["eps_incid"]))

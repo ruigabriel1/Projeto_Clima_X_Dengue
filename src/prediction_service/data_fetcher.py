@@ -49,8 +49,9 @@ def remover_meses_nao_consolidados(panel: pd.DataFrame, dias: int = DIAS_MIN_CON
 
 
 class FonteDados:
-    def __init__(self, panel: pd.DataFrame | None = None):
+    def __init__(self, panel: pd.DataFrame | None = None, incluir_rt: bool = False):
         self._panel = panel
+        self.incluir_rt = incluir_rt   # v7: o painel traz o Rt do InfoDengue (features só defasadas)
         self._cache: dict[tuple[str, int], pd.DataFrame] = {}
         self._lock = threading.Lock()
         # Uma trava por (doença, h): o aquecimento e as requisições não recalculam a mesma coisa em paralelo
@@ -63,7 +64,7 @@ class FonteDados:
             with self._lock:
                 if self._panel is None:
                     from src.ml_pipeline.data_ingestion import build_base_panel
-                    self._panel = remover_meses_nao_consolidados(build_base_panel(BASE_DIR))
+                    self._panel = remover_meses_nao_consolidados(build_base_panel(BASE_DIR, incluir_rt=self.incluir_rt))
                     logger.info(f"Painel carregado: {len(self._panel)} linhas")
         return self._panel
 

@@ -92,6 +92,24 @@ def desenho(serie: pd.DataFrame, h: int, sorotipo: pd.DataFrame | None = None) -
     return des
 
 
+def total_previsto(modelo: dict | None, serie: pd.DataFrame, h: int, sorotipo: pd.DataFrame | None = None) -> pd.DataFrame:
+    """
+    Produção: T̂ do mês último observado + h de cada UF. Estende a série com h meses sem casos (população
+    repetida do último mês) só para montar o desenho; os preditores continuam medidos em t−h.
+    """
+    fut = []
+    for uf, x in serie.groupby("uf"):
+        u = x.sort_values("t").iloc[-1]
+        for k in range(1, h + 1):
+            fut.append({"uf": uf, "t": int(u["t"]) + k, "T": np.nan, "pop": u["pop"], "rt_uf": np.nan})
+    ext = pd.concat([serie, pd.DataFrame(fut)], ignore_index=True)
+    ext["year"], ext["month"] = ext["t"] // 12, ext["t"] % 12 + 1
+    des = desenho(ext, h, sorotipo)
+    alvo = des.merge(serie.groupby("uf", as_index=False)["t"].max().rename(columns={"t": "t_ult"}), on="uf")
+    alvo = alvo[alvo["t"] == alvo["t_ult"] + h]
+    return alvo[["uf", "year", "month"]].assign(T_hat=prever(modelo, alvo)).reset_index(drop=True)
+
+
 def nomes_coef(com_s: bool) -> list[str]:
     return [f"a_{u}" for u in UFS] + ["s1", "c1", "s2", "c2", "x_logT", "x_rt", "x_acum24"] + (["novidade"] if com_s else [])
 

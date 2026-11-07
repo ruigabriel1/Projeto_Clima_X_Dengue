@@ -64,6 +64,17 @@ def executar(atualizar_dados: bool = True, doencas=("dengue", "chikungunya"), ho
                 n = registrar(lote, d, h, modelo="v6")
                 resumo["emitidas"][f"v6_{d}_h{h}"] = {"mes_alvo": lote["mes_alvo"].iloc[0], "novas": n,
                                                       "total_previsto": int(lote["casos_previstos"].sum())}
+    # Modo sombra da v7 (PROTOCOLO_V7.md): painel com o Rt do InfoDengue
+    from src.ml_pipeline.experimento_v7 import OUT_MODELOS_V7
+    from src.prediction_service.data_fetcher import FonteDados
+    if any(OUT_MODELOS_V7.glob("*/metadata.json")):
+        sombra7 = Preditor(model_dir=OUT_MODELOS_V7, fonte=FonteDados(incluir_rt=True))
+        for d in sombra7.doencas_disponiveis():
+            for h in horizontes:
+                lote = sombra7.prever_lote(d, h)
+                n = registrar(lote, d, h, modelo="v7")
+                resumo["emitidas"][f"v7_{d}_h{h}"] = {"mes_alvo": lote["mes_alvo"].iloc[0], "novas": n,
+                                                      "total_previsto": int(lote["casos_previstos"].sum())}
     logger.info(json.dumps(resumo, ensure_ascii=False, indent=1))
     logger.info(f"Previsões registradas em {ARQ_PREVISOES}")
     return resumo
