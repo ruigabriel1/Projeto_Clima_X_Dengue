@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/modern.css?v=5.2.8">
+  <link rel="stylesheet" href="/static/css/modern.css?v=5.2.9">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 </head>
 <body>
@@ -43,17 +43,18 @@
 
       <!-- ============ 1. PREVISÃO POR MÊS ============ -->
       <section class="tab-panel active" id="tab-previsao">
-        <h2 class="pergunta">
-          Quantos casos de
-          <select id="pvDoenca" class="campo" aria-label="Doença"><option value="dengue">dengue</option><option value="chikungunya">chikungunya</option></select>
-          em
-          <input id="pvCidade" class="campo" list="listaCidades" aria-label="Município" placeholder="município" autocomplete="off">
-          em
-          <select id="pvMes" class="campo" aria-label="Mês"><option>…</option></select>?
-        </h2>
-        <div class="pergunta-rodape">
-          <span>Toque nas palavras sublinhadas para trocar a doença, o município ou o mês.</span>
-          <button class="btn-primary btn-sm" id="pvBotao">Ver resposta</button>
+        <div class="top-bar"><h2>Quantos casos em um mês?</h2></div>
+        <div class="form-row">
+          <label>Doença
+            <select id="pvDoenca"><option value="dengue">Dengue</option><option value="chikungunya">Chikungunya</option></select>
+          </label>
+          <label class="campo-largo">Município
+            <input id="pvCidade" list="listaCidades" placeholder="Digite o nome (ex.: Curitiba)" autocomplete="off">
+          </label>
+          <label class="campo-largo">Mês
+            <select id="pvMes"><option>Carregando…</option></select>
+          </label>
+          <button class="btn-primary" id="pvBotao">Ver resposta</button>
         </div>
         <datalist id="listaCidades"></datalist>
         <div id="pvResultado" class="result-area">
@@ -234,7 +235,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/static/js/main.js?v=5.2.8"></script>
-  <script type="module" src="/static/js/app.js?v=5.2.8"></script>
+  <script type="module" src="/static/js/main.js?v=5.2.9"></script>
+  <script type="module" src="/static/js/app.js?v=5.2.9"></script>
 </body>
 </html>

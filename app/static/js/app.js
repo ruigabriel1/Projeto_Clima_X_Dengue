@@ -77,7 +77,6 @@ function ativarAba(nome) {
   atualizarLoader();
   // Plotly desenha errado em div escondida: redimensiona ao mostrar
   document.querySelectorAll(`#tab-${nome} .js-plotly-plot`).forEach((g) => Plotly.Plots.resize(g));
-  if (nome === "previsao") ajustarCampos();
   if (nome === "ranking" && !$("rkTabela").dataset.ok) carregarRanking();
   if (nome === "cenario" && !$("ceGrafico").dataset.ok) carregarCenario();
   if (nome === "confiabilidade" && !$("cfTabela").dataset.ok) carregarConfiabilidade();
@@ -92,9 +91,8 @@ async function iniciar() {
   $("ceBotao").addEventListener("click", carregarCenario);
   document.querySelectorAll("input[name=ceDelta]").forEach((r) => r.addEventListener("change", carregarCenario));
   $("cfDoenca").addEventListener("change", carregarConfiabilidade);
-  $("pvDoenca").addEventListener("change", () => { preencherMeses(); ajustarCampos(); carregarPrevisao(); });
-  $("pvMes").addEventListener("change", () => { ajustarCampos(); carregarPrevisao(); });
-  $("pvCidade").addEventListener("input", ajustarCampos);
+  $("pvDoenca").addEventListener("change", () => { preencherMeses(); carregarPrevisao(); });
+  $("pvMes").addEventListener("change", carregarPrevisao);
   $("pvCidade").addEventListener("change", () => { if (codigoDe($("pvCidade"))) carregarPrevisao(); });
   $("pvCidade").addEventListener("focus", (e) => e.target.select());
 
@@ -117,31 +115,10 @@ async function iniciar() {
   porRotulo.set(REGIAO, "sul");
   preencherMeses();
   $("pvCidade").value = "Curitiba (PR)";
-  ajustarCampos();
-  document.fonts?.ready.then(ajustarCampos);   // mede de novo com a fonte serifada carregada
-  window.addEventListener("resize", ajustarCampos);
   let aba = "previsao";
   try { aba = localStorage.getItem("prodigia_aba") || aba; } catch (_) { /* sem storage */ }
   ativarAba(aba);
   carregarPrevisao();
-}
-
-// Os campos da frase acompanham a largura do texto escolhido
-function ajustarCampos() {
-  // mede com um elemento espelho invisível na mesma fonte (o canvas erra com fontes da web)
-  const espelho = ajustarCampos.esp || (ajustarCampos.esp = Object.assign(document.createElement("span"), {
-    style: "position:absolute;visibility:hidden;white-space:pre;left:-9999px;top:0" }));
-  if (!espelho.isConnected) document.body.appendChild(espelho);   // fora da aba: mede mesmo com ela escondida
-  const ref = getComputedStyle($("pvCidade"));
-  Object.assign(espelho.style, { fontFamily: ref.fontFamily, fontSize: ref.fontSize, fontWeight: ref.fontWeight, letterSpacing: ref.letterSpacing });
-  const medir = (texto) => { espelho.textContent = texto; return Math.ceil(espelho.getBoundingClientRect().width); };
-  const cid = $("pvCidade");
-  const max = cid.parentElement.clientWidth || document.querySelector(".main-content").clientWidth - 40 || 9999;
-  cid.style.width = `${Math.min(max, Math.max(120, medir(cid.value || cid.placeholder, cid) + 18))}px`;
-  for (const s of [$("pvDoenca"), $("pvMes")]) {
-    const t = s.options[s.selectedIndex]?.text || "";
-    s.style.width = `${Math.min(max, medir(t, s) + 32)}px`;
-  }
 }
 
 function preencherMeses() {

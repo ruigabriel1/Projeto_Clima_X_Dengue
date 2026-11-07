@@ -81,22 +81,8 @@ strong, b { font-weight: 600; }
 .rodape h3 { font: 600 15px var(--serifa); color: var(--tinta); margin-bottom: 6px; }
 .rodape p + p { margin-top: 8px; }
 
-/* ------------------------------------------------------------------ pergunta em forma de frase */
-.pergunta { font: 500 30px/1.5 var(--serifa); letter-spacing: -0.01em; margin-bottom: 4px; }
-.campo {
-  font: inherit; color: var(--modelo); background: transparent; border: 0; border-bottom: 2px solid var(--modelo);
-  border-radius: 0; padding: 0 2px; cursor: pointer; max-width: 100%;
-}
-.campo:hover, .campo:focus { background: var(--modelo-claro); outline: none; }
-select.campo { appearance: none; -webkit-appearance: none; padding-right: 22px;
-  background-image: linear-gradient(45deg, transparent 50%, var(--modelo) 50%), linear-gradient(135deg, var(--modelo) 50%, transparent 50%);
-  background-position: calc(100% - 11px) 58%, calc(100% - 5px) 58%; background-size: 6px 6px; background-repeat: no-repeat; }
-select.campo:hover, select.campo:focus { background-color: var(--modelo-claro); }
-input.campo { width: 9.5em; cursor: text; letter-spacing: inherit; }
-input.campo::-webkit-calendar-picker-indicator { display: none !important; }   /* a lista aparece ao digitar */
-.pergunta-rodape { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; color: var(--apagado); font-size: 13px; margin-bottom: 24px; }
-
-/* ------------------------------------------------------------------ formulários das outras abas */
+/* ------------------------------------------------------------------ barras de filtros */
+.form-row .campo-largo input, .form-row .campo-largo select { min-width: 240px; }
 .form-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 20px; }
 .form-row label, .seg legend { display: flex; flex-direction: column; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--apagado); }
 .form-row input, .form-row select {
@@ -252,7 +238,6 @@ input.campo::-webkit-calendar-picker-indicator { display: none !important; }   /
   .tabs { margin-left: 0; width: 100%; justify-content: space-between; }
   .main-content { padding: 22px 16px 40px; }
   .rodape-dentro { padding: 20px 16px 28px; }
-  .pergunta { font-size: 23px; }
   .top-bar h2 { font-size: 23px; }
   .big { font-size: 46px; }
   .cards-3, .stats-grid { grid-template-columns: 1fr; }
