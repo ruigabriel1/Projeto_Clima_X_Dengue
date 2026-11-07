@@ -1,16 +1,16 @@
 # Graph Report - Projeto_Clima_X_Dengue  (2026-11-07)
 
 ## Corpus Check
-- 66 files · ~61,184 words
+- 66 files · ~61,520 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 943 nodes · 2060 edges · 54 communities (45 shown, 4 thin omitted)
+- 943 nodes · 2061 edges · 54 communities (45 shown, 4 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 72 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8b3f210d`
+- Built from commit: `2567be69`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -131,7 +131,7 @@ Cohesion: 0.10
 Nodes (19): 1.1 Variáveis do experimento, 1.2 O que muda em cada horizonte, 1.3 Métricas (fixadas agora, antes de rodar), 1.4 Validação, 1.5 Implementação, 4.1 Retreinar no painel completo (2015–2025), 4.2 Empacotar, 4.3 API de previsão (+11 more)
 
 ### Community 9 - "app.js"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (36): alerta(), api(), ativarAba(), atualizarLoader(), autocompletar(), carregando, carregarCenario(), carregarConfiabilidade() (+28 more)
 
 ### Community 10 - "alerta_risco.py"

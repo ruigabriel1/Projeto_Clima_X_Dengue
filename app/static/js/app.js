@@ -175,9 +175,19 @@ function autocompletar(input, opcoes) {
     if (i >= 0) lista.scrollTop = Math.max(0, lista.children[i].offsetTop - lista.clientHeight / 2);
   };
 
-  input.addEventListener("focus", () => { input.select(); abrir(); });
+  // Ao sair do campo com um texto que não é da lista (ex.: "regiao"), volta ao último local válido
+  const validos = new Set(opcoes);
+  let ultimoValido = validos.has(input.value) ? input.value : null;
+  input.addEventListener("change", () => { if (validos.has(input.value)) ultimoValido = input.value; });
+  input.addEventListener("focus", () => {
+    if (validos.has(input.value)) ultimoValido = input.value;
+    input.select(); abrir();
+  });
   input.addEventListener("input", abrir);
-  input.addEventListener("blur", () => setTimeout(fechar, 120));
+  input.addEventListener("blur", () => setTimeout(() => {
+    fechar();
+    if (!validos.has(input.value) && ultimoValido) input.value = ultimoValido;
+  }, 120));
   input.addEventListener("keydown", (e) => {
     if (lista.hidden && (e.key === "ArrowDown" || e.key === "ArrowUp")) { abrir(); e.preventDefault(); return; }
     if (e.key === "ArrowDown") { marcar(Math.min(itens.length - 1, ativo + 1)); e.preventDefault(); }
@@ -185,6 +195,7 @@ function autocompletar(input, opcoes) {
     else if (e.key === "Enter" && !lista.hidden && itens.length) { escolher(itens[Math.max(0, ativo)]); e.preventDefault(); }
     else if (e.key === "Escape") fechar();
   });
+  window.addEventListener("scroll", () => { if (!lista.hidden) fechar(); }, { passive: true });   // não fica solta ao rolar a página
   lista.addEventListener("mousedown", (e) => e.preventDefault());   // não perde o foco antes do clique
   lista.addEventListener("click", (e) => {
     const li = e.target.closest("li[data-v]");
@@ -417,10 +428,35 @@ async function carregarCenario() {
     ];
     if (base) traces.splice(2, 0, { x, y: base.pontos.map((p) => p.p50), mode: "lines", name: "Mediana com clima atual",
       line: { color: COR.persist, dash: "dot", width: 2 }, hovertemplate: "%{x|%b %Y}: %{y:,.0f} (clima atual)<extra></extra>" });
+    // Escala dos próximos 5 anos: um pico antigo (ex.: 2024) achataria a faixa e esconderia o efeito do aquecimento
+    const topo = Math.max(...c.pontos.map((p) => p.p90), ...(base ? base.pontos.map((p) => p.p90) : [])) * 1.12;
+    const picoObs = hist.reduce((m, h) => (h.casos > m.casos ? h : m), { casos: 0 });
+    const cortado = picoObs.casos > topo;
     Plotly.react("ceGrafico", traces, { ...layoutBase, title: titulo(`${c.cidade} · ${nomeDoenca(doenca)}: o que costuma acontecer em cada mês`),
-      yaxis: { ...layoutBase.yaxis, title: "Casos por mês", rangemode: "tozero" },
-      xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y" } }, cfgPlot);
+      yaxis: { ...layoutBase.yaxis, title: "Casos por mês", range: [0, topo] },
+      xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y" },
+      annotations: cortado ? [{ x: picoObs.mes + "-15", y: topo, yanchor: "top", showarrow: false,
+        text: `pico de ${nomeMes(picoObs.mes)}: ${fmt(picoObs.casos)} (fora da escala)`,
+        font: { size: 11, color: COR.texto }, bgcolor: "#fffdf9" }] : [] }, cfgPlot);
     $("ceGrafico").dataset.ok = "1";
+
+    // Com aquecimento: quantos casos a mais em cada mês, em relação ao clima atual (mediana)
+    const dif = $("ceDiferenca");
+    dif.hidden = !base;
+    if (base) {
+      const anos12 = c.pontos.slice(0, 12);
+      const extra = anos12.map((p, i) => p.p50 - base.pontos[i].p50);
+      Plotly.react("ceDiferenca", [{
+        type: "bar", x: anos12.map((p) => p.mes + "-15"), y: extra, marker: { color: COR.info },
+        customdata: anos12.map((p, i) => [base.pontos[i].p50, p.p50, (p.fator_clima - 1) * 100]),
+        text: extra.map((v) => (v >= 1 ? `+${fmt(v)}` : "")), textposition: "outside", cliponaxis: false,
+        textfont: { size: 10, color: "#1c1b18" },
+        hovertemplate: "%{x|%b %Y}: +%{y:,.0f} casos (%{customdata[0]:,.0f} → %{customdata[1]:,.0f}; +%{customdata[2]:.0f}%)<extra></extra>",
+      }], { ...layoutBase, title: titulo(`Casos a mais por mês com +${delta} °C, em relação ao clima atual (mediana, próximos 12 meses)`),
+        showlegend: false, margin: { ...layoutBase.margin, t: 40, b: 36 },
+        yaxis: { ...layoutBase.yaxis, title: "Casos a mais", range: [0, Math.max(1, ...extra) * 1.2] },
+        xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y", dtick: "M1" } }, cfgPlot);
+    }
     const verao = c.pontos.filter((p) => [12, 1, 2, 3].includes(Number(p.mes.slice(5))));
     const media = (k) => (verao.length ? verao.reduce((s, p) => s + p[k], 0) / verao.length : 1);
     const resumo = delta === "0" ? "" : alerta("info", `Com +${delta} °C, os meses de verão (dez–mar) teriam em média
