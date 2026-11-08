@@ -36,6 +36,10 @@ const layoutBase = {
   hoverlabel: { bgcolor: "#fffdf9", bordercolor: COR.grade, font: { family: "Inter, sans-serif", color: "#1c1b18" } },
 };
 const titulo = (t) => ({ ...layoutBase.title, text: t });
+// O Plotly grava de volta no layout recebido (tipo e faixa dos eixos). Como os gráficos partem de layoutBase
+// com cópia rasa, um gráfico de categorias ("1 mês", "2 meses") contaminava o eixo dos outros: o ranking virava
+// eixo de categorias e as barras do menor valor sumiam. Cada desenho recebe uma cópia profunda.
+const desenhar = (id, traces, layout, cfg) => Plotly.react(id, traces, structuredClone(layout), cfg);
 
 // Cores dos gráficos vêm do tema atual (variáveis do CSS), para os gráficos acompanharem o claro/escuro
 function lerCores() {
@@ -496,7 +500,7 @@ function graficoPrevisao(r, hist) {
         array: [f.p90 - f.p50], arrayminus: [f.p50 - f.p10], color: COR.texto, thickness: 2, width: 8 },
       hovertemplate: `Mediana histórica: %{y:,.0f} (${fmt(f.p10)} a ${fmt(f.p90)})<extra></extra>` });
   }
-  Plotly.react("pvGrafico", traces, { ...layoutBase, title: titulo("Últimos 24 meses e o mês consultado"),
+  desenhar("pvGrafico", traces, { ...layoutBase, title: titulo("Últimos 24 meses e o mês consultado"),
     yaxis: { ...layoutBase.yaxis, title: "Casos", rangemode: "tozero" },
     xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y" } }, cfgPlot);
 }
@@ -522,14 +526,14 @@ async function carregarRanking() {
       || `<tr><td colspan="8" class="muted">Nenhuma cidade com esses filtros.</td></tr>`;
     $("rkTabela").dataset.ok = "1";
     const itens = [...r.itens].reverse();
-    Plotly.react("rkGrafico", [{
+    desenhar("rkGrafico", [{
       type: "bar", orientation: "h", x: itens.map((i) => i.probabilidade_risco_alto * 100),
       y: itens.map((i) => `${i.cidade} (${i.uf})`), marker: { color: itens.map((i) => (NIVEIS[i.nivel_risco] || NIVEIS.baixo).cor) },
       text: itens.map((i) => (NIVEIS[i.nivel_risco] || NIVEIS.baixo).txt), textposition: "inside", insidetextanchor: "end",
       textfont: { color: "#fff", size: 11 },
       hovertemplate: "%{y}<br>%{x:.0f}% de chance de risco alto · %{text}<extra></extra>",
     }], { ...layoutBase, title: titulo("20 maiores probabilidades de risco alto"), bargap: 0.25,
-      xaxis: { ...layoutBase.xaxis, title: "Probabilidade (%)", range: [0, 100] },
+      xaxis: { ...layoutBase.xaxis, type: "linear", title: "Probabilidade (%)", range: [0, 100] },
       yaxis: { ...layoutBase.yaxis, automargin: true }, margin: { ...layoutBase.margin, l: 10 }, showlegend: false }, cfgPlot);
   } catch (e) { erro($("rkResumo"), e); }
   finally { loader("ranking", false); }
@@ -566,7 +570,7 @@ async function carregarCenario() {
     const topo = Math.max(...c.pontos.map((p) => p.p90), ...(base ? base.pontos.map((p) => p.p90) : [])) * 1.12;
     const picoObs = hist.reduce((m, h) => (h.casos > m.casos ? h : m), { casos: 0 });
     const cortado = picoObs.casos > topo;
-    Plotly.react("ceGrafico", traces, { ...layoutBase, title: titulo(`${c.cidade} · ${nomeDoenca(doenca)}: o que costuma acontecer em cada mês`),
+    desenhar("ceGrafico", traces, { ...layoutBase, title: titulo(`${c.cidade} · ${nomeDoenca(doenca)}: o que costuma acontecer em cada mês`),
       yaxis: { ...layoutBase.yaxis, title: "Casos por mês", range: [0, topo] },
       xaxis: { ...layoutBase.xaxis, type: "date", tickformat: "%b %Y" },
       annotations: cortado ? [{ x: picoObs.mes + "-15", y: topo, yanchor: "top", showarrow: false,
@@ -580,7 +584,7 @@ async function carregarCenario() {
     if (base) {
       const anos12 = c.pontos.slice(0, 12);
       const extra = anos12.map((p, i) => p.p50 - base.pontos[i].p50);
-      Plotly.react("ceDiferenca", [{
+      desenhar("ceDiferenca", [{
         type: "bar", x: anos12.map((p) => p.mes + "-15"), y: extra, marker: { color: COR.info },
         customdata: anos12.map((p, i) => [base.pontos[i].p50, p.p50, (p.fator_clima - 1) * 100]),
         text: extra.map((v) => (v >= 1 ? `+${fmt(v)}` : "")), textposition: "outside", cliponaxis: false,
@@ -625,7 +629,7 @@ async function carregarConfiabilidade() {
     const barra = (nome, ys, cor) => ({ type: "bar", name: nome, x: rot, y: ys, marker: { color: cor },
       text: ys.map((v) => fmt(v, 2)), textposition: "outside", textfont: { size: 11, color: COR.real },
       hovertemplate: `${nome}: %{y:.2f}<extra></extra>` });
-    Plotly.react("cfGrafico", [
+    desenhar("cfGrafico", [
       barra("Modelo", hs.map((h) => t(h).modelo?.auc), COR.modelo),
       barra("Persistência (repetir o último mês)", hs.map((h) => t(h).persistencia?.auc), COR.persist),
       barra("Último alerta InfoDengue", hs.map((h) => t(h).auc_infodengue), COR.info),
