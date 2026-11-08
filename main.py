@@ -177,7 +177,7 @@ def command_serve(args):
     try:
         import uvicorn
         print(f"🌐 Iniciando dashboard em http://localhost:{args.port}")
-        uvicorn.run("app.server:app", host="0.0.0.0", port=args.port, reload=args.reload)
+        uvicorn.run("app.server:app", host=args.host, port=args.port, reload=args.reload)
     except ImportError:
         print("❌ uvicorn não instalado. Rode: pip install uvicorn")
 
@@ -302,6 +302,8 @@ def main():
         help="Inicia o servidor do dashboard (FastAPI + Uvicorn)."
     )
     parser_serve.add_argument("--port", type=int, default=8000)
+    parser_serve.add_argument("--host", default="127.0.0.1",
+                              help="Padrão: só este computador. Use 0.0.0.0 para abrir na rede local (o Docker já faz isso).")
     parser_serve.add_argument("--reload", action="store_true")
     parser_serve.set_defaults(func=command_serve)
 

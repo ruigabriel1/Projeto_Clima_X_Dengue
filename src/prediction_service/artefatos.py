@@ -4,7 +4,13 @@ Artefatos de execução (o que o git não versiona): modelos de produção, snap
     python main.py empacotar                    → dist/artefatos_v5.1.zip (com manifesto e SHA-256)
     python -m src.prediction_service.artefatos garantir
         → se os artefatos não existirem, baixa o zip de ARTEFATOS_URL (padrão: GitHub Release),
-          confere os hashes do manifesto e extrai. Usado na inicialização do container.
+          confere o SHA-256 do zip inteiro contra SHA256_ZIP (versionado no git), depois os hashes do
+          manifesto, e extrai. Usado na inicialização do container e no workflow do site.
+
+Segurança: os modelos são .joblib (pickle), e abrir um pickle pode executar código. O manifesto fica dentro
+do próprio zip, então sozinho não prova a origem: quem trocasse o zip trocaria o manifesto junto. Por isso o
+hash do zip é fixado aqui, no código. Ao publicar artefatos novos: `main.py empacotar` mostra o hash →
+atualizar SHA256_ZIP e commitar → subir o zip na Release. Com outra ARTEFATOS_URL, informe ARTEFATOS_SHA256.
 """
 from __future__ import annotations
 
@@ -26,6 +32,8 @@ VERSAO = "v5.1"
 NOME_ZIP = f"artefatos_{VERSAO}.zip"
 URL_PADRAO = f"https://github.com/ruigabriel1/Projeto_Clima_X_Dengue/releases/download/modelo-{VERSAO}/{NOME_ZIP}"
 MANIFESTO = "manifesto.json"
+# SHA-256 do zip publicado na Release modelo-v5.1 (conferido com o digest da Release em 2026-11-08)
+SHA256_ZIP = "61226994a99324a97fbf7052613f3e05c7fa7191fef8542ceef0881bf3b2b74f"
 
 
 def _arquivos() -> list[Path]:
@@ -73,7 +81,17 @@ def empacotar(destino: Path = BASE_DIR / "dist") -> Path:
                 z.write(p, rel)
             z.writestr(MANIFESTO, json.dumps(manifesto, indent=1, ensure_ascii=False))
     logger.info(f"{zpath} ({zpath.stat().st_size / 1e6:.1f} MB, {len(arquivos)} arquivos)")
+    logger.info(f"SHA-256 do zip: {_sha256(zpath)} → atualize SHA256_ZIP em artefatos.py e commite "
+                f"antes de subir o zip na Release")
     return zpath
+
+
+def conferir_zip(zpath: Path, esperado: str) -> None:
+    """Recusa o zip se o SHA-256 não for o fixado no código (antes de abrir qualquer arquivo dele)."""
+    obtido = _sha256(zpath)
+    if obtido != esperado.lower():
+        raise ValueError(f"Hash do pacote não confere: esperado {esperado}, obtido {obtido}. "
+                         f"O zip da Release mudou sem atualizar SHA256_ZIP no código.")
 
 
 def extrair(zpath: Path, raiz: Path = BASE_DIR) -> dict:
@@ -100,6 +118,10 @@ def garantir(url: str | None = None) -> bool:
         return False
     import requests
     url = url or os.environ.get("ARTEFATOS_URL", URL_PADRAO)
+    esperado = os.environ.get("ARTEFATOS_SHA256") or (SHA256_ZIP if url == URL_PADRAO else None)
+    if not esperado:
+        raise ValueError("ARTEFATOS_URL personalizada exige ARTEFATOS_SHA256 (hash do zip), "
+                         "senão não há como confirmar a origem dos modelos.")
     logger.info(f"Baixando artefatos de {url}")
     with tempfile.TemporaryDirectory() as tmp:
         zpath = Path(tmp) / NOME_ZIP
@@ -108,6 +130,7 @@ def garantir(url: str | None = None) -> bool:
             with open(zpath, "wb") as f:
                 for bloco in r.iter_content(1 << 20):
                     f.write(bloco)
+        conferir_zip(zpath, esperado)
         m = extrair(zpath)
     logger.info(f"Artefatos {m['versao']} extraídos ({len(m['arquivos'])} arquivos, treino {m.get('periodo_treino')}).")
     return True

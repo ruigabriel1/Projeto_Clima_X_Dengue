@@ -8,6 +8,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Só leitura: os testes não precisam escrever no repositório.
+permissions:
+  contents: read
+
 jobs:
   pytest:
     runs-on: ubuntu-latest

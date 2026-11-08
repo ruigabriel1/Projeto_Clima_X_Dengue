@@ -6,9 +6,9 @@
     "semantic_hash": "777833a442370f8e33989ebb29ae6935"
   },
   "app/server.py": {
-    "mtime": 1794005980.1256335,
-    "seen": 1794006205.9506216,
-    "ast_hash": "5a0b878380f92cb92e491642d4390c7d",
+    "mtime": 1794150146.4080377,
+    "seen": 1794150415.0509546,
+    "ast_hash": "f9d449d49d8312e37c1cbdd905b71a7d",
     "semantic_hash": ""
   },
   "app/static/js/api.js": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "main.py": {
-    "mtime": 1794072503.56465,
-    "seen": 1794074124.851824,
-    "ast_hash": "e94b5aeda913c0f8e41ee54015fda227",
+    "mtime": 1794150204.7875652,
+    "seen": 1794150415.0509546,
+    "ast_hash": "e1ad0e1ed48598c890d4be7450d472b4",
     "semantic_hash": ""
   },
   "src/config.py": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/templates/index.html": {
-    "mtime": 1794081377.6789384,
-    "seen": 1794081712.9481602,
-    "ast_hash": "37ec9f05f7cbe52793f7c1d44fa6bbd7",
+    "mtime": 1794150228.1993558,
+    "seen": 1794150415.0509546,
+    "ast_hash": "7f0e811182a4d13093e90fe23ac9c8a0",
     "semantic_hash": ""
   },
   "docs/ARQUITETURA_DE_DADOS.md": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "requirements.txt": {
-    "mtime": 1793810188.433354,
-    "seen": 1793819820.3750954,
-    "ast_hash": "d9264a702aed49d276f21595b4e1aa9d",
+    "mtime": 1794150188.8580587,
+    "seen": 1794150415.0509546,
+    "ast_hash": "67d4abc265b825beeb2a546df6ccad8a",
     "semantic_hash": ""
   },
   "src/ml_pipeline/baselines.py": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "tests/test_prediction_service.py": {
-    "mtime": 1793987414.9584434,
-    "seen": 1793987567.2056117,
-    "ast_hash": "9a9b2a60da32952f96b6e3e36500a2c7",
+    "mtime": 1794150252.6920035,
+    "seen": 1794150415.0509546,
+    "ast_hash": "a93692324f94634d92acd1c8a69d54fd",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "src/prediction_service/artefatos.py": {
-    "mtime": 1794018729.8368354,
-    "seen": 1794018780.5324628,
-    "ast_hash": "c4283df2696d333409fc21211fba1d37",
+    "mtime": 1794150176.750009,
+    "seen": 1794150415.0509546,
+    "ast_hash": "691adcc9cde95e1de56c06f39f4a018a",
     "semantic_hash": ""
   },
   "src/prediction_service/rotina_mensal.py": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "requirements-api.txt": {
-    "mtime": 1793987383.2739582,
-    "seen": 1793987567.2056117,
-    "ast_hash": "a8cdbd05892b480e8da4e762db22b356",
+    "mtime": 1794150188.818065,
+    "seen": 1794150415.0509546,
+    "ast_hash": "e9df6c97103d986aca2ad645868097f9",
     "semantic_hash": ""
   },
   "src/ml_pipeline/experimento_v6.py": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/testes.yml": {
-    "mtime": 1794019412.2937386,
-    "seen": 1794019416.664294,
-    "ast_hash": "5fcd8546c9d008a57542baf72b20feb4",
+    "mtime": 1794150229.4476352,
+    "seen": 1794150415.0509546,
+    "ast_hash": "15b997947410f6007b6845250075e1bb",
     "semantic_hash": ""
   },
   "src/prediction_service/site_estatico.py": {

@@ -49,15 +49,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
-
-# Mount output directory for downloading exports
-output_dir = ROOT_DIR / "output"
-output_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/output", StaticFiles(directory=output_dir), name="output")
+# output/ NÃO é servido: tem logs (com caminhos locais) e os modelos; a aplicação lê só pelas rotas /api.
 
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 
-DASHBOARD_DIR = output_dir / "dashboard"
+DASHBOARD_DIR = ROOT_DIR / "output" / "dashboard"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -85,14 +81,16 @@ async def api_doencas():
 
 
 @app.get("/api/resultados")
-async def api_resultados(doenca: str = Query("dengue")):
+async def api_resultados(doenca: Literal["dengue", "chikungunya", "zika"] = "dengue"):
     """Retorna resultados v4 de uma doença específica."""
+    # Lista fechada: um texto livre aqui montaria o caminho do arquivo e, no Windows, "/../.." sairia da pasta.
     json_path = DASHBOARD_DIR / f"resultados_{doenca}.json"
     if json_path.exists():
         try:
             return json.loads(json_path.read_text(encoding="utf-8"))
-        except Exception as e:
-            return {"error": f"Erro ao ler resultados: {e}"}
+        except (OSError, ValueError):
+            logger.exception("Erro ao ler %s", json_path.name)
+            return {"error": "Erro ao ler os resultados."}
 
     return {
         "error": f"Nenhum resultado para '{doenca}'. Execute:\n"
@@ -265,9 +263,10 @@ def api_historico(codigo: str = Query("sul"), doenca: Literal["dengue", "chikung
 @app.post("/api/recarregar")
 def api_recarregar(x_token: Optional[str] = Header(None)):
     """Relê o banco depois de uma ingestão (protegido pela variável de ambiente PRODIGIA_TOKEN)."""
+    import hmac
     import os
     token = os.environ.get("PRODIGIA_TOKEN")
-    if not token or x_token != token:
+    if not token or not x_token or not hmac.compare_digest(x_token.encode(), token.encode()):
         raise HTTPException(status_code=403, detail="Recarga desabilitada ou token inválido.")
     from src.prediction_service.predictor import get_preditor
     get_preditor().fonte.recarregar()

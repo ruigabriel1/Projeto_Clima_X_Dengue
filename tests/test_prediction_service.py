@@ -224,6 +224,20 @@ class TestAplicacaoV51:
         assert j["ultimo_mes_consolidado"] == "2023-12" and set(j["horizontes"]) == {"h1", "h2"}
         assert c.post("/api/recarregar").status_code == 403
 
+    def test_seguranca_rotas(self, monkeypatch):
+        """Doença fora da lista não monta caminho de arquivo; output/ não é servido; token errado é recusado."""
+        pytest.importorskip("httpx")
+        from fastapi.testclient import TestClient
+
+        from app.server import app
+
+        c = TestClient(app)
+        for malicioso in ("/../../ml_run_log", "../../models/final_v5/dengue/metadata", "dengue/../x"):
+            assert c.get("/api/resultados", params={"doenca": malicioso}).status_code == 422
+        assert c.get("/output/ml_run_log.json").status_code == 404
+        monkeypatch.setenv("PRODIGIA_TOKEN", "segredo-de-teste")
+        assert c.post("/api/recarregar", headers={"x-token": "errado"}).status_code == 403
+
 
 class TestArtefatos:
     def _zip(self, tmp_path, arquivos: dict, manifesto: dict):
@@ -253,6 +267,23 @@ class TestArtefatos:
         with pytest.raises(ValueError, match="inválido"):
             extrair(z, tmp_path / "raiz")
         assert not (tmp_path / "fora.bin").exists()
+
+    def test_zip_precisa_bater_com_hash_do_codigo(self, tmp_path, monkeypatch):
+        """Um zip com manifesto coerente mas trocado é recusado antes de extrair (o hash fixo vem do git)."""
+        import hashlib
+        from src.prediction_service import artefatos as art
+        dados = b"pickle-trocado"
+        z = self._zip(tmp_path, {"output/m.bin": dados}, {"output/m.bin": hashlib.sha256(dados).hexdigest()})
+        with pytest.raises(ValueError, match="Hash do pacote"):
+            art.conferir_zip(z, art.SHA256_ZIP)
+        art.conferir_zip(z, hashlib.sha256(z.read_bytes()).hexdigest())      # o hash certo passa
+
+    def test_url_personalizada_exige_hash(self, tmp_path, monkeypatch):
+        from src.prediction_service import artefatos as art
+        monkeypatch.setattr(art, "DB_PATH", tmp_path / "nao_existe.db")      # força o download
+        monkeypatch.delenv("ARTEFATOS_SHA256", raising=False)
+        with pytest.raises(ValueError, match="ARTEFATOS_SHA256"):
+            art.garantir("https://exemplo.invalid/artefatos.zip")
 
 
 class TestTesteProspectivo:
