@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "docs/PROTOCOLO_V5.md": {
-    "mtime": 1793985482.3064234,
-    "seen": 1793985489.5272481,
-    "ast_hash": "560f3c9c312cef56438be428ed46f3e6",
+    "mtime": 1795384216.5349298,
+    "seen": 1795607232.5665376,
+    "ast_hash": "7811e1ea23ba9094111ff978e76d074d",
     "semantic_hash": ""
   },
   ".githooks/pre-commit": {
@@ -435,6 +435,18 @@
     "mtime": 1794072483.6494663,
     "seen": 1794074124.851824,
     "ast_hash": "6cf9ac6bcf68d13e8b5c18971a3690d2",
+    "semantic_hash": ""
+  },
+  "docs/resultados_comparacao/meta.json": {
+    "mtime": 1795384938.5067708,
+    "seen": 1795607232.5655353,
+    "ast_hash": "8df0fcdf0740ae51d717860b7e5bd975",
+    "semantic_hash": ""
+  },
+  "src/ml_pipeline/comparacao_algoritmos.py": {
+    "mtime": 1795384307.6337752,
+    "seen": 1795607232.5665376,
+    "ast_hash": "cb04716c261cb0b7327b3c58028f9619",
     "semantic_hash": ""
   }
 }
