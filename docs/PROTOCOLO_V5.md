@@ -113,3 +113,32 @@ Qualquer desvio deste protocolo é registrado aqui, com data e motivo, antes de 
   ≥ 100/100 mil até t−h, a feature fica ausente (NaN, tratado nativamente pelo XGBoost), em vez de
   truncada em 60 (o truncamento em 60 vale para quem já teve surto). Implementado assim no código antes da
   execução; registrado aqui durante a execução do experimento v5, antes de qualquer resultado ser visto.
+- **2026-11-22 — Comparação exploratória de algoritmos (relatório técnico da UC de IA, UNISUL).**
+  Registrado ANTES de rodar. Objetivo só descritivo: mostrar como os algoritmos da revisão teórica do
+  relatório se comportam no mesmo problema. **Não altera nada:** o modelo de produção (v5.1), as decisões
+  da v5/v6/v7 e `XGB_PARAMS` continuam os mesmos, seja qual for o resultado, e todo resultado é reportado,
+  inclusive se outro algoritmo vencer o XGBoost.
+  - Dados: só 2015–2024; folds expanding window 2018–2024 (os mesmos da v5). 2025 e 2026 não entram.
+  - Doenças dengue e chikungunya; h = 1, 2, 3; features da configuração de produção de cada doença
+    (`decisao.json` da v5: dengue clima + suscetibilidade; chikungunya só suscetibilidade).
+  - Algoritmos, com parâmetros fixados aqui, sem busca:
+    (1) XGBoost Poisson, `XGB_PARAMS`, offset log(pop) — referência;
+    (2) Regressão Linear (MQO) sobre log(1 + incidência por 100 mil);
+    (3) Árvore de decisão CART, critério Poisson sobre a incidência, `max_depth=5` (igual ao XGBoost),
+        `min_samples_leaf=50`;
+    (4) MLP sobre log(1 + incidência): camadas (32, 16), ReLU, Adam, taxa 0,001, `max_iter=200`,
+        parada antecipada com 10% de validação, `random_state=42`;
+    (5) Persistência (casos[t−h]).
+    Para (2)–(4): valores ausentes imputados pela mediana do treino e atributos padronizados com média e
+    desvio do treino (imputação e padronização ajustadas só no treino de cada fold).
+  - Métricas iguais às da v5: MAE (casos), skill sobre a persistência, AUC do risco alto (> P75 da
+    própria cidade nos anos de treino) e Brier skill com calibração isotônica temporal.
+  - K-Means (descritivo, não prevê): perfil sazonal da dengue por município (fração média dos casos
+    anuais em cada mês, 2015–2024, municípios com ≥ 50 casos no período); k de 2 a 8 com k-means++,
+    `random_state=42`; k escolhido pelo método do cotovelo (último k cuja queda relativa da inércia
+    é ≥ 10%).
+  - Picos em % da população (descritivo, dados observados 2015–2025): incidência notificada acumulada
+    no ano e no mês de pico, por município. Casos notificados ≠ infectados (subnotificação e casos sem
+    sintomas): o texto diz "notificados".
+  - Saídas em `output/comparacao_algoritmos/`; o que vai para o relatório é copiado para
+    `docs/resultados_comparacao/`.

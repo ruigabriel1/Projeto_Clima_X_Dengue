@@ -1,14 +1,16 @@
 <div align="center">
 
-# 🦟 Clima × Arboviroses
+# 🦟 Prodigia
 
-### O calor aumenta a dengue no Sul do Brasil. Mas isso ajuda a prever o próximo surto?
+### Alerta de risco de dengue e chikungunya para os 1.190 municípios do Sul do Brasil
+
+**O calor aumenta a dengue no Sul do Brasil. Mas isso ajuda a prever o próximo surto?**
 
 Dados públicos de **1.190 municípios** (PR, SC, RS), **2015–2026**, um protocolo pré-registrado
-e uma aplicação web + API que entrega **alerta de risco** e casos previstos por município, de 1 a 3 meses
-à frente, sempre com a margem de erro e o desempenho real medido em 2026.
+e o **Prodigia**, uma aplicação web + API que entrega **alerta de risco** e casos previstos por município,
+de 1 a 3 meses à frente, sempre com a margem de erro e o desempenho real medido em 2026.
 
-### [▶ Abrir a aplicação](https://ruigabriel1.github.io/Projeto_Clima_X_Dengue/)
+### [▶ Abrir o Prodigia](https://ruigabriel1.github.io/Projeto_Clima_X_Dengue/)
 
 Funciona no navegador e no celular, sem instalar nada. Versão estática (GitHub Pages) com as previsões das
 1.190 cidades calculadas a cada atualização mensal; a API completa roda com Docker (ver [Rodando](#rodando)).
@@ -20,10 +22,22 @@ Funciona no navegador e no celular, sem instalar nada. Versão estática (GitHub
 [![Testes](https://github.com/ruigabriel1/Projeto_Clima_X_Dengue/actions/workflows/testes.yml/badge.svg)](https://github.com/ruigabriel1/Projeto_Clima_X_Dengue/actions/workflows/testes.yml)
 ![Docker](https://img.shields.io/badge/Docker-pronto-2496ED?logo=docker&logoColor=white)
 ![Protocolo](https://img.shields.io/badge/protocolo-pré--registrado-6f42c1)
+[![Licença](https://img.shields.io/badge/licença-PolyForm%20Noncommercial-lightgrey)](LICENSE)
 
 </div>
 
 ---
+
+## Em números
+
+| | |
+|---|---|
+| **1,89 milhão** | casos de dengue notificados no Sul em 2024, **16×** os de 2015 e **6,1%** da população |
+| **906 de 1.190** | municípios passaram do limiar epidêmico (300 casos por 100 mil) em 2024 |
+| **+46%** | de risco de dengue depois de um mês quente, com o efeito máximo ~3 meses depois |
+| **−12% / −37% / −46%** | de erro em relação a "repetir o último mês", prevendo 1, 2 e 3 meses à frente (validação 2018–2024) |
+| **3 de 3** | horizontes em que o alerta ordenou o risco melhor que o último alerta do InfoDengue no teste único de 2026, na dengue e na chikungunya (na dengue, perdeu para "repetir o último mês") |
+| **31 milhões** | de pessoas na área coberta: o Prodigia dá a previsão de cada um dos 1.190 municípios, todo mês, de graça |
 
 ## Em 30 segundos
 
@@ -70,6 +84,33 @@ do mosquito somado à incubação e à notificação.
 - **Versão atual:** só 2 variáveis de clima escolhidas antes de ver os dados, imunidade acumulada como
   feature e foco em risco relativo. O ganho do clima ficou pequeno mas real; o do El Niño era ilusão.
 
+## Cinco algoritmos no mesmo problema
+
+Comparação **exploratória**, registrada no protocolo antes de rodar e sem efeito sobre o modelo de produção:
+mesmos dados (2015–2024), mesmas features, mesma validação ano a ano (2018–2024) e parâmetros fixados antes,
+sem busca. 2025 e 2026 não entram. Dengue, erro médio em casos por município por mês (menor é melhor) e AUC do
+risco alto (maior é melhor):
+
+| Algoritmo | Erro 1 mês | Erro 2 meses | Erro 3 meses | AUC 1 / 2 / 3 meses | Total previsto ÷ real (3 meses) |
+|---|---|---|---|---|---|
+| **Prodigia** (XGBoost Poisson, produção) | 23,4 | **27,7** | **29,9** | 0,82 / 0,78 / 0,76 | 0,34 |
+| Árvore de decisão (CART) | **19,6** | 28,9 | 33,1 | 0,79 / 0,76 / 0,74 | 0,44 |
+| Repetir o último mês | 26,6 | 44,3 | 55,0 | 0,84 / 0,78 / 0,72 | 0,98 |
+| Rede neural (MLP) | 208,6 | 184,5 | 136,3 | **0,87 / 0,82 / 0,80** | 3,2 |
+| Regressão linear | 924,5 | 746,0 | 591,7 | 0,77 / 0,74 / 0,70 | 15,1 |
+
+- O Prodigia tem o menor erro a 2 e 3 meses; **a 1 mês, a árvore de decisão erra menos**.
+- A rede neural **ordena** melhor quem tem mais risco, mas erra muito o **tamanho** (3 a 6 vezes o total real). A
+  regressão linear, sobre o log da incidência, chega a 15–25 vezes: contagem de casos pede um modelo de contagem.
+- Nada foi trocado depois de ver isso (seria ajustar ao resultado). A rede neural como ordenadora de risco fica
+  como hipótese para um protocolo futuro.
+- **Perfis de temporada (K-Means, descritivo):** os municípios caem em 3 perfis. Dois concentram ~84% dos casos de
+  janeiro a maio, com pico em março (152 municípios) ou em abril (149, a maioria no RS); o maior (584, a maioria no
+  PR) tem pico em abril e uma temporada mais espalhada (72% de janeiro a maio).
+
+Resultados em [`docs/resultados_comparacao/`](docs/resultados_comparacao/); regras no desvio de 2026-11-22 do
+[`PROTOCOLO_V5.md`](docs/PROTOCOLO_V5.md).
+
 ## Depois de 2026: o diagnóstico, a v6 e a v7
 
 <p align="center"><img src="docs/resultados_v7/diagnostico_nivel_regional_2026.png" width="820" alt="Erro do modelo, da persistência e do modelo com o total de cada estado correto, por horizonte"></p>
@@ -87,7 +128,8 @@ um oráculo (usa o total real de cada estado), o teto do que um modelo de nível
   ciclos de subida e queda), o Rt estimado pelo InfoDengue e um modelo do **total de cada estado** redistribuído entre
   as cidades. A regra agora exige reduzir o erro **sem** piorar a ordem de risco (ΔAUC ≥ −0,01). O sorotipo
   circulante (SINAN) foi reprovado no portão de cobertura fixado antes: só 55% das janelas de 3 meses tinham
-  exames suficientes. Coleta dos dados de 2010–2014 em andamento; teste em modo sombra em jan–ago/2027.
+  exames suficientes. Coleta dos dados de 2010–2014 **concluída** (casos desde 2010, clima desde jul/2009); falta
+  rodar o experimento. Teste em modo sombra em jan–ago/2027.
 
 ### El Niño e La Niña: fora da versão atual, exploratório para as próximas
 
@@ -109,9 +151,9 @@ identificador de ano (por exemplo, no modelo do total de cada estado, com o hist
 mesma regra pré-registrada e num teste prospectivo próprio. Até lá, qualquer análise com El Niño ou La Niña é
 rotulada como exploratória.
 
-## A aplicação
+## A aplicação: Prodigia
 
-Aplicação web (FastAPI + Plotly) servida pelo mesmo processo da API, com o modelo de produção **v5.1**
+O **Prodigia** é a aplicação web (FastAPI + Plotly) servida pelo mesmo processo da API, com o modelo de produção **v5.1**
 (treinado com todos os meses consolidados, 2015-01 a 2026-09):
 
 | Aba | Pergunta | O que responde |
@@ -149,7 +191,7 @@ Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez 
 
 | Etapa | Como foi feito |
 |---|---|
-| **Ingestão** | 5 fontes públicas (InfoDengue, Open-Meteo, NOAA, IBGE e microdados do SINAN/DATASUS) para 1.190 municípios; semanas e dias agregados em meses |
+| **Ingestão** | 5 fontes públicas (InfoDengue, Open-Meteo, NOAA, IBGE e microdados do SINAN/DATASUS) para 1.190 municípios; semanas e dias agregados em meses. São ~488 mil registros município × mês de casos e clima, de 2009 a 2026, sem custo de dados |
 | **Carga** | Incremental e **idempotente** no SQLite: upsert por município × ano × mês, índice único, retomada após falha ou limite de requisições |
 | **Histórico imutável** | Meses já usados em análises nunca são sobrescritos; o ano corrente só entra com meses fechados e consolidados |
 | **Qualidade** | Checagem de duplicatas, faixas físicas, cobertura e colunas que vazariam o alvo; 2015–2025 conferido contra a fonte (totais idênticos) |
@@ -157,7 +199,7 @@ Cobertura: Região Sul (fora dela → 404). Zika recebe uma explicação em vez 
 | **Monitoramento** | Toda previsão mensal é registrada **antes** de o mês acontecer e comparada com o real quando os dados consolidam; só a primeira emissão conta. Versões candidatas (v6, v7) emitem em modo sombra |
 | **Versões dos dados** | O InfoDengue recalcula o histórico; a cada coleta, as últimas 12 semanas são guardadas como estavam naquela data, para avaliar correções de atraso (nowcast) no futuro |
 | **Empacotamento** | Docker com dependências fixas; modelos e snapshot do banco publicados como Release e conferidos por SHA-256 na inicialização |
-| **Testes** | 105 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API, cenários, artefatos |
+| **Testes** | 110 testes com dados sintéticos: idempotência da carga, ausência de vazamento, travas de holdout, API, cenários, artefatos |
 
 ## Como a IA foi usada, e onde ela foi barrada
 
@@ -206,7 +248,7 @@ python main.py modelo-risco --producao  # modelos de produção v5.1 (todos os m
 python main.py atualizar-mensal         # rotina mensal: dados novos + monitoramento + previsões
 python main.py serve                    # aplicação + API em http://localhost:8000
 python main.py empacotar                # zip de modelos + banco para a Release
-python -m pytest -q                     # 105 testes, só com dados sintéticos
+python -m pytest -q                     # 110 testes, só com dados sintéticos
 ```
 
 ## Estrutura
@@ -230,7 +272,9 @@ tests/                   pytest
 - [x] Diagnóstico do erro de 2026: o problema é o nível da temporada por estado
 - [x] v6 testada pela regra pré-registrada; em modo sombra até ago/2027
 - [x] v7 pré-registrada (histórico 2010+, Rt, nível regional); sorotipo reprovado no portão de cobertura
-- [ ] v7: concluir a coleta de 2010–2014, rodar o experimento e emitir em modo sombra (teste jan–ago/2027)
+- [x] Comparação exploratória com 4 outros algoritmos e perfis de temporada por K-Means ([resultados](docs/resultados_comparacao/))
+- [x] v7: coleta de 2010–2014 (casos) e desde jul/2009 (clima)
+- [ ] v7: rodar o experimento e emitir em modo sombra (teste jan–ago/2027)
 - [ ] Correção de atraso de notificação (nowcasting) com as cópias semanais do InfoDengue
 - [ ] **Exploratório (próximas versões):** El Niño e La Niña no modelo do total por estado, com pré-registro e teste próprio
 - [ ] Artigo científico com os resultados
@@ -242,6 +286,12 @@ tests/                   pytest
 - Só ~10 anos de dinâmica entre anos: sorotipo e imunidade dominam e não são observados diretamente.
 - O efeito da temperatura ainda cresce no lag 3: a janela de 0–3 meses pode ser curta.
 - El Niño e La Niña não estão no modelo (ver acima): o efeito deles sobre as arboviroses no Sul não foi estimado.
+
+## Licença
+
+[PolyForm Noncommercial 1.0.0](LICENSE): uso livre para pesquisa, ensino, saúde pública e fins pessoais, sem fins
+lucrativos. **Uso comercial** (venda, assinatura, serviço pago ou uso interno em empresa com fins lucrativos)
+**exige licença à parte**: ruigabrieloliveira1@gmail.com.
 
 ---
 
